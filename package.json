@@ -26,9 +26,7 @@
   ],
   "author": "Joel Arvidsson",
   "license": "MIT",
-  "dependencies": {
-    "flipper": "^0.29.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "prettier": "^1.19.1"
   }
