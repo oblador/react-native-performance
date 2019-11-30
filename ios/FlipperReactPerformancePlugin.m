@@ -31,9 +31,11 @@ static CFTimeInterval sPreMainStartTimeRelative;
 
 @implementation FlipperReactPerformancePlugin
 {
-  CFTimeInterval _nativeStartTime;
-  CFTimeInterval _javascriptLoadTime;
-  CFTimeInterval _contentAppearTime;
+    CFTimeInterval _nativeStartTime;
+    CFTimeInterval _javascriptDownloadStart;
+    CFTimeInterval _javascriptDownloadEnd;
+    CFTimeInterval _javascriptLoadEnd;
+    CFTimeInterval _contentAppearTime;
 }
 
 - (instancetype)init {
@@ -41,7 +43,9 @@ static CFTimeInterval sPreMainStartTimeRelative;
         CFTimeInterval absoluteTimeToRelativeTime =  CACurrentMediaTime() - [NSDate date].timeIntervalSince1970;
         sPreMainStartTimeRelative = getProcessStartTime() + absoluteTimeToRelativeTime;
         _nativeStartTime = CACurrentMediaTime() - sPreMainStartTimeRelative;
-        _javascriptLoadTime = 0;
+        _javascriptDownloadStart = 0;
+        _javascriptDownloadEnd = 0;
+        _javascriptLoadEnd = 0;
         _contentAppearTime = 0;
     }
     return self;
@@ -59,14 +63,25 @@ static CFTimeInterval sPreMainStartTimeRelative;
 }
 
 - (void)setBridge:(RCTBridge *)bridge {
+    [self javaScriptWillDownload];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(bridgeDidReload)
-                                                 name:RCTJavaScriptWillStartLoadingNotification
-                                               object:bridge];
-
+                                              selector:@selector(bridgeDidReload)
+                                                  name:RCTJavaScriptWillStartLoadingNotification
+                                                object:bridge];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(javaScriptDidLoad)
                                                  name:RCTJavaScriptDidLoadNotification
+                                               object:bridge];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(javaScriptWillDownload)
+                                                 name:RCTBridgeWillDownloadScriptNotification
+                                               object:bridge];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(javaScriptDidDownload)
+                                                 name:RCTBridgeDidDownloadScriptNotification
                                                object:bridge];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -76,14 +91,25 @@ static CFTimeInterval sPreMainStartTimeRelative;
 }
 
 - (void)bridgeDidReload {
-    _javascriptLoadTime = 0;
+    _javascriptDownloadStart = 0;
+    _javascriptDownloadEnd = 0;
+    _javascriptLoadEnd = 0;
     _contentAppearTime = 0;
     [self emitMeasurements];
 }
 
+- (void)javaScriptWillDownload {
+    _javascriptDownloadStart = CACurrentMediaTime();
+    _javascriptDownloadEnd = 0;
+}
+
+- (void)javaScriptDidDownload {
+    _javascriptDownloadEnd = CACurrentMediaTime();
+    [self emitMeasurements];
+}
+
 - (void)javaScriptDidLoad {
-    _javascriptLoadTime = CACurrentMediaTime();
-    _contentAppearTime = 0;
+    _javascriptLoadEnd = CACurrentMediaTime();
     [self emitMeasurements];
 }
 
@@ -96,10 +122,15 @@ static CFTimeInterval sPreMainStartTimeRelative;
     if (!self.connection) {
         return;
     }
-    CFTimeInterval reactStartTime = _contentAppearTime - _javascriptLoadTime;
+    NSObject *javascriptDownloadDuration = _javascriptDownloadEnd > 0 && _javascriptDownloadStart > 0 ? @((_javascriptDownloadEnd - _javascriptDownloadStart) * 1000) : [NSNull null];
+    NSObject *javascriptParseDuration = _javascriptDownloadEnd > 0 && _javascriptLoadEnd > 0 ? @((_javascriptLoadEnd - _javascriptDownloadEnd) * 1000) : [NSNull null];
+    NSObject *reactStartDuration = _javascriptLoadEnd > 0 && _contentAppearTime > 0 ? @((_contentAppearTime - _javascriptLoadEnd) * 1000) : [NSNull null];
+
     [self.connection send:@"measurements" withParams:@{
-        @"nativeStartTime": @(_nativeStartTime * 1000),
-        @"reactStartTime": reactStartTime > 0 ? @(reactStartTime * 1000) : [NSNull null]
+        @"nativeStartDuration": @(_nativeStartTime * 1000),
+        @"javascriptDownloadDuration": javascriptDownloadDuration,
+        @"javascriptParseDuration": javascriptParseDuration,
+        @"reactStartDuration": reactStartDuration
     }];
 }
 

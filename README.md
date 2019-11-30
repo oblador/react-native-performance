@@ -1,8 +1,13 @@
 # Flipper React Native Performance Plugin
 
-This is plugin for the debug tool [Flipper](https://fbflipper.com) that measures the startup times of your React Native app. It measures both the native and JavaScript parts, but only on iOS so far.
+This is plugin for the debug tool [Flipper](https://fbflipper.com) that measures the startup times of your React Native app. It measures:
 
-The aim is to further expand profiling capabilities and Android support in the future.
+- Native startup time
+- Script download time
+- Script parse time
+- React app mount time
+
+Currently only on iOS is supported, but the aim is to further expand profiling capabilities and Android support in the future.
 
 ## Installation
 
@@ -52,7 +57,7 @@ Edit your `AppDelegate.m` by adding the following:
 
 Run the demo in the `Example` folder, and you'll get something like this:
 
-<img width="531" alt="" src="https://user-images.githubusercontent.com/378279/69906815-b557b600-13c9-11ea-9566-0d74abb392ed.png">
+<img width="536" alt="" src="https://user-images.githubusercontent.com/378279/69907313-539c4980-13d3-11ea-8cb5-cefa1153c0ff.png">
 
 ## License
 

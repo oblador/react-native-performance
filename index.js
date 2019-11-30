@@ -22,26 +22,43 @@ const Measurement = ({ title, duration }) => {
 
 export default class extends FlipperPlugin {
   static defaultPersistedState = {
-    nativeStartTime: null,
-    reactStartTime: null,
+    nativeStartDuration: null,
+    javascriptDownloadDuration: null,
+    javascriptParseDuration: null,
+    reactStartDuration: null,
   };
   static persistedStateReducer(persistedState, method, payload) {
     if (method === 'measurements') {
       return Object.assign({}, persistedState, {
-        nativeStartTime: payload.nativeStartTime,
-        reactStartTime: payload.reactStartTime,
+        nativeStartDuration: payload.nativeStartDuration,
+        javascriptDownloadDuration: payload.javascriptDownloadDuration,
+        javascriptParseDuration: payload.javascriptParseDuration,
+        reactStartDuration: payload.reactStartDuration,
       });
     }
     return persistedState;
   }
 
   render() {
-    const { nativeStartTime, reactStartTime } = this.props.persistedState;
+    const {
+      nativeStartDuration,
+      javascriptDownloadDuration,
+      javascriptParseDuration,
+      reactStartDuration,
+    } = this.props.persistedState;
 
     return (
       <CenteredView>
-        <Measurement title="Native Startup" duration={nativeStartTime} />
-        <Measurement title="React Startup" duration={reactStartTime} />
+        <Measurement title="Native Startup" duration={nativeStartDuration} />
+        <Measurement
+          title="JavaScript Download"
+          duration={javascriptDownloadDuration}
+        />
+        <Measurement
+          title="JavaScript Parse"
+          duration={javascriptParseDuration}
+        />
+        <Measurement title="React Startup" duration={reactStartDuration} />
       </CenteredView>
     );
   }
