@@ -24,22 +24,25 @@ static CFTimeInterval getProcessStartTime() {
 static CFTimeInterval sPreMainStartTimeRelative;
 
 @interface FlipperReactPerformancePlugin ()
-{
-    CFTimeInterval nativeStartTime;
-    CFTimeInterval javascriptLoadTime;
-    CFTimeInterval contentAppearTime;
-}
+
 @property (strong, nonatomic) id<FlipperConnection> connection;
 
 @end
 
 @implementation FlipperReactPerformancePlugin
+{
+  CFTimeInterval _nativeStartTime;
+  CFTimeInterval _javascriptLoadTime;
+  CFTimeInterval _contentAppearTime;
+}
 
 - (instancetype)init {
     if (self = [super init]) {
         CFTimeInterval absoluteTimeToRelativeTime =  CACurrentMediaTime() - [NSDate date].timeIntervalSince1970;
         sPreMainStartTimeRelative = getProcessStartTime() + absoluteTimeToRelativeTime;
-        nativeStartTime = CACurrentMediaTime() - sPreMainStartTimeRelative;
+        _nativeStartTime = CACurrentMediaTime() - sPreMainStartTimeRelative;
+        _javascriptLoadTime = 0;
+        _contentAppearTime = 0;
     }
     return self;
 }
@@ -70,22 +73,22 @@ static CFTimeInterval sPreMainStartTimeRelative;
                                              selector:@selector(contentDidAppear)
                                                  name:RCTContentDidAppearNotification
                                                object:UIApplication.sharedApplication.keyWindow.rootViewController.view];
-
 }
 
 - (void)bridgeDidReload {
-    javascriptLoadTime = 0;
-    contentAppearTime = 0;
+    _javascriptLoadTime = 0;
+    _contentAppearTime = 0;
+    [self emitMeasurements];
 }
 
 - (void)javaScriptDidLoad {
-    javascriptLoadTime = CACurrentMediaTime();
-    contentAppearTime = 0;
+    _javascriptLoadTime = CACurrentMediaTime();
+    _contentAppearTime = 0;
     [self emitMeasurements];
 }
 
 - (void)contentDidAppear {
-    contentAppearTime = CACurrentMediaTime();
+    _contentAppearTime = CACurrentMediaTime();
     [self emitMeasurements];
 }
 
@@ -93,9 +96,9 @@ static CFTimeInterval sPreMainStartTimeRelative;
     if (!self.connection) {
         return;
     }
-    CFTimeInterval reactStartTime = contentAppearTime - javascriptLoadTime;
+    CFTimeInterval reactStartTime = _contentAppearTime - _javascriptLoadTime;
     [self.connection send:@"measurements" withParams:@{
-        @"nativeStartTime": @(nativeStartTime * 1000),
+        @"nativeStartTime": @(_nativeStartTime * 1000),
         @"reactStartTime": reactStartTime > 0 ? @(reactStartTime * 1000) : [NSNull null]
     }];
 }
@@ -115,6 +118,11 @@ static CFTimeInterval sPreMainStartTimeRelative;
 
 - (BOOL)runInBackground {
     return NO;
+}
+        
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end
