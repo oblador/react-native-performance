@@ -12,7 +12,20 @@ yarn add flipper-plugin-react-native-performance
 
 ## Setup
 
-First, make sure you have successfully [setup Flipper with your React Native app](https://fbflipper.com/docs/getting-started.html#setup-your-react-native-app). Then edit your `AppDelegate.m` with the following:
+First, make sure you have successfully [setup Flipper with your React Native app](https://fbflipper.com/docs/getting-started.html#setup-your-react-native-app).
+
+### iOS
+
+Edit your `Podfile` by adding the following:
+
+```diff
+def flipper_pods()
+  ...
++ pod 'flipper-plugin-react-native-performance', :path => "../node_modules/flipper-plugin-react-native-performance/ios", :configuration => 'Debug'
+end
+```
+
+Edit your `AppDelegate.m` by adding the following:
 
 ```diff
   - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
