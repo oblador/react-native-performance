@@ -5,7 +5,7 @@
   "homepage": "https://github.com/oblador/flipper-plugin-react-native-performance",
   "main": "index.js",
   "title": "React Native Performance",
-  "icon": "flash",
+  "icon": "flash-default",
   "repository": {
     "type": "git",
     "url": "https://github.com/oblador/flipper-plugin-react-native-performance.git"
