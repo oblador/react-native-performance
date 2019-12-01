@@ -11,8 +11,35 @@ const Value = styled(Text)({
   fontWeight: 'bold',
 });
 
-const Measurement = ({ title, duration }) => {
+const Duration = ({ title, duration }) => {
   const value = duration ? `${Math.round(duration)} ms` : 'Pending...';
+  return (
+    <RoundedSection title={title}>
+      <Value>{value}</Value>
+    </RoundedSection>
+  );
+};
+
+const formatBytes = bytes => {
+  const UNITS = ['B', 'KiB', 'MiB', 'GiB'];
+  const UNIT_STEP = 1024;
+
+  let unit;
+  let value = bytes;
+  for (let i = 0; i < UNITS.length; i++) {
+    unit = UNITS[i];
+    if (value / UNIT_STEP >= 1) {
+      value /= UNIT_STEP;
+    } else {
+      break;
+    }
+  }
+
+  return `${Math.round(value * 10) / 10} ${unit}`;
+};
+
+const FileSize = ({ title, bytes }) => {
+  const value = bytes ? formatBytes(bytes) : 'Pending...';
   return (
     <RoundedSection title={title}>
       <Value>{value}</Value>
@@ -22,18 +49,21 @@ const Measurement = ({ title, duration }) => {
 
 export default class extends FlipperPlugin {
   static defaultPersistedState = {
-    nativeStartDuration: null,
-    javascriptDownloadDuration: null,
-    javascriptParseDuration: null,
-    reactStartDuration: null,
+    NativeStartup: null,
+    BundleSize: null,
+    ScriptDownload: null,
+    ScriptExecution: null,
+    TTI: null,
   };
+
   static persistedStateReducer(persistedState, method, payload) {
     if (method === 'measurements') {
       return Object.assign({}, persistedState, {
-        nativeStartDuration: payload.nativeStartDuration,
-        javascriptDownloadDuration: payload.javascriptDownloadDuration,
-        javascriptParseDuration: payload.javascriptParseDuration,
-        reactStartDuration: payload.reactStartDuration,
+        NativeStartup: payload.NativeStartup,
+        BundleSize: payload.BundleSize,
+        ScriptDownload: payload.ScriptDownload,
+        ScriptExecution: payload.ScriptExecution,
+        TTI: payload.TTI,
       });
     }
     return persistedState;
@@ -41,24 +71,20 @@ export default class extends FlipperPlugin {
 
   render() {
     const {
-      nativeStartDuration,
-      javascriptDownloadDuration,
-      javascriptParseDuration,
-      reactStartDuration,
+      NativeStartup,
+      BundleSize,
+      ScriptDownload,
+      ScriptExecution,
+      TTI,
     } = this.props.persistedState;
 
     return (
       <CenteredView>
-        <Measurement title="Native Startup" duration={nativeStartDuration} />
-        <Measurement
-          title="JavaScript Download"
-          duration={javascriptDownloadDuration}
-        />
-        <Measurement
-          title="JavaScript Parse"
-          duration={javascriptParseDuration}
-        />
-        <Measurement title="React Startup" duration={reactStartDuration} />
+        <Duration title="Native startup" duration={NativeStartup} />
+        <Duration title="Script download" duration={ScriptDownload} />
+        <FileSize title="Bundle size" bytes={BundleSize} />
+        <Duration title="Script execution" duration={ScriptExecution} />
+        <Duration title="Time to interactive" duration={TTI} />
       </CenteredView>
     );
   }

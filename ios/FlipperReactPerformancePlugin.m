@@ -6,6 +6,7 @@
 #import <FlipperKit/FlipperConnection.h>
 #import <FlipperKit/FlipperResponder.h>
 #import <React/RCTRootView.h>
+#import <React/RCTPerformanceLogger.h>
 
 static CFTimeInterval getProcessStartTime() {
     size_t len = 4;
@@ -26,27 +27,21 @@ static CFTimeInterval sPreMainStartTimeRelative;
 @interface FlipperReactPerformancePlugin ()
 
 @property (strong, nonatomic) id<FlipperConnection> connection;
+@property (weak, nonatomic) RCTBridge *bridge;
 
 @end
 
 @implementation FlipperReactPerformancePlugin
 {
-    CFTimeInterval _nativeStartTime;
-    CFTimeInterval _javascriptDownloadStart;
-    CFTimeInterval _javascriptDownloadEnd;
-    CFTimeInterval _javascriptLoadEnd;
-    CFTimeInterval _contentAppearTime;
+    CFTimeInterval _nativeStartupDuration;
 }
 
 - (instancetype)init {
     if (self = [super init]) {
         CFTimeInterval absoluteTimeToRelativeTime =  CACurrentMediaTime() - [NSDate date].timeIntervalSince1970;
         sPreMainStartTimeRelative = getProcessStartTime() + absoluteTimeToRelativeTime;
-        _nativeStartTime = CACurrentMediaTime() - sPreMainStartTimeRelative;
-        _javascriptDownloadStart = 0;
-        _javascriptDownloadEnd = 0;
-        _javascriptLoadEnd = 0;
-        _contentAppearTime = 0;
+        _bridge = nil;
+        _nativeStartupDuration = CACurrentMediaTime() - sPreMainStartTimeRelative;
     }
     return self;
 }
@@ -63,80 +58,71 @@ static CFTimeInterval sPreMainStartTimeRelative;
 }
 
 - (void)setBridge:(RCTBridge *)bridge {
-    [self javaScriptWillDownload];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                              selector:@selector(bridgeDidReload)
-                                                  name:RCTJavaScriptWillStartLoadingNotification
-                                                object:bridge];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(javaScriptDidLoad)
-                                                 name:RCTJavaScriptDidLoadNotification
-                                               object:bridge];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(javaScriptWillDownload)
-                                                 name:RCTBridgeWillDownloadScriptNotification
-                                               object:bridge];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(javaScriptDidDownload)
-                                                 name:RCTBridgeDidDownloadScriptNotification
-                                               object:bridge];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(contentDidAppear)
-                                                 name:RCTContentDidAppearNotification
-                                               object:UIApplication.sharedApplication.keyWindow.rootViewController.view];
+    _bridge = bridge;
+    NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
+    [notificationCenter addObserver:self
+                           selector:@selector(bridgeDidReload)
+                               name:RCTJavaScriptWillStartLoadingNotification
+                             object:bridge];
+    [notificationCenter addObserver:self
+                           selector:@selector(emitSafely)
+                               name:RCTJavaScriptDidLoadNotification
+                             object:bridge];
+    [notificationCenter addObserver:self
+                           selector:@selector(emitSafely)
+                               name:RCTBridgeDidDownloadScriptNotification
+                             object:bridge];
+    [self bridgeDidReload];
 }
 
 - (void)bridgeDidReload {
-    _javascriptDownloadStart = 0;
-    _javascriptDownloadEnd = 0;
-    _javascriptLoadEnd = 0;
-    _contentAppearTime = 0;
-    [self emitMeasurements];
+    [self emitSafely];
+    NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
+    UIView *rootView = UIApplication.sharedApplication.keyWindow.rootViewController.view;
+    // Depending on the navigation library used, the root view might have changed
+    // but most likely it hasn't, so remove existing observers if that is the case
+    [notificationCenter removeObserver:self
+                               name:RCTContentDidAppearNotification
+                             object:rootView];
+    [notificationCenter addObserver:self
+                           selector:@selector(emitSafely)
+                               name:RCTContentDidAppearNotification
+                             object:rootView];
 }
 
-- (void)javaScriptWillDownload {
-    _javascriptDownloadStart = CACurrentMediaTime();
-    _javascriptDownloadEnd = 0;
+- (NSObject *)getDurationForTag:(RCTPLTag)tag {
+    int64_t value = [self.bridge.performanceLogger durationForTag:tag];
+    if (value > 0) {
+        return  @(value);
+    }
+    return [NSNull null];
 }
 
-- (void)javaScriptDidDownload {
-    _javascriptDownloadEnd = CACurrentMediaTime();
-    [self emitMeasurements];
+- (NSObject *)getValueForTag:(RCTPLTag)tag {
+    int64_t value = [self.bridge.performanceLogger valueForTag:tag];
+    if (value > 0) {
+        return  @(value);
+    }
+    return [NSNull null];
 }
 
-- (void)javaScriptDidLoad {
-    _javascriptLoadEnd = CACurrentMediaTime();
-    [self emitMeasurements];
-}
-
-- (void)contentDidAppear {
-    _contentAppearTime = CACurrentMediaTime();
-    [self emitMeasurements];
-}
-
-- (void)emitMeasurements {
-    if (!self.connection) {
+- (void)emitSafely {
+    if (!self.connection || !self.bridge) {
         return;
     }
-    NSObject *javascriptDownloadDuration = _javascriptDownloadEnd > 0 && _javascriptDownloadStart > 0 ? @((_javascriptDownloadEnd - _javascriptDownloadStart) * 1000) : [NSNull null];
-    NSObject *javascriptParseDuration = _javascriptDownloadEnd > 0 && _javascriptLoadEnd > 0 ? @((_javascriptLoadEnd - _javascriptDownloadEnd) * 1000) : [NSNull null];
-    NSObject *reactStartDuration = _javascriptLoadEnd > 0 && _contentAppearTime > 0 ? @((_contentAppearTime - _javascriptLoadEnd) * 1000) : [NSNull null];
-
+    
     [self.connection send:@"measurements" withParams:@{
-        @"nativeStartDuration": @(_nativeStartTime * 1000),
-        @"javascriptDownloadDuration": javascriptDownloadDuration,
-        @"javascriptParseDuration": javascriptParseDuration,
-        @"reactStartDuration": reactStartDuration
+        @"NativeStartup": @(_nativeStartupDuration * 1000),
+        @"BundleSize": [self getValueForTag:RCTPLBundleSize],
+        @"ScriptDownload": [self getDurationForTag:RCTPLScriptDownload],
+        @"ScriptExecution": [self getDurationForTag:RCTPLScriptExecution],
+        @"TTI": [self getDurationForTag:RCTPLTTI],
     }];
 }
 
 - (void)didConnect:(id<FlipperConnection>)connection {
     self.connection = connection;
-    [self emitMeasurements];
+    [self emitSafely];
 }
 
 - (void)didDisconnect {
@@ -150,7 +136,7 @@ static CFTimeInterval sPreMainStartTimeRelative;
 - (BOOL)runInBackground {
     return NO;
 }
-        
+
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
