@@ -8,7 +8,7 @@ This is plugin for the debug tool [Flipper](https://fbflipper.com) that measures
 - Script bundle size
 - Time to interactive of root view
 
-Currently only on iOS is supported, but the aim is to further expand profiling capabilities and Android support in the future.
+Currently only these standard metrics on iOS is supported, but the aim is to further expand profiling capabilities and add Android support in the future.
 
 ## Installation
 
