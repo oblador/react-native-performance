@@ -1,5 +1,5 @@
 {
-  "name": "Example",
+  "name": "RNN",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -8,12 +8,13 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint .",
-    "postinstall": " rm -rf node_modules/flipper-plugin-react-native-performance/{.gradle,gradle,.git,Example,node_modules,android/build}"
+    "postinstall": " rm -rf node_modules/flipper-plugin-react-native-performance/{.gradle,gradle,.git,examples,node_modules,android/build}"
   },
   "dependencies": {
+    "flipper-plugin-react-native-performance": "file:../../",
     "react": "16.9.0",
     "react-native": "0.61.5",
-    "flipper-plugin-react-native-performance": "file:../"
+    "react-native-navigation": "^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.4",

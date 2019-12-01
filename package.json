@@ -15,7 +15,7 @@
     "ios/*"
   ],
   "scripts": {
-    "format": "prettier '{,Example/}*.{md,js,json}' --write",
+    "format": "prettier '{,examples/*/}*.{md,js,json}' --write",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

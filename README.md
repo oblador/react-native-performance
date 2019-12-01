@@ -33,6 +33,14 @@ end
 Edit your `AppDelegate.m` by adding the following:
 
 ```diff
++   #if DEBUG
++   #ifdef FB_SONARKIT_ENABLED
++   #import <flipper-plugin-react-native-performance/FlipperReactPerformancePlugin.h>
++   #endif
++   #endif
+
+@implementation AppDelegate
+
   - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
   {
     [self initializeFlipper:application];
@@ -49,6 +57,25 @@ Edit your `AppDelegate.m` by adding the following:
     ...
 +   [client addPlugin: [FlipperReactPerformancePlugin sharedInstance]];
     [client start];
+    ...
+  }
+```
+
+#### Setup for React Native Navigation
+
+Edit your `AppDelegate.m` like above, but for the `application:didFinishLaunchingWithOptions` method, add the following instead:
+
+```diff
+  - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+  {
+    [self initializeFlipper:application];
+    NSURL *jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+    [ReactNativeNavigation bootstrap:jsCodeLocation launchOptions:launchOptions];
++   #if DEBUG
++   #ifdef FB_SONARKIT_ENABLED
++   [[FlipperReactPerformancePlugin sharedInstance] setBridge:[ReactNativeNavigation getBridge]];
++   #endif
++   #endif
     ...
   }
 ```
