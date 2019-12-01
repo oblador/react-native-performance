@@ -79,23 +79,27 @@ static CFTimeInterval sPreMainStartTimeRelative;
 }
 
 - (NSObject *)getDurationForTag:(RCTPLTag)tag {
-    int64_t value = [self.bridge.performanceLogger durationForTag:tag];
-    if (value > 0) {
-        return  @(value);
+    if (self.bridge) {
+        int64_t value = [self.bridge.performanceLogger durationForTag:tag];
+        if (value > 0) {
+            return  @(value);
+        }
     }
     return [NSNull null];
 }
 
 - (NSObject *)getValueForTag:(RCTPLTag)tag {
-    int64_t value = [self.bridge.performanceLogger valueForTag:tag];
-    if (value > 0) {
-        return  @(value);
+    if (self.bridge) {
+        int64_t value = [self.bridge.performanceLogger valueForTag:tag];
+        if (value > 0) {
+            return  @(value);
+        }
     }
     return [NSNull null];
 }
 
 - (void)emitSafely {
-    if (!self.connection || !self.bridge) {
+    if (!self.connection) {
         return;
     }
     
@@ -125,8 +129,7 @@ static CFTimeInterval sPreMainStartTimeRelative;
     return NO;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
