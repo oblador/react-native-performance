@@ -61,7 +61,7 @@ static CFTimeInterval sPreMainStartTimeRelative;
     _bridge = bridge;
     NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
     [notificationCenter addObserver:self
-                           selector:@selector(bridgeDidReload)
+                           selector:@selector(emitSafely)
                                name:RCTJavaScriptWillStartLoadingNotification
                              object:bridge];
     [notificationCenter addObserver:self
@@ -72,22 +72,10 @@ static CFTimeInterval sPreMainStartTimeRelative;
                            selector:@selector(emitSafely)
                                name:RCTBridgeDidDownloadScriptNotification
                              object:bridge];
-    [self bridgeDidReload];
-}
-
-- (void)bridgeDidReload {
-    [self emitSafely];
-    NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
-    UIView *rootView = UIApplication.sharedApplication.keyWindow.rootViewController.view;
-    // Depending on the navigation library used, the root view might have changed
-    // but most likely it hasn't, so remove existing observers if that is the case
-    [notificationCenter removeObserver:self
-                               name:RCTContentDidAppearNotification
-                             object:rootView];
     [notificationCenter addObserver:self
                            selector:@selector(emitSafely)
                                name:RCTContentDidAppearNotification
-                             object:rootView];
+                             object:nil];
 }
 
 - (NSObject *)getDurationForTag:(RCTPLTag)tag {
