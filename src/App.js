@@ -1,30 +1,47 @@
 import React from 'react';
-import { FlipperPlugin, Button, FlexRow, styled } from 'flipper';
+import { FlipperPlugin, Button, FlexRow, Text, styled } from 'flipper';
 
 import {
   BarLegend,
   Title,
   COLOR_SEPARATOR,
+  COLOR_DISABLED,
   MARGIN_CONTAINER_VERTICAL,
   MARGIN_CONTAINER_HORIZONTAL,
 } from './ui';
 import { StartupTable } from './StartupTable';
 import { TableLegend } from './TableLegend';
+import { formatBytes } from './lib/formatBytes';
 import { METRICS } from './constants';
 
-const Section = styled('div')({
+const Container = styled('div')({
   paddingTop: MARGIN_CONTAINER_VERTICAL,
   paddingBottom: MARGIN_CONTAINER_VERTICAL,
   paddingLeft: MARGIN_CONTAINER_HORIZONTAL,
   paddingRight: MARGIN_CONTAINER_HORIZONTAL,
+});
+
+const Section = styled(Container)({
   borderBottomWidth: 1,
   borderBottomStyle: 'solid',
   borderBottomColor: COLOR_SEPARATOR,
 });
 
-const TableLegendHeader = styled(FlexRow)({
+const SectionHeader = styled(FlexRow)({
   justifyContent: 'space-between',
+});
+
+const SectionHeaderStartup = styled(SectionHeader)({
   marginBottom: 20,
+});
+
+const PendingText = styled(Text)({
+  fontSize: 13,
+  color: COLOR_DISABLED,
+});
+const BundleSize = styled(Text)({
+  fontSize: 20,
+  fontWeight: 500,
 });
 
 export class App extends FlipperPlugin {
@@ -81,20 +98,32 @@ export class App extends FlipperPlugin {
   render() {
     const { sessions } = this.props.persistedState;
     const { includedMetrics } = this.state;
+    const [currentSession] = sessions;
 
     return (
       <React.Fragment>
         <Section>
-          <TableLegendHeader>
+          <SectionHeaderStartup>
             <Title>Startup</Title>
             <Button onClick={this.handleClearClick}>Clear</Button>
-          </TableLegendHeader>
+          </SectionHeaderStartup>
           <TableLegend
             includedMetrics={includedMetrics}
             onLegendClick={this.toggleMetric}
           />
         </Section>
         <StartupTable sessions={sessions} includedMetrics={includedMetrics} />
+        <Section>
+          <SectionHeader>
+            <Title>Bundle</Title>
+            {!currentSession || !currentSession.bundleSize ? (
+              <PendingText>Pending...</PendingText>
+            ) : (
+              <BundleSize>{formatBytes(currentSession.bundleSize)}</BundleSize>
+            )}
+          </SectionHeader>
+        </Section>
+        <Container></Container>
       </React.Fragment>
     );
   }
