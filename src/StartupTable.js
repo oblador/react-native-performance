@@ -19,7 +19,7 @@ const findSlowestDuration = (sessions, metrics) =>
   );
 
 const ROW_VERTICAL_PADDING = MARGIN_CONTAINER_HORIZONTAL / 2;
-const ROW_LABEL_WIDTH = 80;
+const ROW_LABEL_WIDTH = 90;
 
 const BarLabel = styled('th')({
   color: COLOR_TEXT,
