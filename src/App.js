@@ -29,6 +29,7 @@ const Section = styled(Container)({
 
 const SectionHeader = styled(FlexRow)({
   justifyContent: 'space-between',
+  alignItems: 'center',
 });
 
 const SectionHeaderStartup = styled(SectionHeader)({
@@ -47,6 +48,7 @@ const BundleSize = styled(Text)({
 export class App extends FlipperPlugin {
   static defaultPersistedState = {
     sessions: [],
+    bundleSize: null,
   };
 
   static persistedStateReducer(persistedState, method, payload) {
@@ -71,6 +73,7 @@ export class App extends FlipperPlugin {
       }
       return Object.assign({}, persistedState, {
         sessions,
+        bundleSize: payload.bundleSize,
       });
     }
     return persistedState;
@@ -95,8 +98,15 @@ export class App extends FlipperPlugin {
 
   handleClearClick = () => this.props.setPersistedState({ sessions: [] });
 
+  handleSessionRemoveClick = session =>
+    this.props.setPersistedState({
+      sessions: this.props.persistedState.sessions.filter(
+        ({ sessionStartedAt }) => sessionStartedAt !== session.sessionStartedAt
+      ),
+    });
+
   render() {
-    const { sessions } = this.props.persistedState;
+    const { sessions, bundleSize } = this.props.persistedState;
     const { includedMetrics } = this.state;
     const [currentSession] = sessions;
 
@@ -112,18 +122,21 @@ export class App extends FlipperPlugin {
             onLegendClick={this.toggleMetric}
           />
         </Section>
-        <StartupTable sessions={sessions} includedMetrics={includedMetrics} />
+        <StartupTable
+          sessions={sessions}
+          includedMetrics={includedMetrics}
+          onSessionRemoveClick={this.handleSessionRemoveClick}
+        />
         <Section>
           <SectionHeader>
             <Title>Bundle</Title>
-            {!currentSession || !currentSession.bundleSize ? (
-              <PendingText>Pending...</PendingText>
+            {!bundleSize ? (
+              <PendingText>Pending</PendingText>
             ) : (
-              <BundleSize>{formatBytes(currentSession.bundleSize)}</BundleSize>
+              <BundleSize>{formatBytes(bundleSize)}</BundleSize>
             )}
           </SectionHeader>
         </Section>
-        <Container></Container>
       </React.Fragment>
     );
   }
