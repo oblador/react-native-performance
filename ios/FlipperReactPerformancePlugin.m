@@ -34,6 +34,7 @@ static CFTimeInterval sPreMainStartTimeRelative;
 @implementation FlipperReactPerformancePlugin
 {
     CFTimeInterval _nativeStartupDuration;
+    NSTimeInterval _sessionStartTime;
 }
 
 - (instancetype)init {
@@ -41,6 +42,7 @@ static CFTimeInterval sPreMainStartTimeRelative;
         CFTimeInterval absoluteTimeToRelativeTime =  CACurrentMediaTime() - [NSDate date].timeIntervalSince1970;
         sPreMainStartTimeRelative = getProcessStartTime() + absoluteTimeToRelativeTime;
         _bridge = nil;
+        _sessionStartTime = [NSDate date].timeIntervalSince1970;
         _nativeStartupDuration = CACurrentMediaTime() - sPreMainStartTimeRelative;
     }
     return self;
@@ -61,21 +63,26 @@ static CFTimeInterval sPreMainStartTimeRelative;
     _bridge = bridge;
     NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
     [notificationCenter addObserver:self
-                           selector:@selector(emitSafely)
+                           selector:@selector(scriptWillLoad)
                                name:RCTJavaScriptWillStartLoadingNotification
                              object:bridge];
     [notificationCenter addObserver:self
-                           selector:@selector(emitSafely)
+                           selector:@selector(sendMeasurements)
                                name:RCTJavaScriptDidLoadNotification
                              object:bridge];
     [notificationCenter addObserver:self
-                           selector:@selector(emitSafely)
+                           selector:@selector(sendMeasurements)
                                name:RCTBridgeDidDownloadScriptNotification
                              object:bridge];
     [notificationCenter addObserver:self
-                           selector:@selector(emitSafely)
+                           selector:@selector(sendMeasurements)
                                name:RCTContentDidAppearNotification
                              object:nil];
+}
+
+- (void)scriptWillLoad {
+    _sessionStartTime = [NSDate date].timeIntervalSince1970;
+    [self sendMeasurements];
 }
 
 - (NSObject *)getDurationForTag:(RCTPLTag)tag {
@@ -98,23 +105,27 @@ static CFTimeInterval sPreMainStartTimeRelative;
     return [NSNull null];
 }
 
-- (void)emitSafely {
+- (void)sendSafely:(NSString *)method withParams:(NSDictionary *)params {
     if (!self.connection) {
         return;
     }
-    
-    [self.connection send:@"measurements" withParams:@{
-        @"NativeStartup": @(_nativeStartupDuration * 1000),
-        @"BundleSize": [self getValueForTag:RCTPLBundleSize],
-        @"ScriptDownload": [self getDurationForTag:RCTPLScriptDownload],
-        @"ScriptExecution": [self getDurationForTag:RCTPLScriptExecution],
-        @"TTI": [self getDurationForTag:RCTPLTTI],
+    [self.connection send:method withParams:params];
+}
+
+- (void)sendMeasurements {
+    [self sendSafely:@"measurements" withParams:@{
+        @"sessionStartedAt": @(ceil(_sessionStartTime * 1000)),
+        @"nativeStartup": @(_nativeStartupDuration * 1000),
+        @"bundleSize": [self getValueForTag:RCTPLBundleSize],
+        @"scriptDownload": [self getDurationForTag:RCTPLScriptDownload],
+        @"scriptExecution": [self getDurationForTag:RCTPLScriptExecution],
+        @"tti": [self getDurationForTag:RCTPLTTI],
     }];
 }
 
 - (void)didConnect:(id<FlipperConnection>)connection {
     self.connection = connection;
-    [self emitSafely];
+    [self sendMeasurements];
 }
 
 - (void)didDisconnect {
@@ -126,7 +137,7 @@ static CFTimeInterval sPreMainStartTimeRelative;
 }
 
 - (BOOL)runInBackground {
-    return NO;
+    return YES;
 }
 
 - (void)dealloc {
