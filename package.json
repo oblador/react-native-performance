@@ -1,6 +1,6 @@
 {
   "name": "flipper-plugin-react-native-performance",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Inspect React Native performance with Flipper",
   "homepage": "https://github.com/oblador/flipper-plugin-react-native-performance",
   "main": "index.js",
