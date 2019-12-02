@@ -1,9 +1,13 @@
 export const getGridInterval = (maxValue, numberOfIntervals) => {
-  const granularity = Math.pow(10, Math.ceil(Math.log10(maxValue)) - 2) || 1;
-  const roundedMax = Math.round(
-    Math.ceil(maxValue / granularity) * granularity
+  const magnitude = Math.pow(10, Math.ceil(Math.log10(maxValue)) - 1);
+  const granularity = Math.max(
+    1,
+    magnitude * 3 > maxValue ? magnitude / 20 : magnitude / 10
   );
-  return roundedMax / (numberOfIntervals - 1);
+
+  return Math.round(
+    Math.ceil(maxValue / (numberOfIntervals - 1) / granularity) * granularity
+  );
 };
 
 export const getGridIntervals = (maxValue, numberOfIntervals) => {
