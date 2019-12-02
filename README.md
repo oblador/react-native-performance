@@ -13,7 +13,7 @@ Currently only these standard metrics on iOS is supported, but the aim is to fur
 ## Installation
 
 ```
-yarn add flipper-plugin-react-native-performance
+yarn add --dev flipper-plugin-react-native-performance
 ```
 
 ## Setup
@@ -93,8 +93,8 @@ Edit your `AppDelegate.m` like above, but for the `application:didFinishLaunchin
 
 Run one of the demos in the `examples` folder, and you'll get something like this:
 
-<img width="535" alt="" src="https://user-images.githubusercontent.com/378279/69914354-ae6d8980-1443-11ea-8d7b-98ee4148f7a3.png">
+<img width="762" alt="" src="https://user-images.githubusercontent.com/378279/69992401-de06b980-1549-11ea-976e-099b93db4d8b.png">
 
 ## License
 
-MIT © Joel Arvidsson 2019–present
+MIT © Joel Arvidsson 2019 – present
