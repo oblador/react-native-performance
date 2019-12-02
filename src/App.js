@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlipperPlugin, Button, FlexRow, Text, styled } from 'flipper';
+import { FlipperPlugin, Button, FlexRow, Text, View, styled } from 'flipper';
 
 import {
   BarLegend,
@@ -111,7 +111,7 @@ export class App extends FlipperPlugin {
     const [currentSession] = sessions;
 
     return (
-      <React.Fragment>
+      <View grow={true} scrollable={true}>
         <Section>
           <SectionHeaderStartup>
             <Title>Startup</Title>
@@ -137,7 +137,7 @@ export class App extends FlipperPlugin {
             )}
           </SectionHeader>
         </Section>
-      </React.Fragment>
+      </View>
     );
   }
 }
