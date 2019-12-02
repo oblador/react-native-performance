@@ -23,14 +23,20 @@ const findSlowestDuration = (sessions, metrics) =>
 const ROW_VERTICAL_PADDING = MARGIN_CONTAINER_HORIZONTAL / 2;
 const ROW_LABEL_WIDTH = 90;
 
-const BarRow = styled('tr')({
+const BarRow = styled('tr')(({ selected }) => ({
+  backgroundColor: selected ? 'rgba(0, 123, 255, 0.05)' : undefined,
+  '&:hover': {
+    backgroundColor: selected
+      ? 'rgba(0, 123, 255, 0.08)'
+      : 'rgba(0, 0, 0, 0.03)',
+  },
   '&>.actions': {
-    visibility: 'hidden',
+    opacity: 0,
   },
   '&:hover>.actions': {
-    visibility: 'visible',
+    opacity: 1,
   },
-});
+}));
 
 const BarLabel = styled('th')({
   color: COLOR_TEXT,
@@ -83,7 +89,14 @@ const RemoveButton = styled(RemoveButtonText)({
 });
 
 const SessionRow = React.memo(
-  ({ relativeDuration, includedMetrics, onSessionRemoveClick, session }) => {
+  ({
+    relativeDuration,
+    includedMetrics,
+    onSessionClick,
+    onSessionRemoveClick,
+    session,
+    selected = false,
+  }) => {
     const {
       sessionStartedAt,
       nativeStartup,
@@ -95,12 +108,22 @@ const SessionRow = React.memo(
     const totalDuration = getTotalMetricSum(session, includedMetrics);
     const startDate = new Date(sessionStartedAt);
     const handleRemoveClick = React.useCallback(
-      () => onSessionRemoveClick(session),
+      event => {
+        onSessionRemoveClick(session);
+        event.stopPropagation();
+      },
       [onSessionRemoveClick, session]
+    );
+    const handleClick = React.useCallback(
+      event => {
+        onSessionClick(session);
+        event.stopPropagation();
+      },
+      [onSessionClick, session]
     );
 
     return (
-      <BarRow>
+      <BarRow onClick={handleClick} selected={selected}>
         <BarLabel>{formatTime(startDate)}</BarLabel>
         <BarValue>
           <BarHorizontalRounded
@@ -134,7 +157,9 @@ const formatGridLabel = value => `${value} ms`;
 
 export const StartupTable = ({
   sessions,
+  selectedSession,
   includedMetrics,
+  onSessionClick,
   onSessionRemoveClick,
 }) => {
   const slowestDuration = findSlowestDuration(sessions, includedMetrics);
@@ -160,6 +185,11 @@ export const StartupTable = ({
               session={session}
               includedMetrics={includedMetrics}
               relativeDuration={relativeDuration}
+              selected={
+                selectedSession &&
+                session.sessionStartedAt === selectedSession.sessionStartedAt
+              }
+              onSessionClick={onSessionClick}
               onSessionRemoveClick={onSessionRemoveClick}
             />
           ))}

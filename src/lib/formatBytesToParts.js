@@ -1,4 +1,4 @@
-export const formatBytes = bytes => {
+export const formatBytesToParts = bytes => {
   const UNITS = ['B', 'KiB', 'MiB', 'GiB'];
   const UNIT_STEP = 1024;
 
@@ -13,5 +13,5 @@ export const formatBytes = bytes => {
     }
   }
 
-  return `${Math.round(value * 10) / 10} ${unit}`;
+  return { value: Math.round(value * 10) / 10, unit };
 };

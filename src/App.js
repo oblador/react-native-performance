@@ -4,6 +4,7 @@ import { FlipperPlugin, Button, FlexRow, Text, View, styled } from 'flipper';
 import {
   BarLegend,
   Title,
+  Metric,
   COLOR_SEPARATOR,
   COLOR_DISABLED,
   MARGIN_CONTAINER_VERTICAL,
@@ -11,7 +12,7 @@ import {
 } from './ui';
 import { StartupTable } from './StartupTable';
 import { TableLegend } from './TableLegend';
-import { formatBytes } from './lib/formatBytes';
+import { formatBytesToParts } from './lib/formatBytesToParts';
 import { METRICS } from './constants';
 
 const Container = styled('div')({
@@ -39,10 +40,6 @@ const SectionHeaderStartup = styled(SectionHeader)({
 const PendingText = styled(Text)({
   fontSize: 13,
   color: COLOR_DISABLED,
-});
-const BundleSize = styled(Text)({
-  fontSize: 20,
-  fontWeight: 500,
 });
 
 export class App extends FlipperPlugin {
@@ -80,6 +77,7 @@ export class App extends FlipperPlugin {
   }
 
   state = {
+    selectedSession: null,
     includedMetrics: new Set(
       METRICS.filter(metric => metric.enabledByDefault).map(({ key }) => key)
     ),
@@ -98,6 +96,10 @@ export class App extends FlipperPlugin {
 
   handleClearClick = () => this.props.setPersistedState({ sessions: [] });
 
+  clearSelectedSession = () => this.setState({ selectedSession: null });
+
+  handleSessionClick = session => this.setState({ selectedSession: session });
+
   handleSessionRemoveClick = session =>
     this.props.setPersistedState({
       sessions: this.props.persistedState.sessions.filter(
@@ -107,11 +109,11 @@ export class App extends FlipperPlugin {
 
   render() {
     const { sessions, bundleSize } = this.props.persistedState;
-    const { includedMetrics } = this.state;
+    const { includedMetrics, selectedSession } = this.state;
     const [currentSession] = sessions;
 
     return (
-      <View grow={true} scrollable={true}>
+      <View grow={true} scrollable={true} onClick={this.clearSelectedSession}>
         <Section>
           <SectionHeaderStartup>
             <Title>Startup</Title>
@@ -120,11 +122,14 @@ export class App extends FlipperPlugin {
           <TableLegend
             includedMetrics={includedMetrics}
             onLegendClick={this.toggleMetric}
+            selectedSession={selectedSession}
           />
         </Section>
         <StartupTable
           sessions={sessions}
           includedMetrics={includedMetrics}
+          selectedSession={selectedSession}
+          onSessionClick={this.handleSessionClick}
           onSessionRemoveClick={this.handleSessionRemoveClick}
         />
         <Section>
@@ -133,7 +138,7 @@ export class App extends FlipperPlugin {
             {!bundleSize ? (
               <PendingText>Pending</PendingText>
             ) : (
-              <BundleSize>{formatBytes(bundleSize)}</BundleSize>
+              <Metric {...formatBytesToParts(bundleSize)} />
             )}
           </SectionHeader>
         </Section>
