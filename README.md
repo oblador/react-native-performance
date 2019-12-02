@@ -1,6 +1,10 @@
 # Flipper React Native Performance Plugin
 
-This is plugin for the debug tool [Flipper](https://fbflipper.com) that measures the startup of your React Native app. It provides the following metrics:
+This is a plugin for the debug tool [Flipper](https://fbflipper.com) that measures the startup of your React Native app.
+
+<img width="761" alt="" src="https://user-images.githubusercontent.com/378279/70002854-9b50db80-1561-11ea-861c-6b160f08d721.png">
+
+It provides the following metrics:
 
 - Native startup time
 - Script download time
@@ -91,9 +95,7 @@ Edit your `AppDelegate.m` like above, but for the `application:didFinishLaunchin
 
 ## Demo
 
-Run one of the demos in the `examples` folder, and you'll get something like this:
-
-<img width="761" alt="" src="https://user-images.githubusercontent.com/378279/70002854-9b50db80-1561-11ea-861c-6b160f08d721.png">
+See the projects in the [`examples`](https://github.com/oblador/flipper-plugin-react-native-performance/tree/master/examples) folder.
 
 ## License
 
