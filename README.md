@@ -93,7 +93,7 @@ Edit your `AppDelegate.m` like above, but for the `application:didFinishLaunchin
 
 Run one of the demos in the `examples` folder, and you'll get something like this:
 
-<img width="757" alt="" src="https://user-images.githubusercontent.com/378279/70000054-70af5480-155a-11ea-9560-49f10a69c5b3.png">
+<img width="757" alt="" src="https://user-images.githubusercontent.com/378279/70001187-f46a4080-155c-11ea-8500-0a77980e373f.png">
 
 ## License
 
