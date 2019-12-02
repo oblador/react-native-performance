@@ -4,12 +4,14 @@ import { METRICS } from './constants';
 import {
   BarHorizontalRounded,
   BarHorizontalSegment,
+  Grid,
   COLOR_TEXT,
   MARGIN_CONTAINER_VERTICAL,
   MARGIN_CONTAINER_HORIZONTAL,
 } from './ui';
 import { formatTime } from './lib/formatTime';
 import { getTotalMetricSum } from './lib/getTotalMetricSum';
+import { getGridInterval } from './lib/getGridIntervals';
 
 const findSlowestDuration = (sessions, metrics) =>
   sessions.reduce(
@@ -125,8 +127,10 @@ const SessionRow = React.memo(
 const TableFullWidth = styled('table')({
   width: '100%',
   marginTop: MARGIN_CONTAINER_VERTICAL,
-  marginBottom: MARGIN_CONTAINER_VERTICAL,
+  marginBottom: MARGIN_CONTAINER_VERTICAL * 2,
 });
+
+const formatGridLabel = value => `${value} ms`;
 
 export const StartupTable = ({
   sessions,
@@ -134,19 +138,33 @@ export const StartupTable = ({
   onSessionRemoveClick,
 }) => {
   const slowestDuration = findSlowestDuration(sessions, includedMetrics);
+  const numberOfIntervals = 5;
+  const interval = getGridInterval(slowestDuration, numberOfIntervals);
+  const relativeDuration = (numberOfIntervals - 1) * interval;
 
   return (
-    <TableFullWidth>
-      <tbody>
-        {sessions.map(session => (
-          <SessionRow
-            session={session}
-            includedMetrics={includedMetrics}
-            relativeDuration={slowestDuration}
-            onSessionRemoveClick={onSessionRemoveClick}
-          />
-        ))}
-      </tbody>
-    </TableFullWidth>
+    <div style={{ position: 'relative' }}>
+      <Grid
+        interval={interval}
+        numberOfIntervals={5}
+        insetTop={MARGIN_CONTAINER_VERTICAL}
+        insetBottom={-ROW_VERTICAL_PADDING}
+        insetLeft={ROW_LABEL_WIDTH + MARGIN_CONTAINER_HORIZONTAL}
+        insetRight={MARGIN_CONTAINER_HORIZONTAL}
+        formatLabel={formatGridLabel}
+      />
+      <TableFullWidth>
+        <tbody>
+          {sessions.map(session => (
+            <SessionRow
+              session={session}
+              includedMetrics={includedMetrics}
+              relativeDuration={relativeDuration}
+              onSessionRemoveClick={onSessionRemoveClick}
+            />
+          ))}
+        </tbody>
+      </TableFullWidth>
+    </div>
   );
 };
