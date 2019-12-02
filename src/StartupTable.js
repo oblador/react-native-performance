@@ -38,14 +38,6 @@ const BarValue = styled('td')({
   paddingRight: MARGIN_CONTAINER_HORIZONTAL,
 });
 
-const BarHorizontalSegmentDuration = ({ duration, totalDuration, color }) =>
-  duration && (
-    <BarHorizontalSegment
-      width={Math.round((duration / totalDuration) * 100) + '%'}
-      color={color}
-    />
-  );
-
 const SessionRow = ({ relativeDuration, includedMetrics, ...session }) => {
   const {
     sessionStartedAt,
@@ -65,15 +57,14 @@ const SessionRow = ({ relativeDuration, includedMetrics, ...session }) => {
         <BarHorizontalRounded
           width={Math.round((totalDuration / relativeDuration) * 100) + '%'}
         >
-          {METRICS.filter(metric => includedMetrics.has(metric.key)).map(
-            metric => (
-              <BarHorizontalSegmentDuration
-                duration={session[metric.key]}
-                totalDuration={totalDuration}
-                color={metric.color}
-              />
-            )
-          )}
+          {METRICS.filter(
+            metric => includedMetrics.has(metric.key) && session[metric.key]
+          ).map(metric => (
+            <BarHorizontalSegment
+              relativeSize={session[metric.key] / totalDuration}
+              color={metric.color}
+            />
+          ))}
         </BarHorizontalRounded>
       </BarValue>
     </tr>

@@ -11,8 +11,8 @@ export const BarHorizontalRounded = styled(FlexRow)(({ width = '100%' }) => ({
 }));
 
 export const BarHorizontalSegment = styled('div')(
-  ({ width = '100%', color = 'red' }) => ({
-    width: width,
+  ({ relativeSize, color = 'red' }) => ({
+    flex: relativeSize,
     height: BAR_HORIZONTAL_HEIGHT,
     backgroundColor: color,
   })
