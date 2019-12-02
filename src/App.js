@@ -77,7 +77,7 @@ export class App extends FlipperPlugin {
   }
 
   state = {
-    selectedSession: null,
+    selectedSessionStartedAt: null,
     includedMetrics: new Set(
       METRICS.filter(metric => metric.enabledByDefault).map(({ key }) => key)
     ),
@@ -96,9 +96,11 @@ export class App extends FlipperPlugin {
 
   handleClearClick = () => this.props.setPersistedState({ sessions: [] });
 
-  clearSelectedSession = () => this.setState({ selectedSession: null });
+  clearSelectedSession = () =>
+    this.setState({ selectedSessionStartedAt: null });
 
-  handleSessionClick = session => this.setState({ selectedSession: session });
+  handleSessionClick = session =>
+    this.setState({ selectedSessionStartedAt: session.sessionStartedAt });
 
   handleSessionRemoveClick = session =>
     this.props.setPersistedState({
@@ -109,8 +111,10 @@ export class App extends FlipperPlugin {
 
   render() {
     const { sessions, bundleSize } = this.props.persistedState;
-    const { includedMetrics, selectedSession } = this.state;
-    const [currentSession] = sessions;
+    const { includedMetrics, selectedSessionStartedAt } = this.state;
+    const selectedSession = sessions.find(
+      session => session.sessionStartedAt === selectedSessionStartedAt
+    );
 
     return (
       <View grow={true} scrollable={true} onClick={this.clearSelectedSession}>
