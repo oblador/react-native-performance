@@ -1,9 +1,12 @@
 {
+  "$schema": "https://fbflipper.com/schemas/plugin-package/v2.json",
   "name": "flipper-plugin-react-native-performance",
+  "id": "flipper-plugin-react-native-performance",
   "version": "0.4.3",
   "description": "Inspect React Native performance with Flipper",
   "homepage": "https://github.com/oblador/flipper-plugin-react-native-performance",
-  "main": "index.js",
+  "main": "dist/bundle.js",
+  "flipperBundlerEntry": "index.js",
   "title": "React Native Performance",
   "icon": "flash-default",
   "repository": {
@@ -17,7 +20,8 @@
   ],
   "scripts": {
     "format": "prettier '{,examples/*/}*.{md,js,json}' --write",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepack": "flipper-pkg lint && flipper-pkg bundle"
   },
   "keywords": [
     "react-native",
@@ -27,8 +31,12 @@
   ],
   "author": "Joel Arvidsson",
   "license": "MIT",
-  "dependencies": {},
+  "peerDependencies": {
+    "flipper": "latest"
+  },
   "devDependencies": {
+    "flipper": "latest",
+    "flipper-pkg": "latest",
     "prettier": "^1.19.1"
   }
 }
