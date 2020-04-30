@@ -23,6 +23,9 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
+# Transpilation / bundling output
+dist
+
 # OSX
 .DS_Store
 
