@@ -19,7 +19,6 @@
     "ios"
   ],
   "scripts": {
-    "format": "prettier '{,examples/*/}*.{md,js,json}' --write",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepack": "flipper-pkg lint && flipper-pkg bundle"
   },

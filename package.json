@@ -3,6 +3,9 @@
   "private": true,
   "author": "Joel Arvidsson",
   "license": "MIT",
+  "scripts": {
+    "format": "prettier '{,packages/*/,examples/*/}*.{md,js,json}' --write"
+  },
   "workspaces": {
     "packages": [
       "examples/*",
