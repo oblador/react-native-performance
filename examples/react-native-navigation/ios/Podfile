@@ -1,14 +1,14 @@
-require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require_relative '../../../node_modules/react-native/scripts/react_native_pods'
+require_relative '../../../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '10.0'
+platform :ios, '11.0'
 
-target 'Example' do
+target 'RNN' do
   config = use_native_modules!
 
-  use_react_native!(:path => config["reactNativePath"])
+  use_react_native!(:path => config[:reactNativePath])
 
-  target 'ExampleTests' do
+  target 'RNNTests' do
     inherit! :complete
     # Pods for testing
   end
@@ -23,10 +23,10 @@ target 'Example' do
   end
 end
 
-target 'Example-tvOS' do
-  # Pods for Example-tvOS
+target 'RNN-tvOS' do
+  # Pods for RNN-tvOS
 
-  target 'Example-tvOSTests' do
+  target 'RNN-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
   end
