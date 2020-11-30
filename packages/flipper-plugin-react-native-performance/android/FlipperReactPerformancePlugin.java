@@ -2,6 +2,8 @@ package com.phorestvoucher;
 
 import android.os.Process;
 import android.os.SystemClock;
+import android.system.Os;
+import android.system.OsConstants;
 
 import com.facebook.flipper.core.FlipperConnection;
 import com.facebook.flipper.core.FlipperObject;
@@ -34,8 +36,6 @@ public class FlipperReactPerformancePlugin implements FlipperPlugin {
 
         measureNativeStartupTime();
 
-        measureBundleSize();
-
         addReactMarkers();
     }
 
@@ -63,12 +63,15 @@ public class FlipperReactPerformancePlugin implements FlipperPlugin {
                             break;
                         case DOWNLOAD_END:
                             scriptDownloadEnd = System.currentTimeMillis();
+                            sendMeasurements();
                             break;
                         case RUN_JS_BUNDLE_START:
                             scriptExecutionStart = System.currentTimeMillis();
                             break;
                         case RUN_JS_BUNDLE_END:
                             scriptExecutionEnd = System.currentTimeMillis();
+                            measureBundleSize();
+                            sendMeasurements();
                             break;
                         case CONTENT_APPEARED:
                             contentAppeared = System.currentTimeMillis();
@@ -76,6 +79,12 @@ public class FlipperReactPerformancePlugin implements FlipperPlugin {
                             break;
                         case RELOAD:
                             sessionStartTime = System.currentTimeMillis();
+                            scriptDownloadStart = 0;
+                            scriptDownloadEnd = 0;
+                            scriptExecutionStart = 0;
+                            scriptExecutionEnd = 0;
+                            contentAppeared = 0;
+                            sendMeasurements();
                             break;
                     }
                 });
@@ -97,16 +106,13 @@ public class FlipperReactPerformancePlugin implements FlipperPlugin {
         try {
             final String[] fields = stat.substring(stat.lastIndexOf(field2End)).split(fieldSep);
             final long t = Long.parseLong(fields[fieldStartTime]);
-            int tckName;
-            try {
-                tckName = Class.forName("android.system.OsConstants").getField("_SC_CLK_TCK").getInt(null);
-            } catch (ClassNotFoundException e) {
-                tckName = Class.forName("libcore.io.OsConstants").getField("_SC_CLK_TCK").getInt(null);
+            final long tck;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                tck = Os.sysconf(OsConstants._SC_CLK_TCK);
+            } else {
+                tck = 0;
             }
-
-            final Object os = Class.forName("libcore.io.Libcore").getField("os").get(null);
-            final long tck = (Long) os.getClass().getMethod("sysconf", Integer.TYPE).invoke(os, tckName);
-            return t * msInSec / tck;
+            return (t * msInSec) / tck;
         } catch (final Exception e) {
             throw new IOException(e);
         }
@@ -127,7 +133,7 @@ public class FlipperReactPerformancePlugin implements FlipperPlugin {
                 .put("bundleSize", bundleSize)
                 .put("scriptDownload", scriptDownloadEnd - scriptDownloadStart)
                 .put("scriptExecution", scriptExecutionEnd - scriptExecutionStart)
-                .put("tti", contentAppeared - sessionStartTime)
+                .put("tti", contentAppeared == 0 ? 0 : (contentAppeared - sessionStartTime))
                 .build());
     }
 
