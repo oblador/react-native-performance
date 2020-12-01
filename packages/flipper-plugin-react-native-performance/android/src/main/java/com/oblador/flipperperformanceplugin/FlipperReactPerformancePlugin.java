@@ -1,4 +1,4 @@
-package com.phorestvoucher;
+package com.oblador.flipperperformanceplugin;
 
 import android.os.Process;
 import android.os.SystemClock;
@@ -107,11 +107,7 @@ public class FlipperReactPerformancePlugin implements FlipperPlugin {
             final String[] fields = stat.substring(stat.lastIndexOf(field2End)).split(fieldSep);
             final long t = Long.parseLong(fields[fieldStartTime]);
             final long tck;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                tck = Os.sysconf(OsConstants._SC_CLK_TCK);
-            } else {
-                tck = 0;
-            }
+            tck = Os.sysconf(OsConstants._SC_CLK_TCK);
             return (t * msInSec) / tck;
         } catch (final Exception e) {
             throw new IOException(e);
@@ -144,7 +140,7 @@ public class FlipperReactPerformancePlugin implements FlipperPlugin {
 
     @Override
     public String getId() {
-        return "flipper-plugin-react-native-performance";
+        return "flipper-plugin-react-native-performance-bekir";
     }
 
     @Override
