@@ -140,7 +140,7 @@ public class FlipperReactPerformancePlugin implements FlipperPlugin {
 
     @Override
     public String getId() {
-        return "flipper-plugin-react-native-performance-bekir";
+        return "flipper-plugin-react-native-performance";
     }
 
     @Override
