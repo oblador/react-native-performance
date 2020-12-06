@@ -96,6 +96,9 @@ Edit your `AppDelegate.m` like above, but for the `application:didFinishLaunchin
 ### Android
 Add FlipperReactPerformancePlugin to your `ReactNativeFlipper.java`
 ```diff
++   import com.oblador.flipperperformanceplugin.FlipperReactPerformancePlugin;
+
+...
 public static void initializeFlipper(Context context, ReactInstanceManager reactInstanceManager) {
     ...
 +   client.addPlugin(new FlipperReactPerformancePlugin(reactInstanceManager));
