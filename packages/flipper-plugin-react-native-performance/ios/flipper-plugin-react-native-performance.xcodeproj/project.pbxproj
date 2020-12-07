@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0BB1526B25794A48009DDD96 /* FlipperPerformance.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BB1526A25794A48009DDD96 /* FlipperPerformance.h */; };
+		0BB1527025794A92009DDD96 /* FlipperPerformance.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BB1526F25794A92009DDD96 /* FlipperPerformance.m */; };
 		93B250D7256EA0A6007CC95B /* FlipperReactPerformancePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 93B250D5256EA0A6007CC95B /* FlipperReactPerformancePlugin.m */; };
 		93B250D8256EA0A6007CC95B /* FlipperReactPerformancePlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 93B250D6256EA0A6007CC95B /* FlipperReactPerformancePlugin.h */; };
 /* End PBXBuildFile section */
@@ -35,8 +37,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		5D82366F1B0CE05B005A9EF3 /* libflipper-plugin-react-native-performance.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libflipper-plugin-react-native-performance.a"; path = "/Users/joel.arvidsson/Code/flipper-plugin-react-native-performance/examples/Vanilla/node_modules/flipper-plugin-react-native-performance/ios/build/Debug-iphoneos/libflipper-plugin-react-native-performance.a"; sourceTree = "<absolute>"; };
-		6478985F1F38BF9100DA1C12 /* libRNKeychain.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = libRNKeychain.a; path = "/Users/joel.arvidsson/Code/flipper-plugin-react-native-performance/examples/Vanilla/node_modules/flipper-plugin-react-native-performance/ios/build/Debug-appletvos/libRNKeychain.a"; sourceTree = "<absolute>"; };
+		0BB1526625794A08009DDD96 /* libflipper-plugin-react-native-performance.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libflipper-plugin-react-native-performance.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0BB1526725794A08009DDD96 /* libRNKeychain.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNKeychain.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		0BB1526A25794A48009DDD96 /* FlipperPerformance.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FlipperPerformance.h; sourceTree = "<group>"; };
+		0BB1526F25794A92009DDD96 /* FlipperPerformance.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FlipperPerformance.m; sourceTree = "<group>"; };
 		93B250D5256EA0A6007CC95B /* FlipperReactPerformancePlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FlipperReactPerformancePlugin.m; sourceTree = "<group>"; };
 		93B250D6256EA0A6007CC95B /* FlipperReactPerformancePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlipperReactPerformancePlugin.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -63,6 +67,8 @@
 			isa = PBXGroup;
 			children = (
 				93B250D4256EA09C007CC95B /* FlipperReactPerformancePlugin */,
+				0BB1526625794A08009DDD96 /* libflipper-plugin-react-native-performance.a */,
+				0BB1526725794A08009DDD96 /* libRNKeychain.a */,
 			);
 			sourceTree = "<group>";
 			wrapsLines = 0;
@@ -72,6 +78,8 @@
 			children = (
 				93B250D6256EA0A6007CC95B /* FlipperReactPerformancePlugin.h */,
 				93B250D5256EA0A6007CC95B /* FlipperReactPerformancePlugin.m */,
+				0BB1526A25794A48009DDD96 /* FlipperPerformance.h */,
+				0BB1526F25794A92009DDD96 /* FlipperPerformance.m */,
 			);
 			name = FlipperReactPerformancePlugin;
 			sourceTree = "<group>";
@@ -83,6 +91,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0BB1526B25794A48009DDD96 /* FlipperPerformance.h in Headers */,
 				93B250D8256EA0A6007CC95B /* FlipperReactPerformancePlugin.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -91,6 +100,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0BB1526C25794A48009DDD96 /* FlipperPerformance.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,7 +122,7 @@
 			);
 			name = "flipper-plugin-react-native-performance";
 			productName = RNKeychain;
-			productReference = 5D82366F1B0CE05B005A9EF3 /* libflipper-plugin-react-native-performance.a */;
+			productReference = 0BB1526625794A08009DDD96 /* libflipper-plugin-react-native-performance.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		6478985E1F38BF9100DA1C12 /* flipper-plugin-react-native-performance-tvOS */ = {
@@ -130,7 +140,7 @@
 			);
 			name = "flipper-plugin-react-native-performance-tvOS";
 			productName = "RNKeychain-tvOS";
-			productReference = 6478985F1F38BF9100DA1C12 /* libRNKeychain.a */;
+			productReference = 0BB1526725794A08009DDD96 /* libRNKeychain.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -176,6 +186,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				93B250D7256EA0A6007CC95B /* FlipperReactPerformancePlugin.m in Sources */,
+				0BB1527025794A92009DDD96 /* FlipperPerformance.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

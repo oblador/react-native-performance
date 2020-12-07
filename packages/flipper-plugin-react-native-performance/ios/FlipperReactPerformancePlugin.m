@@ -7,6 +7,7 @@
 #import <FlipperKit/FlipperResponder.h>
 #import <React/RCTRootView.h>
 #import <React/RCTPerformanceLogger.h>
+#import "FlipperPerformance.h"
 
 static CFTimeInterval getProcessStartTime() {
     size_t len = 4;
@@ -61,13 +62,16 @@ static CFTimeInterval sPreMainStartTimeRelative;
 
 - (void)setBridge:(RCTBridge *)bridge {
     _bridge = bridge;
+    
+    [self addLoggerToModule];
+    
     NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
     [notificationCenter addObserver:self
                            selector:@selector(scriptWillLoad)
                                name:RCTJavaScriptWillStartLoadingNotification
                              object:bridge];
     [notificationCenter addObserver:self
-                           selector:@selector(sendMeasurements)
+                           selector:@selector(scriptDidLoad)
                                name:RCTJavaScriptDidLoadNotification
                              object:bridge];
     [notificationCenter addObserver:self
@@ -78,6 +82,22 @@ static CFTimeInterval sPreMainStartTimeRelative;
                            selector:@selector(sendMeasurements)
                                name:RCTContentDidAppearNotification
                              object:nil];
+}
+
+- (void)addLoggerToModule {
+    FlipperPerformance *performanceModule = [_bridge moduleForName: @"RNFlipperReactPerformance"];
+    [performanceModule addLogger:^(NSString* name, NSDictionary* value)
+      {
+        if (!self.connection) {
+          return;
+        }
+        [self.connection send:name withParams:value];
+      }];
+}
+
+- (void)scriptDidLoad {
+    [self addLoggerToModule];
+    [self sendMeasurements];
 }
 
 - (void)scriptWillLoad {

@@ -8,30 +8,32 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class FlipperPerformancePackage implements ReactPackage {
 
-  public FlipperPerformancePackage() {
+    FlipperLogger flipperLogger;
 
-  }
+    public FlipperPerformancePackage(){}
 
-  @Override
-  @NonNull
-  public List<NativeModule> createNativeModules(@NonNull final ReactApplicationContext reactContext) {
-    return Collections.emptyList();
-  }
+    public FlipperPerformancePackage(FlipperLogger flipperLogger) {
+        this.flipperLogger = flipperLogger;
+    }
 
-  @NonNull
-  public List<Class<? extends JavaScriptModule>> createJSModules() {
-    return Collections.emptyList();
-  }
+    @Override
+    public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
+        return Collections.emptyList();
+    }
 
-  @Override
-  @NonNull
-  public List<ViewManager> createViewManagers(@NonNull final ReactApplicationContext reactContext) {
-    return Collections.emptyList();
-  }
+    @Override
+    public List<NativeModule> createNativeModules(
+            ReactApplicationContext reactContext) {
+        List<NativeModule> modules = new ArrayList<>();
+
+        modules.add(new FlipperPerformanceModule(reactContext, flipperLogger));
+
+        return modules;
+    }
 }
