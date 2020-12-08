@@ -12,7 +12,7 @@ It provides the following metrics:
 - Script bundle size
 - Time to interactive of root view
 
-Currently only these standard metrics on iOS is supported, but the aim is to further expand profiling capabilities and add Android support in the future.
+Currently only these standard metrics are supported, but the aim is to further expand profiling capabilities.
 
 ## Installation
 
@@ -91,6 +91,20 @@ Edit your `AppDelegate.m` like above, but for the `application:didFinishLaunchin
 +   #endif
     ...
   }
+```
+
+### Android
+Add FlipperReactPerformancePlugin to your `ReactNativeFlipper.java`
+```diff
++   import com.oblador.flipperperformanceplugin.FlipperReactPerformancePlugin;
+
+...
+public static void initializeFlipper(Context context, ReactInstanceManager reactInstanceManager) {
+    ...
++   client.addPlugin(new FlipperReactPerformancePlugin(reactInstanceManager));
+    client.start();
+    ...
+}
 ```
 
 ## Demo

@@ -16,7 +16,8 @@
   "files": [
     "index.js",
     "src",
-    "ios"
+    "ios",
+    "android"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -31,7 +32,8 @@
   "author": "Joel Arvidsson",
   "license": "MIT",
   "peerDependencies": {
-    "flipper": "latest"
+    "flipper": "latest",
+    "react-native": "*"
   },
   "devDependencies": {
     "flipper": "latest",
