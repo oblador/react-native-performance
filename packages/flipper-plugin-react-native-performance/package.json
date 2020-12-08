@@ -37,7 +37,6 @@
   },
   "devDependencies": {
     "flipper": "latest",
-    "flipper-pkg": "latest",
-    "react-native": "*"
+    "flipper-pkg": "latest"
   }
 }

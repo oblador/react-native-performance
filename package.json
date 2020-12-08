@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "lerna": "^3.20.2",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "react-native": "*"
   }
 }
