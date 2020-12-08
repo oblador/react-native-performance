@@ -32,10 +32,12 @@
   "author": "Joel Arvidsson",
   "license": "MIT",
   "peerDependencies": {
-    "flipper": "latest"
+    "flipper": "latest",
+    "react-native": "*"
   },
   "devDependencies": {
     "flipper": "latest",
-    "flipper-pkg": "latest"
+    "flipper-pkg": "latest",
+    "react-native": "*"
   }
 }
