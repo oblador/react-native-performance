@@ -1,0 +1,27 @@
+{
+  "name": "react-native-performance-logger",
+  "version": "0.1.0",
+  "description": "Log performance events",
+  "homepage": "https://github.com/oblador/flipper-plugin-react-native-performance#readme",
+  "main": "src/index.js",
+  "typings": "src/index.d.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oblador/flipper-plugin-react-native-performance.git",
+    "directory": "packages/react-native-performance-logger"
+  },
+  "bugs": {
+    "url": "https://github.com/oblador/flipper-plugin-react-native-performance/issues"
+  },
+  "keywords": [
+    "react-native",
+    "flipper-plugin",
+    "performance",
+    "benchmark"
+  ],
+  "author": "Joel Arvidsson",
+  "license": "MIT"
+}

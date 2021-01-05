@@ -24,11 +24,30 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import perfLogger from 'react-native-performance-logger';
+
+const output = {
+  addTimespan: (args) => {
+    console.log(`group: ${args.group} key: ${args.key} duration: ${args.duration}`)
+  },
+  addPoint: (args) => {
+    console.log(`group: ${args.group} key: ${args.key} time: ${args.time}`)
+  },
+  addMetric: (args) => {
+    console.log(`key: ${args.key} value: ${args.value}`)
+  }
+};
+perfLogger.addOutputs([output]);
+
 const App: () => React$Node = () => {
+  perfLogger.startTimespan({ group: 'firstpage', key: 'render' });
+  const onLayout = () => {
+    perfLogger.stopTimespan({ group: 'firstpage', key: 'render' });
+  };
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
+      <SafeAreaView onLayout={onLayout}>
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
           style={styles.scrollView}
