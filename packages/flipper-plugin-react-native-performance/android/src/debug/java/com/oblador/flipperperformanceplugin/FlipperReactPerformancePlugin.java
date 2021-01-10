@@ -9,6 +9,8 @@ import com.facebook.flipper.core.FlipperConnection;
 import com.facebook.flipper.core.FlipperObject;
 import com.facebook.flipper.core.FlipperPlugin;
 import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactMarker;
 
 import java.io.BufferedReader;
@@ -72,6 +74,7 @@ public class FlipperReactPerformancePlugin implements FlipperPlugin {
                             scriptExecutionEnd = System.currentTimeMillis();
                             measureBundleSize();
                             sendMeasurements();
+                            addPerformanceModule();
                             break;
                         case CONTENT_APPEARED:
                             contentAppeared = System.currentTimeMillis();
@@ -131,6 +134,34 @@ public class FlipperReactPerformancePlugin implements FlipperPlugin {
                 .put("scriptExecution", scriptExecutionEnd - scriptExecutionStart)
                 .put("tti", contentAppeared == 0 ? 0 : (contentAppeared - sessionStartTime))
                 .build());
+    }
+
+    private void addPerformanceModule() {
+        ReactContext context = reactInstanceManager.getCurrentReactContext();
+
+        if (context != null) {
+            extendNativeModulesWithPerformance((ReactApplicationContext) context);
+        } else {
+            reactInstanceManager.addReactInstanceEventListener(
+                    new ReactInstanceManager.ReactInstanceEventListener() {
+                        @Override
+                        public void onReactContextInitialized(ReactContext context) {
+                            reactInstanceManager.removeReactInstanceEventListener(this);
+                            extendNativeModulesWithPerformance((ReactApplicationContext) context);
+                        }
+                    });
+        }
+    }
+
+    private void extendNativeModulesWithPerformance(ReactApplicationContext context) {
+        FlipperLogger logger = (method, object) -> {
+            if (connection != null) {
+                connection.send(method, object);
+            }
+        };
+
+        FlipperPerformanceModule module = context.getNativeModule(FlipperPerformanceModule.class);
+        module.setLogger(logger);
     }
 
     @Override

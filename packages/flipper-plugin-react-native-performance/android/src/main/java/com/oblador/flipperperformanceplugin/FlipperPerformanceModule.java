@@ -1,5 +1,7 @@
 package com.oblador.flipperperformanceplugin;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -7,21 +9,21 @@ import com.facebook.flipper.core.FlipperObject;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.module.annotations.ReactModule;
 
+@ReactModule(name = "RNFlipperReactPerformance")
 public class FlipperPerformanceModule extends ReactContextBaseJavaModule {
 
     FlipperLogger flipperLogger;
 
-    public FlipperPerformanceModule(@Nullable ReactApplicationContext reactContext, FlipperLogger flipperLogger) {
+    public FlipperPerformanceModule(@Nullable ReactApplicationContext reactContext) {
         super(reactContext);
-        this.flipperLogger = flipperLogger;
     }
 
     /**
-     *
-     * @param name metric name
+     * @param name  metric name
      * @param value metric value
-     * @param type byte, ms or count
+     * @param type  byte, ms or count
      */
     @ReactMethod
     public void logMetric(String name, String value, String type) {
@@ -58,6 +60,10 @@ public class FlipperPerformanceModule extends ReactContextBaseJavaModule {
                 .put("stopTime", stopTime)
                 .put("duration", duration)
                 .build());
+    }
+
+    public void setLogger(FlipperLogger flipperLogger) {
+        this.flipperLogger = flipperLogger;
     }
 
     @NonNull

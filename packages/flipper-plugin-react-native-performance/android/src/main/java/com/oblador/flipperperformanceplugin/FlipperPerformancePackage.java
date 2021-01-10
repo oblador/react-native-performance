@@ -1,9 +1,6 @@
 package com.oblador.flipperperformanceplugin;
 
-import androidx.annotation.NonNull;
-
 import com.facebook.react.ReactPackage;
-import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
@@ -16,10 +13,7 @@ public class FlipperPerformancePackage implements ReactPackage {
 
     FlipperLogger flipperLogger;
 
-    public FlipperPerformancePackage(){}
-
-    public FlipperPerformancePackage(FlipperLogger flipperLogger) {
-        this.flipperLogger = flipperLogger;
+    public FlipperPerformancePackage() {
     }
 
     @Override
@@ -32,7 +26,7 @@ public class FlipperPerformancePackage implements ReactPackage {
             ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
 
-        modules.add(new FlipperPerformanceModule(reactContext, flipperLogger));
+        modules.add(new FlipperPerformanceModule(reactContext));
 
         return modules;
     }
