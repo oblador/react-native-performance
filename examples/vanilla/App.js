@@ -24,52 +24,72 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import performance, { PerformanceObserver } from 'react-native-performance';
+
+const Entry = ({ name, value }) => (
+  <Text style={styles.entry}>
+    {name}: {value.toFixed(1)}ms
+  </Text>
+);
+
 const App: () => React$Node = () => {
+  performance.mark('appRender');
+  const didMeasureInitialLayout = React.useRef(false);
+  const handleLayout = React.useCallback(() => {
+    if (!didMeasureInitialLayout.current) {
+      didMeasureInitialLayout.current = true;
+      performance.measure('appMount', 'appRender');
+    }
+  }, []);
+
+  const [timings, setTimings] = React.useState([]);
+  const [measures, setMeasures] = React.useState([]);
+  React.useEffect(() => {
+    new PerformanceObserver((list, observer) => {
+      if (list.getEntries().find(entry => entry.name === 'contentAppear')) {
+        observer.disconnect();
+        setTimings(
+          Object.entries(performance.timing).sort((a, b) => a[1] - b[1])
+        );
+      }
+    }).observe({ type: 'mark', buffered: true });
+
+    new PerformanceObserver((list, observer) => {
+      setMeasures(performance.getEntriesByType('measure'));
+    }).observe({ type: 'measure', buffered: true });
+  }, []);
+
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}
-        >
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      style={styles.scrollView}
+      onLayout={handleLayout}
+    >
+      <Header />
+      {global.HermesInternal == null ? null : (
+        <View style={styles.engine}>
+          <Text style={styles.footer}>Engine: Hermes</Text>
+        </View>
+      )}
+      <View style={styles.body}>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>performance.timing</Text>
+          {timings.map(([name, startTime]) => (
+            <Entry
+              key={name}
+              name={name}
+              value={startTime - performance.timing.performanceStart}
+            />
+          ))}
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>performance.measure()</Text>
+          {measures.map(({ name, duration, startTime }) => (
+            <Entry key={startTime} name={name} value={duration} />
+          ))}
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 
@@ -85,22 +105,23 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   sectionContainer: {
-    marginTop: 32,
+    marginBottom: 20,
     paddingHorizontal: 24,
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '600',
     color: Colors.black,
+    fontFamily: 'Courier',
+    marginTop: 20,
+    marginBottom: 10,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
+  entry: {
+    marginBottom: 8,
+    fontSize: 14,
     fontWeight: '400',
     color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
+    fontFamily: 'Courier',
   },
   footer: {
     color: Colors.dark,
