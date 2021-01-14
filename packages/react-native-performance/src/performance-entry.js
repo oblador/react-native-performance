@@ -39,13 +39,12 @@ export class PerformanceResourceTiming extends PerformanceEntry {
     startTime,
     duration,
     initiatorType,
-    fetchStart,
     responseEnd,
     transferSize,
   } = {}) {
     super(name, 'resource', startTime, duration);
     this.initiatorType = initiatorType;
-    this.fetchStart = fetchStart || startTime;
+    this.fetchStart = startTime;
     this.responseEnd = responseEnd;
     this.transferSize = transferSize;
     this.connectEnd = 0;
