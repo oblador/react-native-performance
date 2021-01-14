@@ -38,7 +38,10 @@ export const createPerformance = () => {
   const mark = (markName, markOptions = {}) =>
     addEntry(
       new PerformanceMark(markName, {
-        startTime: markOptions.startTime || now(),
+        startTime:
+          'startTime' in markOptions && markOptions.startTime !== undefined
+            ? markOptions.startTime
+            : now(),
         detail: markOptions.detail,
       })
     );
