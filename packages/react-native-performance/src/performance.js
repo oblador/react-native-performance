@@ -5,8 +5,8 @@ import { PerformanceMark, PerformanceMeasure } from './performance-entry';
 export const now = () => global.nativePerformanceNow();
 
 export const createPerformance = () => {
+  const timeOrigin = now();
   const { addEventListener, removeEventListener, emit } = createEventEmitter();
-
   const marks = new Map();
   const timing = {};
   let entries = [];
@@ -15,8 +15,6 @@ export const createPerformance = () => {
     timing[name] = startTime;
     marks.set(name, startTime);
   }
-
-  setTiming('performanceStart', now());
 
   function addEntry(entry) {
     entries.push(entry);
@@ -57,7 +55,7 @@ export const createPerformance = () => {
     let endTime = 0;
 
     if (!startMark) {
-      startTime = timing.performanceStart;
+      startTime = timeOrigin;
     } else if (marks.has(startMark)) {
       startTime = marks.get(startMark);
     } else {
@@ -101,6 +99,7 @@ export const createPerformance = () => {
     setTiming,
     performance: {
       timing,
+      timeOrigin,
       now,
       mark,
       clearMarks,

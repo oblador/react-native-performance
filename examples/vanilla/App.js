@@ -91,7 +91,7 @@ const App: () => React$Node = () => {
             <Entry
               key={name}
               name={name}
-              value={startTime - performance.timing.performanceStart}
+              value={startTime - performance.timeOrigin}
             />
           ))}
         </View>
