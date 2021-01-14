@@ -24,7 +24,12 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-import performance, { PerformanceObserver } from 'react-native-performance';
+import performance, {
+  setResourceLoggingEnabled,
+  PerformanceObserver,
+} from 'react-native-performance';
+
+setResourceLoggingEnabled(true);
 
 const Entry = ({ name, value }) => (
   <Text style={styles.entry}>
@@ -44,6 +49,7 @@ const App: () => React$Node = () => {
 
   const [timings, setTimings] = React.useState([]);
   const [measures, setMeasures] = React.useState([]);
+  const [resources, setResources] = React.useState([]);
   React.useEffect(() => {
     new PerformanceObserver((list, observer) => {
       if (list.getEntries().find(entry => entry.name === 'contentAppear')) {
@@ -57,6 +63,13 @@ const App: () => React$Node = () => {
     new PerformanceObserver((list, observer) => {
       setMeasures(performance.getEntriesByType('measure'));
     }).observe({ type: 'measure', buffered: true });
+    new PerformanceObserver((list, observer) => {
+      setResources(performance.getEntriesByType('resource'));
+    }).observe({ type: 'resource', buffered: true });
+  }, []);
+
+  React.useEffect(() => {
+    fetch('https://xkcd.com/info.0.json');
   }, []);
 
   return (
@@ -85,6 +98,14 @@ const App: () => React$Node = () => {
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>performance.measure()</Text>
           {measures.map(({ name, duration, startTime }) => (
+            <Entry key={startTime} name={name} value={duration} />
+          ))}
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            performance.getEntriesByType('resource')
+          </Text>
+          {resources.map(({ name, duration, startTime }) => (
             <Entry key={startTime} name={name} value={duration} />
           ))}
         </View>

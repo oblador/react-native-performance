@@ -1,5 +1,6 @@
 import { NativeModules, NativeEventEmitter } from 'react-native';
 import { createPerformance } from './performance';
+import { installResourceLogger } from './resource';
 import { PerformanceMark } from './performance-entry';
 
 const {
@@ -20,5 +21,13 @@ emitter.addListener('mark', data => {
 });
 
 export default performance;
+
+export const setResourceLoggingEnabled = (enabled = true) => {
+  if (enabled) {
+    installResourceLogger(globalThis, performance, addEntry);
+  } else {
+    uninstallResourceLogger(globalThis);
+  }
+};
 
 export { PerformanceObserver };

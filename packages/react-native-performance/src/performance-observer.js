@@ -18,7 +18,7 @@ export class PerformanceObserverEntryList {
   }
 }
 
-const SUPPORTED_ENTRY_TYPES = ['mark', 'measure'];
+const SUPPORTED_ENTRY_TYPES = ['mark', 'measure', 'resource'];
 
 export const createPerformanceObserver = ({
   addEventListener,
