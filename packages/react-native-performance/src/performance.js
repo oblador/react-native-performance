@@ -22,6 +22,7 @@ export const createPerformance = () => {
       marks.set(entry.name, entry.startTime);
     }
     emit(entry);
+    return entry;
   }
 
   const removeEntries = (type, name) => {
@@ -34,47 +35,108 @@ export const createPerformance = () => {
     });
   };
 
-  const mark = name => addEntry(new PerformanceMark(name, now()));
-
-  const annotate = (name, data = {}) => {
-    if (!marks.has(name)) {
-      throw new Error(
-        `Failed to execute 'annotate' on 'Performance': The entry '${name}' does not exist.`
-      );
-    }
-    const entry = marks.get(name);
-    entry.annotate(data);
-  };
+  const mark = (markName, markOptions = {}) =>
+    addEntry(
+      new PerformanceMark(markName, {
+        startTime: markOptions.startTime || now(),
+        detail: markOptions.detail,
+      })
+    );
 
   const clearMarks = name => removeEntries('mark', name);
 
   const clearMeasures = name => removeEntries('measure', name);
 
-  const measure = (name, startMark, endMark) => {
-    let startTime = 0;
-    let endTime = 0;
+  const convertMarkToTimestamp = markOrTimestamp => {
+    switch (typeof markOrTimestamp) {
+      case 'string': {
+        if (!marks.has(markOrTimestamp)) {
+          throw new Error(
+            `Failed to execute 'measure' on 'Performance': The mark '${markOrTimestamp}' does not exist.`
+          );
+        }
+        return marks.get(markOrTimestamp);
+      }
+      case 'number': {
+        return markOrTimestamp;
+      }
+      default:
+        throw new TypeError(
+          `Failed to execute 'measure' on 'Performance': Expected mark name or timestamp, got '${markOrTimestamp}'.`
+        );
+    }
+  };
 
-    if (!startMark) {
-      startTime = timeOrigin;
-    } else if (marks.has(startMark)) {
-      startTime = marks.get(startMark);
-    } else {
-      throw new Error(
-        `Failed to execute 'measure' on 'Performance': The mark '${startMark}' does not exist.`
-      );
+  const measure = (measureName, startOrMeasureOptions = {}, endMark) => {
+    let start = 0;
+    let end = 0;
+
+    if (
+      typeof startOrMeasureOptions === 'object' &&
+      startOrMeasureOptions.constructor == Object
+    ) {
+      if (endMark) {
+        throw new TypeError(
+          `Failed to execute 'measure' on 'Performance': The measureOptions and endMark arguments may not be combined.`
+        );
+      }
+      if (!startOrMeasureOptions.start && !startOrMeasureOptions.end) {
+        throw new TypeError(
+          `Failed to execute 'measure' on 'Performance': At least one of the start and end option must be passed.`
+        );
+      }
+      if (
+        startOrMeasureOptions.start &&
+        startOrMeasureOptions.end &&
+        startOrMeasureOptions.duration
+      ) {
+        throw new TypeError(
+          `Failed to execute 'measure' on 'Performance': Cannot send start, end and duration options together.`
+        );
+      }
     }
 
-    if (!endMark) {
-      endTime = now();
-    } else if (marks.has(endMark)) {
-      endTime = marks.get(endMark);
+    if (endMark) {
+      end = convertMarkToTimestamp(endMark);
+    } else if (startOrMeasureOptions && startOrMeasureOptions.end) {
+      end = convertMarkToTimestamp(startOrMeasureOptions.end);
+    } else if (
+      startOrMeasureOptions &&
+      startOrMeasureOptions.start &&
+      startOrMeasureOptions.duration
+    ) {
+      end =
+        convertMarkToTimestamp(startOrMeasureOptions.start) +
+        convertMarkToTimestamp(startOrMeasureOptions.duration);
     } else {
-      throw new Error(
-        `Failed to execute 'measure' on 'Performance': The mark '${endMark}' does not exist.`
-      );
+      end = now();
     }
 
-    addEntry(new PerformanceMeasure(name, startTime, endTime - startTime));
+    if (startOrMeasureOptions && startOrMeasureOptions.start) {
+      start = convertMarkToTimestamp(startOrMeasureOptions.start);
+    } else if (
+      startOrMeasureOptions &&
+      startOrMeasureOptions.end &&
+      startOrMeasureOptions.duration
+    ) {
+      start =
+        convertMarkToTimestamp(startOrMeasureOptions.end) -
+        convertMarkToTimestamp(startOrMeasureOptions.duration);
+    } else if (typeof startOrMeasureOptions === 'string') {
+      start = convertMarkToTimestamp(startOrMeasureOptions);
+    } else {
+      start = timeOrigin;
+    }
+
+    return addEntry(
+      new PerformanceMeasure(measureName, {
+        detail: startOrMeasureOptions
+          ? startOrMeasureOptions.detail
+          : undefined,
+        start,
+        duration: end - start,
+      })
+    );
   };
 
   const getEntries = () => entries.slice(0);
@@ -104,7 +166,6 @@ export const createPerformance = () => {
       mark,
       clearMarks,
       measure,
-      annotate,
       clearMeasures,
       getEntries,
       getEntriesByName,

@@ -102,7 +102,6 @@ RCT_EXPORT_MODULE();
     }
 }
 
-
 - (void)emitMarkNamed:(NSString *)name
 {
     [self emitMarkNamed:name withStartTime:CACurrentMediaTime()];

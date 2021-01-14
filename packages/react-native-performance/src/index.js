@@ -17,7 +17,7 @@ emitter.addListener('timing', data => {
 });
 
 emitter.addListener('mark', data => {
-  addEntry(new PerformanceMark(data.name, data.startTime));
+  performance.mark(data.name, { startTime: data.startTime });
 });
 
 export default performance;
