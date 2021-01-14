@@ -53,7 +53,6 @@ export const createPerformance = () => {
   const clearMeasures = name => removeEntries('measure', name);
 
   const measure = (name, startMark, endMark) => {
-    const currentTime = now();
     let startTime = 0;
     let endTime = 0;
 
@@ -68,7 +67,7 @@ export const createPerformance = () => {
     }
 
     if (!endMark) {
-      endTime = currentTime;
+      endTime = now();
     } else if (marks.has(endMark)) {
       endTime = marks.get(endMark);
     } else {
@@ -77,7 +76,7 @@ export const createPerformance = () => {
       );
     }
 
-    addEntry(new PerformanceMeasure(name, currentTime, endTime - startTime));
+    addEntry(new PerformanceMeasure(name, startTime, endTime - startTime));
   };
 
   const getEntries = () => entries.slice(0);

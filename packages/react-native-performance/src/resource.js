@@ -7,7 +7,6 @@ export const installResourceLogger = (context, performance, addEntry) => {
         super(...args);
         this.performanceStartTime = null;
 
-        let onreadystatechange;
         super.onreadystatechange = () => {
           if (this.readyState === this.DONE) {
             const responseEnd = performance.now();

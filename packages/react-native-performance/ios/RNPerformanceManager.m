@@ -24,7 +24,7 @@ static CFTimeInterval sNativeLaunchEnd;
 
 @implementation RNPerformanceManager
 {
-  bool hasListeners;
+    bool hasListeners;
 }
 
 RCT_EXPORT_MODULE();
@@ -49,16 +49,16 @@ RCT_EXPORT_MODULE();
 
 - (void)contentDidAppear
 {
-    [self emitTag:RCTPLScriptDownload asMarkPrefix:@"scriptDownload"];
-    [self emitTag:RCTPLScriptExecution asMarkPrefix:@"scriptExecution"];
-    [self emitTag:RCTPLTTI asMarkPrefix:@"reactNativeLaunch"];
-    [self emitTag:RCTPLBridgeStartup asMarkPrefix:@"bridgeSetup"];
+    [self emitTag:RCTPLScriptDownload withNamePrefix:@"scriptDownload"];
+    [self emitTag:RCTPLScriptExecution withNamePrefix:@"scriptExecution"];
+    [self emitTag:RCTPLTTI withNamePrefix:@"reactNativeLaunch"];
+    [self emitTag:RCTPLBridgeStartup withNamePrefix:@"bridgeSetup"];
     [self emitMarkNamed:@"contentAppear"];
 }
 
 - (NSArray<NSString *> *)supportedEvents
 {
-  return @[ @"mark", @"timing" ];
+    return @[ @"mark", @"timing" ];
 }
 
 - (void)invalidate
@@ -69,37 +69,37 @@ RCT_EXPORT_MODULE();
 
 - (void)startObserving
 {
-  hasListeners = YES;
+    hasListeners = YES;
     [self emitTimingNamed:@"nativeLaunchStart" withStartTime:sNativeLaunchStart];
     [self emitTimingNamed:@"nativeLaunchEnd" withStartTime:sNativeLaunchEnd];
 }
 
 -(void)stopObserving
 {
-  hasListeners = NO;
+    hasListeners = NO;
 }
 
-- (void)emitTag:(RCTPLTag)tag asMarkPrefix:(NSString *)markPrefix
+- (void)emitTag:(RCTPLTag)tag withNamePrefix:(NSString *)namePrefix
 {
     CFTimeInterval duration = ([self.bridge.performanceLogger durationForTag:tag] / 1000.f);
     CFTimeInterval end = [self.bridge.performanceLogger valueForTag:tag] / 1000.f;
     if (duration == 0.0f || end == 0.0f) {
-        NSLog(@"Ignoring marks prefixed %@ (%lu) as data is unavailable (duration: %f, end: %f)", markPrefix, (unsigned long)tag, duration, end);
+        NSLog(@"Ignoring marks prefixed %@ (%lu) as data is unavailable (duration: %f, end: %f)", namePrefix, (unsigned long)tag, duration, end);
         return;
     }
     CFTimeInterval start = end - duration;
-    [self emitTimingNamed:[markPrefix stringByAppendingString:@"Start"] withStartTime:start];
-    [self emitTimingNamed:[markPrefix stringByAppendingString:@"End"] withStartTime:end];
+    [self emitTimingNamed:[namePrefix stringByAppendingString:@"Start"] withStartTime:start];
+    [self emitTimingNamed:[namePrefix stringByAppendingString:@"End"] withStartTime:end];
 }
 
 - (void)emitTimingNamed:(NSString *)name withStartTime:(CFTimeInterval)startTime
 {
-  if (hasListeners) {
-      [self sendEventWithName:@"timing" body:@{
-          @"name": name,
-          @"startTime": @(startTime * 1000.f)
-      }];
-  }
+    if (hasListeners) {
+        [self sendEventWithName:@"timing" body:@{
+            @"name": name,
+            @"startTime": @(startTime * 1000.f)
+        }];
+    }
 }
 
 
@@ -110,12 +110,12 @@ RCT_EXPORT_MODULE();
 
 - (void)emitMarkNamed:(NSString *)name withStartTime:(CFTimeInterval)startTime
 {
-  if (hasListeners) {
-      [self sendEventWithName:@"mark" body:@{
-          @"name": name,
-          @"startTime": @(startTime * 1000.f)
-      }];
-  }
+    if (hasListeners) {
+        [self sendEventWithName:@"mark" body:@{
+            @"name": name,
+            @"startTime": @(startTime * 1000.f)
+        }];
+    }
 }
 
 @end
