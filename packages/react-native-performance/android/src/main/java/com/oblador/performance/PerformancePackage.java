@@ -16,7 +16,7 @@ import java.util.List;
 public class PerformancePackage implements ReactPackage {
 
   public PerformancePackage() {
-
+    PerformanceModule.setupListener();
   }
 
   @Override

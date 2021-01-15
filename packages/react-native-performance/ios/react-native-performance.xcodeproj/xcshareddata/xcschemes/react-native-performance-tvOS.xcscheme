@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6478985E1F38BF9100DA1C12"
-               BuildableName = "libRNKeychain.a"
+               BuildableName = "lib.a"
                BlueprintName = "react-native-performance-tvOS"
                ReferencedContainer = "container:react-native-performance.xcodeproj">
             </BuildableReference>
@@ -51,7 +51,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6478985E1F38BF9100DA1C12"
-            BuildableName = "libRNKeychain.a"
+            BuildableName = "lib.a"
             BlueprintName = "react-native-performance-tvOS"
             ReferencedContainer = "container:react-native-performance.xcodeproj">
          </BuildableReference>

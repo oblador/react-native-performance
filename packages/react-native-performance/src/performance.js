@@ -8,17 +8,11 @@ export const createPerformance = () => {
   const timeOrigin = now();
   const { addEventListener, removeEventListener, emit } = createEventEmitter();
   const marks = new Map();
-  const timing = {};
   let entries = [];
-
-  function setTiming(name, startTime) {
-    timing[name] = startTime;
-    marks.set(name, startTime);
-  }
 
   function addEntry(entry) {
     entries.push(entry);
-    if (entry.entryType === 'mark') {
+    if (entry.entryType === 'mark' || entry.entryType === 'react-native-mark') {
       marks.set(entry.name, entry.startTime);
     }
     emit(entry);
@@ -161,9 +155,7 @@ export const createPerformance = () => {
   return {
     PerformanceObserver,
     addEntry,
-    setTiming,
     performance: {
-      timing,
       timeOrigin,
       now,
       mark,

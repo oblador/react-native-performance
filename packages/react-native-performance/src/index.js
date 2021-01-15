@@ -1,23 +1,15 @@
 import { NativeModules, NativeEventEmitter } from 'react-native';
 import { createPerformance } from './performance';
 import { installResourceLogger } from './resource';
-import { PerformanceMark } from './performance-entry';
+import { PerformanceReactNativeMark } from './performance-entry';
 
-const {
-  PerformanceObserver,
-  addEntry,
-  setTiming,
-  performance,
-} = createPerformance();
+const { PerformanceObserver, addEntry, performance } = createPerformance();
 
 const emitter = new NativeEventEmitter(NativeModules.RNPerformanceManager);
 
-emitter.addListener('timing', data => {
-  setTiming(data.name, data.startTime);
-});
-
+console.log('emitter.addListener');
 emitter.addListener('mark', data => {
-  performance.mark(data.name, { startTime: data.startTime });
+  addEntry(new PerformanceReactNativeMark(data.name, data.startTime));
 });
 
 export default performance;

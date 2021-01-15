@@ -10,9 +10,11 @@ export const installResourceLogger = (context, performance, addEntry) => {
         super.onreadystatechange = () => {
           if (this.readyState === this.DONE) {
             const responseEnd = performance.now();
-            const contentLength = Object.entries(this.responseHeaders).find(
-              ([header]) => header.toLowerCase() === 'content-length'
-            );
+            const contentLength =
+              this.responseHeaders &&
+              Object.entries(this.responseHeaders).find(
+                ([header]) => header.toLowerCase() === 'content-length'
+              );
             addEntry(
               new PerformanceResourceTiming({
                 name: this.responseURL,

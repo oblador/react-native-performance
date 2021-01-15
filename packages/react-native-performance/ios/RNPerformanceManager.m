@@ -49,16 +49,18 @@ RCT_EXPORT_MODULE();
 
 - (void)contentDidAppear
 {
-    [self emitTag:RCTPLScriptDownload withNamePrefix:@"scriptDownload"];
-    [self emitTag:RCTPLScriptExecution withNamePrefix:@"scriptExecution"];
-    [self emitTag:RCTPLTTI withNamePrefix:@"reactNativeLaunch"];
+    CFTimeInterval startTime = CACurrentMediaTime();
+    [self emitMarkNamed:@"nativeLaunchStart" withStartTime:sNativeLaunchStart];
+    [self emitMarkNamed:@"nativeLaunchEnd" withStartTime:sNativeLaunchEnd];
+    [self emitTag:RCTPLScriptDownload withNamePrefix:@"download"];
+    [self emitTag:RCTPLScriptExecution withNamePrefix:@"runJsBundle"];
     [self emitTag:RCTPLBridgeStartup withNamePrefix:@"bridgeSetup"];
-    [self emitMarkNamed:@"contentAppear"];
+    [self emitMarkNamed:@"contentAppeared" withStartTime:startTime];
 }
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[ @"mark", @"timing" ];
+    return @[ @"mark" ];
 }
 
 - (void)invalidate
@@ -70,8 +72,6 @@ RCT_EXPORT_MODULE();
 - (void)startObserving
 {
     hasListeners = YES;
-    [self emitTimingNamed:@"nativeLaunchStart" withStartTime:sNativeLaunchStart];
-    [self emitTimingNamed:@"nativeLaunchEnd" withStartTime:sNativeLaunchEnd];
 }
 
 -(void)stopObserving
@@ -88,23 +88,8 @@ RCT_EXPORT_MODULE();
         return;
     }
     CFTimeInterval start = end - duration;
-    [self emitTimingNamed:[namePrefix stringByAppendingString:@"Start"] withStartTime:start];
-    [self emitTimingNamed:[namePrefix stringByAppendingString:@"End"] withStartTime:end];
-}
-
-- (void)emitTimingNamed:(NSString *)name withStartTime:(CFTimeInterval)startTime
-{
-    if (hasListeners) {
-        [self sendEventWithName:@"timing" body:@{
-            @"name": name,
-            @"startTime": @(startTime * 1000.f)
-        }];
-    }
-}
-
-- (void)emitMarkNamed:(NSString *)name
-{
-    [self emitMarkNamed:name withStartTime:CACurrentMediaTime()];
+    [self emitMarkNamed:[namePrefix stringByAppendingString:@"Start"] withStartTime:start];
+    [self emitMarkNamed:[namePrefix stringByAppendingString:@"End"] withStartTime:end];
 }
 
 - (void)emitMarkNamed:(NSString *)name withStartTime:(CFTimeInterval)startTime

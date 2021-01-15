@@ -18,7 +18,12 @@ export class PerformanceObserverEntryList {
   }
 }
 
-const SUPPORTED_ENTRY_TYPES = ['mark', 'measure', 'resource'];
+const SUPPORTED_ENTRY_TYPES = [
+  'mark',
+  'measure',
+  'resource',
+  'react-native-mark',
+];
 
 export const createPerformanceObserver = ({
   addEventListener,

@@ -33,6 +33,12 @@ export class PerformanceMark extends PerformanceEntry {
   }
 }
 
+export class PerformanceReactNativeMark extends PerformanceEntry {
+  constructor(name, startTime) {
+    super(name, 'react-native-mark', startTime, 0);
+  }
+}
+
 export class PerformanceMeasure extends PerformanceEntry {
   constructor(measureName, measureOptions = {}) {
     super(

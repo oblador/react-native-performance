@@ -44,26 +44,32 @@ const App: () => React$Node = () => {
     if (!didMeasureInitialLayout.current) {
       didMeasureInitialLayout.current = true;
       performance.measure('appMount', 'appRender');
-      performance.measure(
-        'nativeLaunch',
-        'nativeLaunchStart',
-        'nativeLaunchEnd'
-      );
     }
   }, []);
 
-  const [timings, setTimings] = React.useState([]);
+  const [nativeMarks, setNativeMarks] = React.useState([]);
   const [measures, setMeasures] = React.useState([]);
   const [resources, setResources] = React.useState([]);
   React.useEffect(() => {
     new PerformanceObserver((list, observer) => {
-      if (list.getEntries().find(entry => entry.name === 'contentAppear')) {
-        observer.disconnect();
-        setTimings(
-          Object.entries(performance.timing).sort((a, b) => a[1] - b[1])
+      setNativeMarks(
+        performance
+          .getEntriesByType('react-native-mark')
+          .sort((a, b) => a.startTime - b.startTime)
+      );
+      if (list.getEntries().find(entry => entry.name === 'runJsBundleEnd')) {
+        performance.measure(
+          'nativeLaunch',
+          'nativeLaunchStart',
+          'nativeLaunchEnd'
+        );
+        performance.measure(
+          'runJsBundle',
+          'runJsBundleStart',
+          'runJsBundleEnd'
         );
       }
-    }).observe({ type: 'mark', buffered: true });
+    }).observe({ type: 'react-native-mark', buffered: true });
 
     new PerformanceObserver((list, observer) => {
       setMeasures(performance.getEntriesByType('measure'));
@@ -91,16 +97,6 @@ const App: () => React$Node = () => {
       )}
       <View style={styles.body}>
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>performance.timing</Text>
-          {timings.map(([name, startTime]) => (
-            <Entry
-              key={name}
-              name={name}
-              value={startTime - performance.timeOrigin}
-            />
-          ))}
-        </View>
-        <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>performance.measure()</Text>
           {measures.map(({ name, duration, startTime }) => (
             <Entry key={startTime} name={name} value={duration} />
@@ -112,6 +108,18 @@ const App: () => React$Node = () => {
           </Text>
           {resources.map(({ name, duration, startTime }) => (
             <Entry key={startTime} name={name} value={duration} />
+          ))}
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            performance.getEntriesByType('react-native-mark')
+          </Text>
+          {nativeMarks.map(({ name, duration, startTime }) => (
+            <Entry
+              key={`${name}:${startTime}`}
+              name={name}
+              value={startTime - performance.timeOrigin}
+            />
           ))}
         </View>
       </View>
