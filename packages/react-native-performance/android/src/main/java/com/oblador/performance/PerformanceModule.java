@@ -20,20 +20,16 @@ import java.io.IOException;
 
 public class PerformanceModule extends ReactContextBaseJavaModule {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
-    private static double NANOSECONDS_IN_MILLISECOND = 1000000.0;
+    private static final double NANOSECONDS_IN_MILLISECOND = 1000000.0;
+    private static final long MODULE_INITIALIZED_AT = SystemClock.elapsedRealtimeNanos();
 
-    private double sessionStartTime;
     private double nativeLaunchStart = 0;
     private double nativeLaunchEnd = 0;
     private double scriptExecutionStart = 0;
     private double scriptExecutionEnd = 0;
-    private double contentAppeared = 0;
-    private double bundleSize;
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
-
-        sessionStartTime = getTimestamp();
 
         measureNativeStartupTime();
 
@@ -47,13 +43,13 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
     }
 
     private double getTimestamp() {
-        return (double) SystemClock.elapsedRealtimeNanos() / NANOSECONDS_IN_MILLISECOND;
+        return SystemClock.elapsedRealtimeNanos() / NANOSECONDS_IN_MILLISECOND;
     }
 
     private void measureNativeStartupTime() {
         try {
             nativeLaunchStart = PerformanceModule.getStartTime(Process.myPid());
-            nativeLaunchEnd = getTimestamp();
+            nativeLaunchEnd = MODULE_INITIALIZED_AT / NANOSECONDS_IN_MILLISECOND;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,15 +66,12 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
                             scriptExecutionEnd = getTimestamp();
                             break;
                         case CONTENT_APPEARED:
-                            contentAppeared = getTimestamp();
                             emitMark("contentAppear", getTimestamp());
                             sendMeasurements();
                             break;
                         case RELOAD:
-                            sessionStartTime = getTimestamp();
                             scriptExecutionStart = 0;
                             scriptExecutionEnd = 0;
-                            contentAppeared = 0;
                             break;
                     }
                 });
