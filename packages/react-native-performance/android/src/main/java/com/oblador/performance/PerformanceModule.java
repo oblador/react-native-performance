@@ -20,19 +20,20 @@ import java.io.IOException;
 
 public class PerformanceModule extends ReactContextBaseJavaModule {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
+    private static double NANOSECONDS_IN_MILLISECOND = 1000000.0;
 
-    private long sessionStartTime;
-    private long nativeLaunchStart = 0;
-    private long nativeLaunchEnd = 0;
-    private long scriptExecutionStart = 0;
-    private long scriptExecutionEnd = 0;
-    private long contentAppeared = 0;
-    private long bundleSize;
+    private double sessionStartTime;
+    private double nativeLaunchStart = 0;
+    private double nativeLaunchEnd = 0;
+    private double scriptExecutionStart = 0;
+    private double scriptExecutionEnd = 0;
+    private double contentAppeared = 0;
+    private double bundleSize;
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
 
-        sessionStartTime = System.currentTimeMillis();
+        sessionStartTime = getTimestamp();
 
         measureNativeStartupTime();
 
@@ -45,10 +46,14 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
       return PERFORMANCE_MODULE;
     }
 
+    private double getTimestamp() {
+        return (double) SystemClock.elapsedRealtimeNanos() / NANOSECONDS_IN_MILLISECOND;
+    }
+
     private void measureNativeStartupTime() {
         try {
             nativeLaunchStart = PerformanceModule.getStartTime(Process.myPid());
-            nativeLaunchEnd = SystemClock.elapsedRealtime();
+            nativeLaunchEnd = getTimestamp();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,18 +64,18 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
                 (name, tag, instanceKey) -> {
                     switch (name) {
                         case RUN_JS_BUNDLE_START:
-                            scriptExecutionStart = SystemClock.elapsedRealtime();
+                            scriptExecutionStart = getTimestamp();
                             break;
                         case RUN_JS_BUNDLE_END:
-                            scriptExecutionEnd = SystemClock.elapsedRealtime();
+                            scriptExecutionEnd = getTimestamp();
                             break;
                         case CONTENT_APPEARED:
-                            contentAppeared = SystemClock.elapsedRealtime();
-                            emitMark("contentAppear", SystemClock.elapsedRealtime());
+                            contentAppeared = getTimestamp();
+                            emitMark("contentAppear", getTimestamp());
                             sendMeasurements();
                             break;
                         case RELOAD:
-                            sessionStartTime = SystemClock.elapsedRealtime();
+                            sessionStartTime = getTimestamp();
                             scriptExecutionStart = 0;
                             scriptExecutionEnd = 0;
                             contentAppeared = 0;
@@ -112,21 +117,21 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
     }
 
     private void emitTiming(String name,
-                            long startTime) {
+                            double startTime) {
         emit("timing", name, startTime);
     }
 
     private void emitMark(String name,
-                          long startTime) {
+                          double startTime) {
         emit("mark", name, startTime);
     }
 
     private void emit(String eventName,
                       String name,
-                      long startTime) {
+                      double startTime) {
         WritableMap params = Arguments.createMap();
         params.putString("name", name);
-        params.putDouble("startTime", (double)startTime);
+        params.putDouble("startTime", startTime);
         getReactApplicationContext()
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
             .emit(eventName, params);
