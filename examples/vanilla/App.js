@@ -44,6 +44,11 @@ const App: () => React$Node = () => {
     if (!didMeasureInitialLayout.current) {
       didMeasureInitialLayout.current = true;
       performance.measure('appMount', 'appRender');
+      performance.measure(
+        'nativeLaunch',
+        'nativeLaunchStart',
+        'nativeLaunchEnd'
+      );
     }
   }, []);
 
