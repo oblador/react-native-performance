@@ -1,9 +1,12 @@
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 import { createPerformance } from './performance';
-import { installResourceLogger } from './resource';
 import { PerformanceReactNativeMark } from './performance-entry';
-const { RNPerformanceManager } = NativeModules;
+import {
+  installResourceLogger,
+  uninstallResourceLogger,
+} from './resource-logger';
 
+const { RNPerformanceManager } = NativeModules;
 const { PerformanceObserver, addEntry, performance } = createPerformance();
 
 if (Platform.OS === 'android' || RNPerformanceManager) {
