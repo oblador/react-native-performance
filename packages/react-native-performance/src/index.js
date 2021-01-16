@@ -1,16 +1,18 @@
-import { NativeModules, NativeEventEmitter } from 'react-native';
+import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 import { createPerformance } from './performance';
 import { installResourceLogger } from './resource';
 import { PerformanceReactNativeMark } from './performance-entry';
+const { RNPerformanceManager } = NativeModules;
 
 const { PerformanceObserver, addEntry, performance } = createPerformance();
 
-const emitter = new NativeEventEmitter(NativeModules.RNPerformanceManager);
+if (Platform.OS === 'android' || RNPerformanceManager) {
+  const emitter = new NativeEventEmitter(RNPerformanceManager);
 
-console.log('emitter.addListener');
-emitter.addListener('mark', data => {
-  addEntry(new PerformanceReactNativeMark(data.name, data.startTime));
-});
+  emitter.addListener('mark', data => {
+    addEntry(new PerformanceReactNativeMark(data.name, data.startTime));
+  });
+}
 
 export default performance;
 
