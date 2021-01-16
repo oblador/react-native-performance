@@ -1,6 +1,9 @@
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 import { createPerformance } from './performance';
-import { PerformanceReactNativeMark } from './performance-entry';
+import {
+  PerformanceReactNativeMark,
+  PerformanceMetric,
+} from './performance-entry';
 import {
   installResourceLogger,
   uninstallResourceLogger,
@@ -14,6 +17,15 @@ if (Platform.OS === 'android' || RNPerformanceManager) {
 
   emitter.addListener('mark', data => {
     addEntry(new PerformanceReactNativeMark(data.name, data.startTime));
+  });
+
+  emitter.addListener('metric', data => {
+    addEntry(
+      new PerformanceMetric(data.name, {
+        startTime: data.startTime,
+        value: data.value,
+      })
+    );
   });
 }
 

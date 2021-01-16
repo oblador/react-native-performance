@@ -22,6 +22,7 @@ const SUPPORTED_ENTRY_TYPES = [
   'mark',
   'measure',
   'resource',
+  'metric',
   'react-native-mark',
 ];
 

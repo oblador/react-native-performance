@@ -97,6 +97,18 @@ performance.getEntriesByType('resource');
 }]
 ```
 
+### Custom metrics
+
+If you want to collect custom metrics not based on time, this module provides an extension of the `Performance` API called `.metric()` that produces entries with the type `metric`.
+
+```js
+import performance from 'react-native-performance';
+
+performance.metric('myMetric', 123);
+performance.getEntriesByType('metric');
+-> [{ name: "myMetric", entryType: "metric", startTime: 98, duration: 0, value: 123 }]
+```
+
 ### Native marks
 
 This library exposes a set of native timeline events and metrics such as native app startup time, script execution time etc under the entryType `react-native-mark`.

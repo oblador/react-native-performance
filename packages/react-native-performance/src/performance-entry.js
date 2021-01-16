@@ -39,12 +39,31 @@ export class PerformanceReactNativeMark extends PerformanceEntry {
   }
 }
 
+export class PerformanceMetric extends PerformanceEntry {
+  constructor(name, metricOptions = {}) {
+    super(name, 'metric', metricOptions.startTime, 0);
+    this.value = metricOptions.value;
+    this.detail = metricOptions.detail;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      entryType: this.entryType,
+      startTime: this.startTime,
+      duration: this.duration,
+      detail: this.detail,
+      value: this.value,
+    };
+  }
+}
+
 export class PerformanceMeasure extends PerformanceEntry {
   constructor(measureName, measureOptions = {}) {
     super(
       measureName,
       'measure',
-      measureOptions.start,
+      measureOptions.startTime,
       measureOptions.duration
     );
     this.detail = measureOptions.detail;

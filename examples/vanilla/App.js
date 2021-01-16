@@ -31,9 +31,20 @@ import performance, {
 
 setResourceLoggingEnabled(true);
 
-const Entry = ({ name, value }) => (
+const formatValue = (value, unit) => {
+  switch (unit) {
+    case 'ms':
+      return `${value.toFixed(1)}ms`;
+    case 'byte':
+      return `${(value / 1024 / 1024).toFixed(1)}MB`;
+    default:
+      value.toFixed(1);
+  }
+};
+
+const Entry = ({ name, value, unit = 'ms' }) => (
   <Text style={styles.entry}>
-    {name}: {value.toFixed(1)}ms
+    {name}: {formatValue(value, unit)}
   </Text>
 );
 
@@ -47,6 +58,7 @@ const App: () => React$Node = () => {
     }
   }, []);
 
+  const [metrics, setMetrics] = React.useState([]);
   const [nativeMarks, setNativeMarks] = React.useState([]);
   const [measures, setMeasures] = React.useState([]);
   const [resources, setResources] = React.useState([]);
@@ -75,6 +87,10 @@ const App: () => React$Node = () => {
       setMeasures(performance.getEntriesByType('measure'));
     }).observe({ type: 'measure', buffered: true });
     new PerformanceObserver((list, observer) => {
+      setMetrics(performance.getEntriesByType('metric'));
+      console.log(performance.getEntriesByType('metric'));
+    }).observe({ type: 'metric', buffered: true });
+    new PerformanceObserver((list, observer) => {
       setResources(performance.getEntriesByType('resource'));
     }).observe({ type: 'resource', buffered: true });
   }, []);
@@ -100,6 +116,19 @@ const App: () => React$Node = () => {
           <Text style={styles.sectionTitle}>performance.measure()</Text>
           {measures.map(({ name, duration, startTime }) => (
             <Entry key={startTime} name={name} value={duration} />
+          ))}
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            performance.getEntriesByType('metric')
+          </Text>
+          {metrics.map(({ name, startTime, value }) => (
+            <Entry
+              key={startTime}
+              name={name}
+              value={value}
+              unit={name === 'bundleSize' ? 'byte' : null}
+            />
           ))}
         </View>
         <View style={styles.sectionContainer}>

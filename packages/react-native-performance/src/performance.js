@@ -1,6 +1,10 @@
 import { createEventEmitter } from './event-emitter';
 import { createPerformanceObserver } from './performance-observer';
-import { PerformanceMark, PerformanceMeasure } from './performance-entry';
+import {
+  PerformanceMark,
+  PerformanceMeasure,
+  PerformanceMetric,
+} from './performance-entry';
 
 export const now = () => global.nativePerformanceNow();
 
@@ -43,6 +47,8 @@ export const createPerformance = () => {
   const clearMarks = name => removeEntries('mark', name);
 
   const clearMeasures = name => removeEntries('measure', name);
+
+  const clearMetrics = name => removeEntries('metric', name);
 
   const convertMarkToTimestamp = markOrTimestamp => {
     switch (typeof markOrTimestamp) {
@@ -130,8 +136,43 @@ export const createPerformance = () => {
         detail: startOrMeasureOptions
           ? startOrMeasureOptions.detail
           : undefined,
-        start,
+        startTime: start,
         duration: end - start,
+      })
+    );
+  };
+
+  const metric = (name, valueOrOptions = {}) => {
+    let value;
+
+    if (
+      typeof valueOrOptions === 'object' &&
+      valueOrOptions.constructor == Object
+    ) {
+      if (!valueOrOptions.value) {
+        throw new TypeError(
+          `Failed to execute 'metric' on 'Performance': The value option must be passed.`
+        );
+      }
+      value = valueOrOptions.value;
+    } else if (
+      typeof valueOrOptions === 'undefined' ||
+      valueOrOptions === null
+    ) {
+      throw new TypeError(
+        `Failed to execute 'metric' on 'Performance': The value option must be passed.`
+      );
+    } else {
+      value = valueOrOptions;
+    }
+
+    return addEntry(
+      new PerformanceMetric(name, {
+        startTime:
+          'startTime' in valueOrOptions ? valueOrOptions.startTime : now(),
+        value,
+        unit: valueOrOptions.detail,
+        detail: valueOrOptions.detail,
       })
     );
   };
@@ -162,6 +203,8 @@ export const createPerformance = () => {
       clearMarks,
       measure,
       clearMeasures,
+      metric,
+      clearMetrics,
       getEntries,
       getEntriesByName,
       getEntriesByType,

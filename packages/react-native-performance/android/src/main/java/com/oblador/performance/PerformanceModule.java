@@ -33,8 +33,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
 
-        measureNativeStartupTime();
-
         setupMarkerListener();
     }
 
@@ -112,7 +110,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
       return PERFORMANCE_MODULE;
     }
 
-    private void measureNativeStartupTime() {
+    private void emitNativeStartupTime() {
         try {
             safelyEmitMark("nativeLaunchStart", PerformanceModule.getStartTime(Process.myPid()));
             safelyEmitMark("nativeLaunchEnd", MODULE_INITIALIZED_AT / NANOSECONDS_IN_MILLISECOND);
@@ -127,6 +125,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
                 switch (name) {
                     case CONTENT_APPEARED:
                         eventsBuffered = false;
+                        emitNativeStartupTime();
                         emitBufferedMarks();
                         break;
                     case RELOAD:

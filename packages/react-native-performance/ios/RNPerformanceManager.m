@@ -56,11 +56,12 @@ RCT_EXPORT_MODULE();
     [self emitTag:RCTPLScriptExecution withNamePrefix:@"runJsBundle"];
     [self emitTag:RCTPLBridgeStartup withNamePrefix:@"bridgeSetup"];
     [self emitMarkNamed:@"contentAppeared" withStartTime:startTime];
+    [self emitMetricNamed:@"bundleSize" withValue:@([self.bridge.performanceLogger valueForTag:RCTPLBundleSize])];
 }
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[ @"mark" ];
+    return @[ @"mark", @"metric" ];
 }
 
 - (void)invalidate
@@ -98,6 +99,17 @@ RCT_EXPORT_MODULE();
         [self sendEventWithName:@"mark" body:@{
             @"name": name,
             @"startTime": @(startTime * 1000.f)
+        }];
+    }
+}
+
+- (void)emitMetricNamed:(NSString *)name withValue:(NSNumber *)value
+{
+    if (hasListeners) {
+        [self sendEventWithName:@"metric" body:@{
+            @"name": name,
+            @"startTime": @(CACurrentMediaTime()),
+            @"value": value
         }];
     }
 }
