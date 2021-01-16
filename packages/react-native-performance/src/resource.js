@@ -9,22 +9,22 @@ export const installResourceLogger = (context, performance, addEntry) => {
 
         super.onreadystatechange = () => {
           if (this.readyState === this.DONE) {
-            const responseEnd = performance.now();
-            const contentLength =
-              this.responseHeaders &&
-              Object.entries(this.responseHeaders).find(
+            if (this.responseURL && this.responseHeaders) {
+              const responseEnd = performance.now();
+              const contentLength = Object.entries(this.responseHeaders).find(
                 ([header]) => header.toLowerCase() === 'content-length'
               );
-            addEntry(
-              new PerformanceResourceTiming({
-                name: this.responseURL,
-                startTime: this.performanceStartTime,
-                duration: responseEnd - this.performanceStartTime,
-                initiatorType: 'xmlhttprequest',
-                responseEnd,
-                transferSize: contentLength ? parseInt(contentLength[1]) : 0,
-              })
-            );
+              addEntry(
+                new PerformanceResourceTiming({
+                  name: this.responseURL,
+                  startTime: this.performanceStartTime,
+                  duration: responseEnd - this.performanceStartTime,
+                  initiatorType: 'xmlhttprequest',
+                  responseEnd,
+                  transferSize: contentLength ? parseInt(contentLength[1]) : 0,
+                })
+              );
+            }
           }
         };
       }
