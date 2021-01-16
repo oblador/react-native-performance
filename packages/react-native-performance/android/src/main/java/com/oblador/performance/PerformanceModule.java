@@ -133,8 +133,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
                         eventsBuffered = true;
                         break;
                 }
-                if (!eventsBuffered) {
-                }
             }
         );
     }
