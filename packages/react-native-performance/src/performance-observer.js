@@ -43,15 +43,19 @@ export const createPerformanceObserver = ({
       this.callback(this.takeRecords(), this);
     };
 
+    scheduleEmission() {
+      if (this.timer === null) {
+        this.timer = requestAnimationFrame(() => {
+          this.timer = null;
+          this.emitRecords();
+        });
+      }
+    }
+
     receiveRecord = entry => {
       if (this.entryTypes.has(entry.entryType)) {
         this.buffer.push(entry);
-        if (this.timer === null) {
-          this.timer = requestAnimationFrame(() => {
-            this.timer = null;
-            this.emitRecords();
-          });
-        }
+        this.scheduleEmission();
       }
     };
 
@@ -74,6 +78,7 @@ export const createPerformanceObserver = ({
         this.entryTypes = new Set([options.type]);
         if (options.buffered) {
           this.buffer = getEntriesByType(options.type);
+          this.scheduleEmission();
         }
       }
 
