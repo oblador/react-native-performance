@@ -3,6 +3,8 @@
   "version": "0.6.0",
   "private": true,
   "scripts": {
+    "build-android": "./scripts/build-android.sh",
+    "collect-android-metrics": "node ./scripts/collect-android-metrics.js",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
@@ -13,9 +15,11 @@
     "flipper-plugin-react-native-performance": "^0.6.0",
     "react": "16.13.1",
     "react-native": "0.63.3",
+    "react-native-fs": "^2.16.6",
     "react-native-performance": "^0.6.0"
   },
   "devDependencies": {
+    "appium": "^1.20.1",
     "@babel/core": "^7.8.4",
     "@babel/runtime": "^7.8.4",
     "@react-native-community/eslint-config": "^1.1.0",
@@ -23,7 +27,8 @@
     "eslint": "^6.5.1",
     "jest": "^25.1.0",
     "metro-react-native-babel-preset": "^0.59.0",
-    "react-test-renderer": "16.13.1"
+    "react-test-renderer": "16.13.1",
+    "webdriverio": "^6.12.0"
   },
   "jest": {
     "preset": "react-native"

@@ -43,7 +43,7 @@ const formatValue = (value, unit) => {
 };
 
 const Entry = ({ name, value, unit = 'ms' }) => (
-  <Text style={styles.entry}>
+  <Text style={styles.entry} accessibilityLabel={name}>
     {name}: {formatValue(value, unit)}
   </Text>
 );
@@ -88,7 +88,6 @@ const App: () => React$Node = () => {
     }).observe({ type: 'measure', buffered: true });
     new PerformanceObserver((list, observer) => {
       setMetrics(performance.getEntriesByType('metric'));
-      console.log(performance.getEntriesByType('metric'));
     }).observe({ type: 'metric', buffered: true });
     new PerformanceObserver((list, observer) => {
       setResources(performance.getEntriesByType('resource'));
