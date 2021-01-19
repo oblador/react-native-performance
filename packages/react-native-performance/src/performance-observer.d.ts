@@ -1,12 +1,4 @@
-import { PerformanceEntry } from './performance-entry'
-
-export type EntryType =
-  'mark' |
-  'measure' |
-  'resource' |
-  'metric' |
-  'react-native-mark';
-
+import { PerformanceEntry, EntryType } from './performance-entry'
 
 export type ObserveOptions = {
   entryTypes?: EntryType[];

@@ -1,5 +1,4 @@
-import { PerformanceEntry } from './performance-entry'
-import { EntryType } from './performance-observer'
+import { PerformanceEntry, EntryType } from './performance-entry'
 
 export type MarkOptions = {
   startTime?: string,

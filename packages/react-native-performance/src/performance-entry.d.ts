@@ -1,6 +1,13 @@
+export type EntryType =
+  'mark' |
+  'measure' |
+  'resource' |
+  'metric' |
+  'react-native-mark';
+
 export interface PerformanceEntry {
   name: string;
-  entryType: string;
+  entryType: EntryType;
   startTime: number;
   duration: number;
 }
@@ -26,23 +33,23 @@ export interface PerformanceMetric extends PerformanceEntry {
 }
 
 export interface PerformanceResourceTiming extends PerformanceEntry {
+  entryType: 'resource';
   initiatorType: string;
   responseEnd: string;
   fetchStart: string;
   transferSize: string;
-  connectEnd: 0;
-  connectStart: 0;
-  decodedBodySize: 0;
-  domainLookupEnd: 0;
-  domainLookupStart: 0;
-  encodedBodySize: 0;
-  redirectEnd: 0;
-  redirectStart: 0;
-  requestStart: 0;
-  responseStart: 0;
-  secureConnectionStart: 0;
-  serverTiming: [];
-  transferSize: 0;
-  workerStart: 0;
-  workerTiming: [];
+  connectEnd: number;
+  connectStart: number;
+  decodedBodySize: number;
+  domainLookupEnd: number;
+  domainLookupStart: number;
+  encodedBodySize: number;
+  redirectEnd: number;
+  redirectStart: number;
+  requestStart: number;
+  responseStart: number;
+  secureConnectionStart?: number;
+  serverTiming: number[];
+  workerStart?: number;
+  workerTiming: number[];
 }
