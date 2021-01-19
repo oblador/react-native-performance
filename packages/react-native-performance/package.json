@@ -8,6 +8,7 @@
     "url": "https://github.com/oblador/react-native-performance.git"
   },
   "main": "src/index.js",
+  "typings": "src/index.d.ts",
   "files": [
     "src",
     "ios",
