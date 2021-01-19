@@ -1,6 +1,6 @@
 {
   "name": "react-native-navigation-example",
-  "version": "0.0.1",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -10,7 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "flipper-plugin-react-native-performance": "0.5.0",
+    "flipper-plugin-react-native-performance": "^0.6.0",
     "react": "16.13.1",
     "react-native": "0.63.3",
     "react-native-navigation": "^7.4.0"
