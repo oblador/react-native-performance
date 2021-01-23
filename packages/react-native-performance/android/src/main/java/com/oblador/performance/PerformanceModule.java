@@ -24,11 +24,10 @@ import java.io.IOException;
 
 public class PerformanceModule extends ReactContextBaseJavaModule {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
-    private static final double NANOSECONDS_IN_MILLISECOND = 1000000.0;
-    private static final long MODULE_INITIALIZED_AT = SystemClock.elapsedRealtimeNanos();
+    private static final long MODULE_INITIALIZED_AT = SystemClock.elapsedRealtime();
 
     private boolean eventsBuffered = true;
-    private static Map<String, Double> markBuffer = new HashMap();
+    private static Map<String, Long> markBuffer = new HashMap();
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
@@ -76,7 +75,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
                     case SETUP_REACT_CONTEXT_END:
                     case SETUP_REACT_CONTEXT_START:
                     case VM_INIT:
-                        double startTime = getTimestamp();
+                        long startTime = SystemClock.elapsedRealtime();
                         markBuffer.put(getMarkName(name), startTime);
                     break;
 
@@ -100,10 +99,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
         return sb.toString();
     }
 
-    private static double getTimestamp() {
-        return SystemClock.elapsedRealtimeNanos() / NANOSECONDS_IN_MILLISECOND;
-    }
-
     @Override
     @NonNull
     public String getName() {
@@ -113,7 +108,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
     private void emitNativeStartupTime() {
         try {
             safelyEmitMark("nativeLaunchStart", PerformanceModule.getStartTime(Process.myPid()));
-            safelyEmitMark("nativeLaunchEnd", MODULE_INITIALIZED_AT / NANOSECONDS_IN_MILLISECOND);
+            safelyEmitMark("nativeLaunchEnd", MODULE_INITIALIZED_AT);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -136,7 +131,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
         );
     }
 
-    private void safelyEmitMark(String name, double startTime) {
+    private void safelyEmitMark(String name, long startTime) {
         if (eventsBuffered) {
             markBuffer.put(name, startTime);
         } else {
@@ -145,7 +140,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
     }
 
     private void emitBufferedMarks() {
-        for (Map.Entry<String, Double> entry : markBuffer.entrySet()) {
+        for (Map.Entry<String, Long> entry : markBuffer.entrySet()) {
             emitMark(entry.getKey(), entry.getValue());
         }
     }
@@ -175,16 +170,16 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
     }
 
     private void emitMark(String name,
-                          double startTime) {
+                          long startTime) {
         emit("mark", name, startTime);
     }
 
     private void emit(String eventName,
                       String name,
-                      double startTime) {
+                      long startTime) {
         WritableMap params = Arguments.createMap();
         params.putString("name", name);
-        params.putDouble("startTime", startTime);
+        params.putInt("startTime", (int) startTime);
         getReactApplicationContext()
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
             .emit(eventName, params);

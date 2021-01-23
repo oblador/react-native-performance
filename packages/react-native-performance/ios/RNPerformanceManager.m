@@ -19,8 +19,8 @@ static CFTimeInterval getProcessStartTime() {
     return startTime.tv_sec + startTime.tv_usec / 1e6;
 }
 
-static CFTimeInterval sNativeLaunchStart;
-static CFTimeInterval sNativeLaunchEnd;
+static int64_t sNativeLaunchStart;
+static int64_t sNativeLaunchEnd;
 
 @implementation RNPerformanceManager
 {
@@ -33,8 +33,8 @@ RCT_EXPORT_MODULE();
 {
     [super initialize];
     CFTimeInterval absoluteTimeToRelativeTime =  CACurrentMediaTime() - [NSDate date].timeIntervalSince1970;
-    sNativeLaunchStart = getProcessStartTime() + absoluteTimeToRelativeTime;
-    sNativeLaunchEnd = CACurrentMediaTime();
+    sNativeLaunchStart = (getProcessStartTime() + absoluteTimeToRelativeTime) * 1000;
+    sNativeLaunchEnd = CACurrentMediaTime() * 1000;
 }
 
 - (void)setBridge:(RCTBridge *)bridge
@@ -49,7 +49,7 @@ RCT_EXPORT_MODULE();
 
 - (void)contentDidAppear
 {
-    CFTimeInterval startTime = CACurrentMediaTime();
+    int64_t startTime = CACurrentMediaTime() * 1000;
     [self emitMarkNamed:@"nativeLaunchStart" withStartTime:sNativeLaunchStart];
     [self emitMarkNamed:@"nativeLaunchEnd" withStartTime:sNativeLaunchEnd];
     [self emitTag:RCTPLScriptDownload withNamePrefix:@"download"];
@@ -82,23 +82,22 @@ RCT_EXPORT_MODULE();
 
 - (void)emitTag:(RCTPLTag)tag withNamePrefix:(NSString *)namePrefix
 {
-    CFTimeInterval duration = ([self.bridge.performanceLogger durationForTag:tag] / 1000.f);
-    CFTimeInterval end = [self.bridge.performanceLogger valueForTag:tag] / 1000.f;
-    if (duration == 0.0f || end == 0.0f) {
-        NSLog(@"Ignoring marks prefixed %@ (%lu) as data is unavailable (duration: %f, end: %f)", namePrefix, (unsigned long)tag, duration, end);
+    int64_t duration = [self.bridge.performanceLogger durationForTag:tag];
+    int64_t end = [self.bridge.performanceLogger valueForTag:tag];
+    if (duration == 0 || end == 0) {
+        NSLog(@"Ignoring marks prefixed %@ (%lu) as data is unavailable (duration: %lld, end: %lld)", namePrefix, (unsigned long)tag, duration, end);
         return;
     }
-    CFTimeInterval start = end - duration;
-    [self emitMarkNamed:[namePrefix stringByAppendingString:@"Start"] withStartTime:start];
+    [self emitMarkNamed:[namePrefix stringByAppendingString:@"Start"] withStartTime:end-duration];
     [self emitMarkNamed:[namePrefix stringByAppendingString:@"End"] withStartTime:end];
 }
 
-- (void)emitMarkNamed:(NSString *)name withStartTime:(CFTimeInterval)startTime
+- (void)emitMarkNamed:(NSString *)name withStartTime:(int64_t)startTime
 {
     if (hasListeners) {
         [self sendEventWithName:@"mark" body:@{
             @"name": name,
-            @"startTime": @(startTime * 1000.f)
+            @"startTime": @(startTime)
         }];
     }
 }
@@ -108,7 +107,7 @@ RCT_EXPORT_MODULE();
     if (hasListeners) {
         [self sendEventWithName:@"metric" body:@{
             @"name": name,
-            @"startTime": @(CACurrentMediaTime()),
+            @"startTime": @(CACurrentMediaTime() * 1000),
             @"value": value
         }];
     }
