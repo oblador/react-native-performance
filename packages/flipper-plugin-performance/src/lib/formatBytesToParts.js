@@ -13,5 +13,5 @@ export const formatBytesToParts = bytes => {
     }
   }
 
-  return { value: Math.round(value * 10) / 10, unit };
+  return { value: value.toFixed(1), unit };
 };

@@ -1,115 +1,56 @@
-# Flipper React Native Performance Plugin
+# React Native Performance tooling
 
-This is a plugin for the debug tool [Flipper](https://fbflipper.com) that measures the startup of your React Native app.
+Toolchain to measure and monitor the performance of your React Native app in development, pipeline and in production.
 
-<img width="761" alt="" src="https://user-images.githubusercontent.com/378279/70002854-9b50db80-1561-11ea-861c-6b160f08d721.png">
+## Packages
 
-It provides the following metrics:
+### [`react-native-performance`](https://github.com/oblador/react-native-performance/blob/master/packages/react-native-performance/README.md)
 
-- Native startup time
-- Script download time
-- Script execution time
-- Script bundle size
-- Time to interactive of root view
+An implementation of the [`Performance` API](https://developer.mozilla.org/en-US/docs/Web/API/Performance) for React Native.
 
-Currently only these standard metrics are supported, but the aim is to further expand profiling capabilities.
+- Integrates well with `React.Profiler` API
+- Trace arbitrary events in your app such as component render time
+- Capture network traffic
+- Collect native traces such as script execution and time to interactive of root view
+- Collect native metrics in development such as JS bundle size
 
-## Installation
+### [`flipper-plugin-performance`](https://github.com/oblador/react-native-performance/blob/master/packages/flipper-plugin-performance/README.md)
 
-```
-yarn add --dev flipper-plugin-react-native-performance
-```
+Visualize performance tracing on a timeline and generic metrics in the debug tool Flipper.
 
-## Setup
+### [`react-native-performance-flipper-reporter`](https://github.com/oblador/react-native-performance/blob/master/packages/react-native-performance-flipper-reporter/README.md)
 
-### Flipper
-
-First, make sure you have successfully [setup Flipper with your React Native app](https://fbflipper.com/docs/getting-started.html#setup-your-react-native-app).
-
-### Flipper Desktop
-
-1. Go to **Manage Plugins** by pressing the button in the lower left corner of the Flipper app, or in the **View** menu
-2. Select **Install Plugins** and search for `react-native-performance`
-3. Press the **Install** button
-
-### iOS
-
-Edit your `Podfile` by adding the following:
-
-```diff
-def flipper_pods()
-  ...
-+ pod 'flipper-plugin-react-native-performance', :path => "../node_modules/flipper-plugin-react-native-performance/ios", :configuration => 'Debug'
-end
-```
-
-Edit your `AppDelegate.m` by adding the following:
-
-```diff
-+   #if DEBUG
-+   #ifdef FB_SONARKIT_ENABLED
-+   #import <flipper-plugin-react-native-performance/FlipperReactPerformancePlugin.h>
-+   #endif
-+   #endif
-
-@implementation AppDelegate
-
-  - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-  {
-    [self initializeFlipper:application];
-    RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
-+   #if DEBUG
-+   #ifdef FB_SONARKIT_ENABLED
-+   [[FlipperReactPerformancePlugin sharedInstance] setBridge:bridge];
-+   #endif
-+   #endif
-    ...
-  }
-
-  - (void) initializeFlipper:(UIApplication *)application {
-    ...
-+   [client addPlugin: [FlipperReactPerformancePlugin sharedInstance]];
-    [client start];
-    ...
-  }
-```
-
-#### Setup for React Native Navigation
-
-Edit your `AppDelegate.m` like above, but for the `application:didFinishLaunchingWithOptions` method, add the following instead:
-
-```diff
-  - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-  {
-    [self initializeFlipper:application];
-    NSURL *jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
-    [ReactNativeNavigation bootstrap:jsCodeLocation launchOptions:launchOptions];
-+   #if DEBUG
-+   #ifdef FB_SONARKIT_ENABLED
-+   [[FlipperReactPerformancePlugin sharedInstance] setBridge:[ReactNativeNavigation getBridge]];
-+   #endif
-+   #endif
-    ...
-  }
-```
-
-### Android
-Add FlipperReactPerformancePlugin to your `ReactNativeFlipper.java`
-```diff
-+   import com.oblador.flipperperformanceplugin.FlipperReactPerformancePlugin;
-
-...
-public static void initializeFlipper(Context context, ReactInstanceManager reactInstanceManager) {
-    ...
-+   client.addPlugin(new FlipperReactPerformancePlugin(reactInstanceManager));
-    client.start();
-    ...
-}
-```
+Connect the `react-native-performance` library with the `flipper-plugin-performance` visualization tool in development.
 
 ## Demo
 
 See the projects in the [`examples`](https://github.com/oblador/flipper-plugin-react-native-performance/tree/master/examples) folder.
+
+## Development
+
+Make sure to have [`yarn`](https://classic.yarnpkg.com/lang/en/) v1 installed and run `yarn` in the root folder to install dependencies for all packages.
+
+Uninstall the Flipper Performance plugin if previously installed. Then edit your `~/.flipper/config.json` to look something like this:
+
+```
+{
+  "pluginPaths": ["/path/to/react-native-performance/packages"]
+}
+```
+
+Continously compile the plugin as you edit with:
+
+```bash
+yarn workspace flipper-plugin-performance run watch
+```
+
+Run the example app with:
+
+```bash
+cd examples/vanilla
+yarn start # important to run this before the next step!
+yarn ios # or yarn android
+```
 
 ## License
 

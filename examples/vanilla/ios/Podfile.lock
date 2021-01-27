@@ -23,8 +23,6 @@ PODS:
     - OpenSSL-Universal (= 1.0.2.20)
   - Flipper-Glog (0.3.6)
   - Flipper-PeerTalk (0.0.4)
-  - flipper-plugin-react-native-performance (0.5.0):
-    - React
   - Flipper-RSocket (1.1.0):
     - Flipper-Folly (~> 2.2)
   - FlipperKit (0.54.0):
@@ -238,7 +236,9 @@ PODS:
     - React-cxxreact (= 0.63.3)
     - React-jsi (= 0.63.3)
   - React-jsinspector (0.63.3)
-  - react-native-performance (0.5.0):
+  - react-native-flipper (0.54.0):
+    - React
+  - react-native-performance (0.6.0):
     - React-Core
   - React-RCTActionSheet (0.63.3):
     - React-Core/RCTActionSheetHeaders (= 0.63.3)
@@ -313,7 +313,6 @@ DEPENDENCIES:
   - Flipper-Folly (~> 2.2)
   - Flipper-Glog (= 0.3.6)
   - Flipper-PeerTalk (~> 0.0.4)
-  - flipper-plugin-react-native-performance (from `../../../packages/flipper-plugin-react-native-performance/ios`)
   - Flipper-RSocket (~> 1.1)
   - FlipperKit (~> 0.54.0)
   - FlipperKit/Core (~> 0.54.0)
@@ -342,6 +341,7 @@ DEPENDENCIES:
   - React-jsi (from `../../../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../../../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../../../node_modules/react-native/ReactCommon/jsinspector`)
+  - react-native-flipper (from `../../../node_modules/react-native-flipper`)
   - react-native-performance (from `../../../packages/react-native-performance/ios`)
   - React-RCTActionSheet (from `../../../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../../../node_modules/react-native/Libraries/NativeAnimation`)
@@ -377,8 +377,6 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/react-native/Libraries/FBLazyVector"
   FBReactNativeSpec:
     :path: "../../../node_modules/react-native/Libraries/FBReactNativeSpec"
-  flipper-plugin-react-native-performance:
-    :path: "../../../packages/flipper-plugin-react-native-performance/ios"
   Folly:
     :podspec: "../../../node_modules/react-native/third-party-podspecs/Folly.podspec"
   glog:
@@ -403,6 +401,8 @@ EXTERNAL SOURCES:
     :path: "../../../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../../../node_modules/react-native/ReactCommon/jsinspector"
+  react-native-flipper:
+    :path: "../../../node_modules/react-native-flipper"
   react-native-performance:
     :path: "../../../packages/react-native-performance/ios"
   React-RCTActionSheet:
@@ -440,7 +440,6 @@ SPEC CHECKSUMS:
   Flipper-Folly: e4493b013c02d9347d5e0cb4d128680239f6c78a
   Flipper-Glog: 1dfd6abf1e922806c52ceb8701a3599a79a200a6
   Flipper-PeerTalk: 116d8f857dc6ef55c7a5a75ea3ceaafe878aadc9
-  flipper-plugin-react-native-performance: bfe0f405c600267cac5c921cdb1f4a06b171722f
   Flipper-RSocket: 64e7431a55835eb953b0bf984ef3b90ae9fdddd7
   FlipperKit: ab353d41aea8aae2ea6daaf813e67496642f3d7d
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
@@ -456,7 +455,8 @@ SPEC CHECKSUMS:
   React-jsi: df07aa95b39c5be3e41199921509bfa929ed2b9d
   React-jsiexecutor: b56c03e61c0dd5f5801255f2160a815f4a53d451
   React-jsinspector: 8e68ffbfe23880d3ee9bafa8be2777f60b25cbe2
-  react-native-performance: 891c24e85bb478487fb4c73be99cae112fb9c0fb
+  react-native-flipper: 2581111fb26a2485eb71d2b0caf4b4a21c3ba151
+  react-native-performance: 1af0f2b0f40fd5ccdbf90c7ff17fb5637ba83289
   React-RCTActionSheet: 53ea72699698b0b47a6421cb1c8b4ab215a774aa
   React-RCTAnimation: 1befece0b5183c22ae01b966f5583f42e69a83c2
   React-RCTBlob: 0b284339cbe4b15705a05e2313a51c6d8b51fa40
