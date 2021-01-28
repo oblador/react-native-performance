@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { Profiler } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -31,6 +31,20 @@ import performance, {
 
 setResourceLoggingEnabled(true);
 
+const traceRender = (
+  id, // the "id" prop of the Profiler tree that has just committed
+  phase, // either "mount" (if the tree just mounted) or "update" (if it re-rendered)
+  actualDuration, // time spent rendering the committed update
+  baseDuration, // estimated time to render the entire subtree without memoization
+  startTime, // when React began rendering this update
+  commitTime, // when React committed this update
+  interactions // the Set of interactions belonging to this update
+) =>
+  performance.measure(id, {
+    start: performance.timeOrigin + startTime,
+    duration: actualDuration,
+  });
+
 const formatValue = (value, unit) => {
   switch (unit) {
     case 'ms':
@@ -49,18 +63,8 @@ const Entry = ({ name, value, unit = 'ms' }) => (
 );
 
 const App: () => React$Node = () => {
-  performance.mark('appRender');
-  const didMeasureInitialLayout = React.useRef(false);
-  const handleLayout = React.useCallback(() => {
-    if (!didMeasureInitialLayout.current) {
-      didMeasureInitialLayout.current = true;
-      performance.measure('appMount', 'appRender');
-    }
-  }, []);
-
   const [metrics, setMetrics] = React.useState([]);
   const [nativeMarks, setNativeMarks] = React.useState([]);
-  const [measures, setMeasures] = React.useState([]);
   const [resources, setResources] = React.useState([]);
   React.useEffect(() => {
     new PerformanceObserver((list, observer) => {
@@ -69,26 +73,10 @@ const App: () => React$Node = () => {
           .getEntriesByType('react-native-mark')
           .sort((a, b) => a.startTime - b.startTime)
       );
-      if (list.getEntries().find(entry => entry.name === 'runJsBundleEnd')) {
-        performance.measure(
-          'nativeLaunch',
-          'nativeLaunchStart',
-          'nativeLaunchEnd'
-        );
-        performance.measure(
-          'runJsBundle',
-          'runJsBundleStart',
-          'runJsBundleEnd'
-        );
-      }
     }).observe({ type: 'react-native-mark', buffered: true });
 
     new PerformanceObserver((list, observer) => {
-      setMeasures(performance.getEntriesByType('measure'));
-    }).observe({ type: 'measure', buffered: true });
-    new PerformanceObserver((list, observer) => {
       setMetrics(performance.getEntriesByType('metric'));
-      console.log(performance.getEntriesByType('metric'));
     }).observe({ type: 'metric', buffered: true });
     new PerformanceObserver((list, observer) => {
       setResources(performance.getEntriesByType('resource'));
@@ -96,63 +84,58 @@ const App: () => React$Node = () => {
   }, []);
 
   React.useEffect(() => {
-    fetch('https://xkcd.com/info.0.json');
+    fetch('https://xkcd.com/info.0.json', { cache: 'no-cache' });
   }, []);
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      style={styles.scrollView}
-      onLayout={handleLayout}
-    >
-      <Header />
-      {global.HermesInternal == null ? null : (
-        <View style={styles.engine}>
-          <Text style={styles.footer}>Engine: Hermes</Text>
+    <Profiler id="App.render()" onRender={traceRender}>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        style={styles.scrollView}
+      >
+        <Header />
+        {global.HermesInternal == null ? null : (
+          <View style={styles.engine}>
+            <Text style={styles.footer}>Engine: Hermes</Text>
+          </View>
+        )}
+        <View style={styles.body}>
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>
+              performance.getEntriesByType('metric')
+            </Text>
+            {metrics.map(({ name, startTime, value }) => (
+              <Entry
+                key={startTime}
+                name={name}
+                value={value}
+                unit={name === 'bundleSize' ? 'byte' : null}
+              />
+            ))}
+          </View>
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>
+              performance.getEntriesByType('resource')
+            </Text>
+            {resources.map(({ name, duration, startTime }) => (
+              <Entry key={startTime} name={name} value={duration} />
+            ))}
+          </View>
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>
+              performance.getEntriesByType('react-native-mark')
+            </Text>
+            {nativeMarks.map(({ name, duration, startTime }) => (
+              <Entry
+                key={`${name}:${startTime}`}
+                name={name}
+                value={startTime - performance.timeOrigin}
+              />
+            ))}
+          </View>
         </View>
-      )}
-      <View style={styles.body}>
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>performance.measure()</Text>
-          {measures.map(({ name, duration, startTime }) => (
-            <Entry key={startTime} name={name} value={duration} />
-          ))}
-        </View>
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>
-            performance.getEntriesByType('metric')
-          </Text>
-          {metrics.map(({ name, startTime, value }) => (
-            <Entry
-              key={startTime}
-              name={name}
-              value={value}
-              unit={name === 'bundleSize' ? 'byte' : null}
-            />
-          ))}
-        </View>
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>
-            performance.getEntriesByType('resource')
-          </Text>
-          {resources.map(({ name, duration, startTime }) => (
-            <Entry key={startTime} name={name} value={duration} />
-          ))}
-        </View>
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>
-            performance.getEntriesByType('react-native-mark')
-          </Text>
-          {nativeMarks.map(({ name, duration, startTime }) => (
-            <Entry
-              key={`${name}:${startTime}`}
-              name={name}
-              value={startTime - performance.timeOrigin}
-            />
-          ))}
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </Profiler>
   );
 };
 

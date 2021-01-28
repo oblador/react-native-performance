@@ -9,4 +9,4 @@ export const COLOR_BAR_3 = '#ef5675';
 export const COLOR_BAR_4 = '#ffa600';
 
 export const MARGIN_CONTAINER_VERTICAL = 20;
-export const MARGIN_CONTAINER_HORIZONTAL = 40;
+export const MARGIN_CONTAINER_HORIZONTAL = 30;
