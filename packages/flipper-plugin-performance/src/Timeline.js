@@ -1,5 +1,6 @@
 import React from 'react';
 import { styled } from 'flipper';
+import { formatMilliseconds } from './lib/formatMilliseconds';
 import {
   COLOR_TEXT,
   COLOR_SEPARATOR,
@@ -15,12 +16,13 @@ const COLORS = ['017AFF', 'FF9601', '29AC48'];
 const BAR_HEIGHT = 5;
 const BAR_MARGIN_VERTICAL = 4;
 const ROW_HEIGHT = BAR_HEIGHT + BAR_MARGIN_VERTICAL;
-const CATEGORY_MARGIN_TOP = 10;
-const MARGIN_SECTION_VERTICAL = 15;
+const CATEGORY_MARGIN_VERTICAL = 15;
 const MARK_KNOB_SIZE = 5;
 const AXIS_LABEL_FONT_SIZE = 9;
 const AXIS_LABEL_MARGIN = 10;
 const AXIS_LABEL_FONT = `${AXIS_LABEL_FONT_SIZE}px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
+const TOOLTIP_HEIGHT = 20;
+const TOOLTIP_CARET_SIZE = 6;
 
 const groupMeasures = measures => {
   const groups = [];
@@ -48,14 +50,15 @@ const Scrollable = styled('div')({
 });
 
 const CategoryLabel = styled('div')({
-  paddingTop: MARGIN_SECTION_VERTICAL,
-  paddingBottom: MARGIN_SECTION_VERTICAL,
+  paddingTop: CATEGORY_MARGIN_VERTICAL,
+  paddingBottom: CATEGORY_MARGIN_VERTICAL,
   paddingLeft: MARGIN_CONTAINER_HORIZONTAL,
   paddingRight: 10,
   fontSize: 12,
   color: COLOR_TEXT,
   fontWeight: 500,
-  marginTop: CATEGORY_MARGIN_TOP,
+  boxSizing: 'border-box',
+  overflow: 'hidden',
 });
 
 const initialScrollState = {
@@ -75,17 +78,44 @@ const useDeriveMeasureData = (measures, marks) =>
       (acc, item) => Math.max(acc, item.startTime + (item.duration || 0)),
       start
     );
-    const categories = measures.reduce((acc, item) => {
+    const categoryMap = measures.reduce((acc, item) => {
       if (!acc.has(item.category)) {
         acc.set(item.category, []);
       }
       acc.get(item.category).push(item);
       return acc;
     }, new Map());
-    categories.forEach((value, key, map) => {
+    categoryMap.forEach((value, key, map) => {
       map.set(key, groupMeasures(value));
     });
-    return { start, end, categories: Array.from(categories.entries()) };
+
+    const measuresWithLayout = [];
+    const categories = Array.from(categoryMap.entries());
+    let offsetY = CATEGORY_MARGIN_VERTICAL;
+    for (let i = 0; i < categories.length; i++) {
+      const color = COLORS[i % COLORS.length];
+      const [, groups] = categories[i];
+
+      for (let j = 0; j < groups.length; j++) {
+        const group = groups[j];
+        for (var k = 0; k < group.length; k++) {
+          const measure = group[k];
+          const x = measure.startTime - start;
+          const y = offsetY + BAR_MARGIN_VERTICAL;
+          group[k] = {
+            ...measure,
+            x,
+            y,
+            color,
+          };
+        }
+        measuresWithLayout.push(...group);
+        offsetY += ROW_HEIGHT;
+      }
+      offsetY += CATEGORY_MARGIN_VERTICAL * 2;
+    }
+
+    return { start, end, categories, measuresWithLayout };
   }, [measures, marks]);
 
 const drawAxis = (ctx, x, height, value) => {
@@ -102,7 +132,7 @@ const drawAxis = (ctx, x, height, value) => {
 
 const draw = (
   ctx,
-  categories,
+  measures,
   marks,
   origin,
   zoom,
@@ -125,8 +155,7 @@ const draw = (
     drawAxis(ctx, x, height, value);
   }
 
-  for (let i = 0; i < marks.length; i++) {
-    const mark = marks[i];
+  for (const mark of marks) {
     const x = zoom * (mark.startTime - origin);
     if (start < x && end > x) {
       drawMark(
@@ -138,36 +167,37 @@ const draw = (
     }
   }
 
-  let offsetY = MARGIN_SECTION_VERTICAL;
-  for (let i = 0; i < categories.length; i++) {
-    const color = COLORS[i % COLORS.length];
-    const [, groups] = categories[i];
-
-    for (let j = 0; j < groups.length; j++) {
-      const group = groups[j];
-      for (let measure of group) {
-        const x = zoom * (measure.startTime - origin);
-        const width = zoom * measure.duration;
-        if (
-          (start < x && end > x) ||
-          (start < x + width && end > x + width) ||
-          (start > x && end < x + width)
-        ) {
-          const y = offsetY + BAR_MARGIN_VERTICAL;
-          drawRoundedRect(
-            ctx,
-            x - start,
-            y,
-            width,
-            BAR_HEIGHT,
-            BAR_HEIGHT / 2,
-            color
-          );
-        }
-      }
-      offsetY += ROW_HEIGHT;
+  for (const measure of measures) {
+    const x = zoom * measure.x;
+    const width = zoom * measure.duration;
+    if (
+      (start < x && end > x) ||
+      (start < x + width && end > x + width) ||
+      (start > x && end < x + width)
+    ) {
+      drawRoundedRect(
+        ctx,
+        x - start,
+        measure.y,
+        width,
+        BAR_HEIGHT,
+        BAR_HEIGHT / 2,
+        measure.color
+      );
     }
-    offsetY += MARGIN_SECTION_VERTICAL;
+  }
+};
+
+const hitTest = (x, y, measures) => {
+  for (const measure of measures) {
+    if (
+      x >= measure.x &&
+      x <= measure.x + measure.duration &&
+      y >= measure.y - BAR_MARGIN_VERTICAL &&
+      y <= measure.y + BAR_HEIGHT + BAR_MARGIN_VERTICAL
+    ) {
+      return measure;
+    }
   }
 };
 
@@ -177,7 +207,11 @@ export const Timeline = React.memo(({ measures, marks }) => {
   const [zoom, setZoom] = React.useState(zoomRef.current);
   const [viewportWidth, setVW] = React.useState(0);
   const [page, setPage] = React.useState(0);
-  const { start, end, categories } = useDeriveMeasureData(measures, marks);
+  const [tooltip, setTooltip] = React.useState(null);
+  const { start, end, categories, measuresWithLayout } = useDeriveMeasureData(
+    measures,
+    marks
+  );
 
   const table = React.useRef();
   const handleTableRef = React.useCallback(
@@ -226,7 +260,7 @@ export const Timeline = React.memo(({ measures, marks }) => {
   const width = Math.ceil(duration / interval) * interval * zoom;
   const height = categories.reduce(
     (acc, [, rows]) =>
-      acc + MARGIN_SECTION_VERTICAL * 2 + rows.length * ROW_HEIGHT,
+      acc + CATEGORY_MARGIN_VERTICAL * 2 + rows.length * ROW_HEIGHT,
     AXIS_LABEL_MARGIN + AXIS_LABEL_FONT_SIZE
   );
 
@@ -236,7 +270,7 @@ export const Timeline = React.memo(({ measures, marks }) => {
     if (canvas.current) {
       draw(
         canvas.current,
-        categories,
+        measuresWithLayout,
         marks,
         start,
         zoom,
@@ -248,7 +282,7 @@ export const Timeline = React.memo(({ measures, marks }) => {
     }
   }, [
     canvas,
-    categories,
+    measuresWithLayout,
     marks,
     start,
     zoom,
@@ -289,6 +323,24 @@ export const Timeline = React.memo(({ measures, marks }) => {
     [table, canvas, viewportWidth, height]
   );
 
+  const handleMouseMove = React.useCallback(
+    event => {
+      const x = event.nativeEvent.layerX / zoom;
+      const y = event.nativeEvent.offsetY;
+      const entry = hitTest(x, y, measuresWithLayout);
+      if (!entry && tooltip) {
+        setTooltip(null);
+      } else if (entry && (!tooltip || tooltip.entry !== entry)) {
+        setTooltip({ x, entry });
+      }
+    },
+    [measuresWithLayout, start, zoom, tooltip, setTooltip]
+  );
+
+  const handleMouseLeave = React.useCallback(event => setTooltip(null), [
+    setTooltip,
+  ]);
+
   React.useLayoutEffect(drawTimeline, [drawTimeline]);
 
   if (measures.length === 0 && marks.length === 0) {
@@ -306,7 +358,11 @@ export const Timeline = React.memo(({ measures, marks }) => {
     >
       <div>
         {categories.map(([category, rows], i) => (
-          <CategoryLabel style={{ height: rows.length * ROW_HEIGHT }}>
+          <CategoryLabel
+            style={{
+              height: rows.length * ROW_HEIGHT + CATEGORY_MARGIN_VERTICAL * 2,
+            }}
+          >
             {category}
           </CategoryLabel>
         ))}
@@ -316,7 +372,11 @@ export const Timeline = React.memo(({ measures, marks }) => {
         onScroll={handleScroll}
         ref={handleTableRef}
       >
-        <div style={{ width, height, overflow: 'hidden' }}>
+        <div
+          style={{ width, height, overflow: 'hidden', position: 'relative' }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
           <canvas
             ref={handleRef}
             width={viewportWidth * 2 * pixelDensity}
@@ -328,6 +388,34 @@ export const Timeline = React.memo(({ measures, marks }) => {
             }}
           />
         </div>
+        {tooltip && (
+          <div
+            style={{
+              position: 'absolute',
+              top: tooltip.entry.y + BAR_HEIGHT + TOOLTIP_CARET_SIZE + 1,
+              left: tooltip.x * zoom - TOOLTIP_CARET_SIZE,
+              backgroundColor: '#000',
+              color: 'white',
+              height: TOOLTIP_HEIGHT,
+              borderRadius: TOOLTIP_HEIGHT / 2,
+              lineHeight: `${TOOLTIP_HEIGHT}px`,
+              fontSize: 9,
+              padding: `0 ${TOOLTIP_HEIGHT / 2}px`,
+              pointerEvents: 'none',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                top: -TOOLTIP_CARET_SIZE * 2,
+                border: `${TOOLTIP_CARET_SIZE}px solid transparent`,
+                borderBottomColor: '#000',
+              }}
+            />
+            {tooltip.entry.name} {formatMilliseconds(tooltip.entry.duration)}
+          </div>
+        )}
       </Scrollable>
     </div>
   );
