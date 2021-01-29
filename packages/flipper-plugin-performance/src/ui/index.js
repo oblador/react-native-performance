@@ -1,3 +1,3 @@
 export * from './constants';
-export * from './Grid';
+export * from './canvas';
 export * from './Title';

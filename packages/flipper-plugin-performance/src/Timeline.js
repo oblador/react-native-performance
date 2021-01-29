@@ -2,92 +2,25 @@ import React from 'react';
 import { styled } from 'flipper';
 import {
   COLOR_TEXT,
+  COLOR_SEPARATOR,
+  COLOR_FADED,
   MARGIN_CONTAINER_VERTICAL,
   MARGIN_CONTAINER_HORIZONTAL,
-  LABEL_HEIGHT,
-  LABEL_MARGIN,
+  drawRoundedRect,
+  drawMark,
   Grid,
 } from './ui';
 
-const ROW_VERTICAL_PADDING = MARGIN_CONTAINER_HORIZONTAL / 2;
-const ROW_LABEL_WIDTH = 90;
 const COLORS = ['017AFF', 'FF9601', '29AC48'];
-
-const RowHeader = styled('th')({
-  color: COLOR_TEXT,
-  fontSize: 13,
-  fontWeight: 500,
-  width: ROW_LABEL_WIDTH + MARGIN_CONTAINER_HORIZONTAL,
-  paddingLeft: MARGIN_CONTAINER_HORIZONTAL,
-  paddingTop: ROW_VERTICAL_PADDING,
-  paddingBottom: ROW_VERTICAL_PADDING,
-  textAlign: 'left',
-  verticalAlign: 'middle',
-});
-
 const BAR_HEIGHT = 5;
 const BAR_MARGIN_VERTICAL = 4;
 const ROW_HEIGHT = BAR_HEIGHT + BAR_MARGIN_VERTICAL;
 const CATEGORY_MARGIN_TOP = 10;
-
-const TimelineEntry = React.memo(
-  ({ title, origin, startTime, duration, zoom, color = '017AFF' }) => (
-    <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: Math.round(zoom * (startTime - origin)),
-        display: 'block',
-        width: Math.round(zoom * duration),
-        height: BAR_HEIGHT,
-        borderRadius: BAR_HEIGHT / 2,
-        borderStyle: 'solid',
-        borderWidth: 1,
-        borderColor: `#${color}`,
-        backgroundColor: `#${color}33`,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        fontSize: 9,
-      }}
-      title={title}
-    ></div>
-  )
-);
-
-const MARK_KNOB_SIZE = 7;
-const MARK_WIDTH = 1;
-
-const TimelineMark = React.memo(
-  ({ title, origin, startTime, zoom, color = '#013E5D' }) => (
-    <div
-      style={{
-        position: 'absolute',
-        top: MARK_KNOB_SIZE,
-        left: Math.round(zoom * (startTime - origin)),
-        bottom: LABEL_HEIGHT + LABEL_MARGIN,
-        width: MARK_WIDTH,
-        display: 'block',
-        backgroundColor: color,
-      }}
-      title={title}
-    >
-      <div
-        style={{
-          position: 'absolute',
-          top: -MARK_KNOB_SIZE,
-          left: MARK_KNOB_SIZE / -2 + MARK_WIDTH,
-          width: MARK_KNOB_SIZE,
-          height: MARK_KNOB_SIZE,
-          borderColor: color,
-          borderStyle: 'solid',
-          borderWidth: MARK_WIDTH,
-          borderRadius: MARK_KNOB_SIZE / 2,
-        }}
-      ></div>
-    </div>
-  )
-);
+const MARGIN_SECTION_VERTICAL = 15;
+const MARK_KNOB_SIZE = 5;
+const AXIS_LABEL_FONT_SIZE = 9;
+const AXIS_LABEL_MARGIN = 10;
+const AXIS_LABEL_FONT = `${AXIS_LABEL_FONT_SIZE}px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
 
 const groupMeasures = measures => {
   const groups = [];
@@ -114,22 +47,15 @@ const Scrollable = styled('div')({
   position: 'relative',
 });
 
-const Section = styled('div')({
-  marginTop: 10,
-  marginBottom: 20,
-});
-
-const Category = styled('div')({
+const CategoryLabel = styled('div')({
+  paddingTop: MARGIN_SECTION_VERTICAL,
+  paddingBottom: MARGIN_SECTION_VERTICAL,
   paddingLeft: MARGIN_CONTAINER_HORIZONTAL,
   paddingRight: 10,
   fontSize: 12,
+  color: COLOR_TEXT,
   fontWeight: 500,
   marginTop: CATEGORY_MARGIN_TOP,
-});
-
-const Row = styled('div')({
-  position: 'relative',
-  height: ROW_HEIGHT,
 });
 
 const initialScrollState = {
@@ -162,14 +88,107 @@ const useDeriveMeasureData = (measures, marks) =>
     return { start, end, categories: Array.from(categories.entries()) };
   }, [measures, marks]);
 
-const formatGridLabel = value => `${value} ms`;
+const drawAxis = (ctx, x, height, value) => {
+  ctx.beginPath();
+  ctx.moveTo(x, AXIS_LABEL_MARGIN);
+  ctx.lineTo(x, height - AXIS_LABEL_MARGIN - AXIS_LABEL_FONT_SIZE);
+  ctx.strokeStyle = COLOR_SEPARATOR;
+  ctx.stroke();
+  ctx.font = AXIS_LABEL_FONT;
+  ctx.textAlign = 'right';
+  ctx.fillStyle = COLOR_FADED;
+  ctx.fillText(`${value} ms`, x, height - 1);
+};
+
+const draw = (
+  ctx,
+  categories,
+  marks,
+  origin,
+  zoom,
+  height,
+  page,
+  viewportWidth,
+  interval
+) => {
+  const start = (page - 0.5) * viewportWidth;
+  const end = (page + 1.5) * viewportWidth;
+  ctx.clearRect(0, 0, end - start, height);
+
+  for (
+    let i = Math.max(1, Math.floor(start / zoom / interval));
+    i < Math.floor(end / zoom / interval);
+    i++
+  ) {
+    const value = i * interval;
+    const x = value * zoom - start - 1;
+    drawAxis(ctx, x, height, value);
+  }
+
+  for (let i = 0; i < marks.length; i++) {
+    const mark = marks[i];
+    const x = zoom * (mark.startTime - origin);
+    if (start < x && end > x) {
+      drawMark(
+        ctx,
+        x - start,
+        height - AXIS_LABEL_MARGIN - AXIS_LABEL_FONT_SIZE,
+        MARK_KNOB_SIZE
+      );
+    }
+  }
+
+  let offsetY = MARGIN_SECTION_VERTICAL;
+  for (let i = 0; i < categories.length; i++) {
+    const color = COLORS[i % COLORS.length];
+    const [, groups] = categories[i];
+
+    for (let j = 0; j < groups.length; j++) {
+      const group = groups[j];
+      for (let measure of group) {
+        const x = zoom * (measure.startTime - origin);
+        const width = zoom * measure.duration;
+        if (
+          (start < x && end > x) ||
+          (start < x + width && end > x + width) ||
+          (start > x && end < x + width)
+        ) {
+          const y = offsetY + BAR_MARGIN_VERTICAL;
+          drawRoundedRect(
+            ctx,
+            x - start,
+            y,
+            width,
+            BAR_HEIGHT,
+            BAR_HEIGHT / 2,
+            color
+          );
+        }
+      }
+      offsetY += ROW_HEIGHT;
+    }
+    offsetY += MARGIN_SECTION_VERTICAL;
+  }
+};
 
 export const Timeline = React.memo(({ measures, marks }) => {
+  const pixelDensity = window.devicePixelRatio || 1;
   const zoomRef = React.useRef(1);
   const [zoom, setZoom] = React.useState(zoomRef.current);
+  const [viewportWidth, setVW] = React.useState(0);
+  const [page, setPage] = React.useState(0);
   const { start, end, categories } = useDeriveMeasureData(measures, marks);
 
   const table = React.useRef();
+  const handleTableRef = React.useCallback(
+    ref => {
+      table.current = ref;
+      if (ref) {
+        setVW(ref.offsetWidth);
+      }
+    },
+    [table, setVW]
+  );
   const scrollState = React.useRef(initialScrollState);
   const handleWheel = React.useCallback(
     event => {
@@ -202,13 +221,79 @@ export const Timeline = React.memo(({ measures, marks }) => {
     },
     [zoomRef, scrollState]
   );
+  const duration = end - start;
+  const interval = 200 / 2 ** Math.ceil(Math.log2(zoom));
+  const width = Math.ceil(duration / interval) * interval * zoom;
+  const height = categories.reduce(
+    (acc, [, rows]) =>
+      acc + MARGIN_SECTION_VERTICAL * 2 + rows.length * ROW_HEIGHT,
+    AXIS_LABEL_MARGIN + AXIS_LABEL_FONT_SIZE
+  );
+
+  const canvas = React.useRef();
+  const animationFrame = React.useRef(null);
+  const drawTimeline = React.useCallback(() => {
+    if (canvas.current) {
+      draw(
+        canvas.current,
+        categories,
+        marks,
+        start,
+        zoom,
+        height,
+        page,
+        viewportWidth,
+        interval
+      );
+    }
+  }, [
+    canvas,
+    categories,
+    marks,
+    start,
+    zoom,
+    height,
+    page,
+    viewportWidth,
+    interval,
+  ]);
+
+  const updateViewport = React.useCallback(
+    target => {
+      const { scrollLeft } = target;
+      const nextPage = Math.round(scrollLeft / viewportWidth);
+      if (nextPage !== page) {
+        setPage(nextPage);
+      }
+    },
+    [viewportWidth, page, setPage, drawTimeline]
+  );
+
+  const handleScroll = React.useCallback(
+    event => updateViewport(event.target),
+    [updateViewport]
+  );
+
+  const handleRef = React.useCallback(
+    ref => {
+      canvas.current = ref ? ref.getContext('2d') : null;
+      if (ref) {
+        canvas.current.scale(pixelDensity, pixelDensity);
+        if (table.current) {
+          updateViewport(table.current);
+        }
+      }
+    },
+    // To avoid glitches in chrome on retina screens we need
+    // to set scale every time canvas dimensions change
+    [table, canvas, viewportWidth, height]
+  );
+
+  React.useLayoutEffect(drawTimeline, [drawTimeline]);
 
   if (measures.length === 0 && marks.length === 0) {
     return null;
   }
-  const duration = end - start;
-  const interval = 200 / 2 ** Math.ceil(Math.log2(zoom));
-  const numberOfIntervals = Math.ceil(duration / interval) + 1;
 
   return (
     <div
@@ -221,46 +306,28 @@ export const Timeline = React.memo(({ measures, marks }) => {
     >
       <div>
         {categories.map(([category, rows], i) => (
-          <Section style={{ height: rows.length * ROW_HEIGHT }}>
-            <Category>{category}</Category>
-          </Section>
+          <CategoryLabel style={{ height: rows.length * ROW_HEIGHT }}>
+            {category}
+          </CategoryLabel>
         ))}
       </div>
-      <Scrollable onWheel={handleWheel} ref={table}>
-        <Grid
-          numberOfIntervals={numberOfIntervals}
-          interval={interval}
-          zoom={zoom}
-          formatLabel={formatGridLabel}
-        />
-        {marks.map(mark => (
-          <TimelineMark
-            key={`${mark.name}:${mark.startTime}`}
-            title={mark.name}
-            origin={start}
-            zoom={zoom}
-            startTime={mark.startTime}
+      <Scrollable
+        onWheel={handleWheel}
+        onScroll={handleScroll}
+        ref={handleTableRef}
+      >
+        <div style={{ width, height, overflow: 'hidden' }}>
+          <canvas
+            ref={handleRef}
+            width={viewportWidth * 2 * pixelDensity}
+            height={height * pixelDensity}
+            style={{
+              width: viewportWidth * 2,
+              height,
+              transform: `translate(${(page - 0.5) * viewportWidth}px, 0)`,
+            }}
           />
-        ))}
-        {categories.map(([category, rows], i) => (
-          <Section>
-            {rows.map((measures, row) => (
-              <Row>
-                {measures.map((measure, j) => (
-                  <TimelineEntry
-                    key={`${measure.name}:${measure.startTime}`}
-                    title={measure.name}
-                    origin={start}
-                    color={COLORS[i % COLORS.length]}
-                    zoom={zoom}
-                    startTime={measure.startTime}
-                    duration={measure.duration}
-                  />
-                ))}
-              </Row>
-            ))}
-          </Section>
-        ))}
+        </div>
       </Scrollable>
     </div>
   );
