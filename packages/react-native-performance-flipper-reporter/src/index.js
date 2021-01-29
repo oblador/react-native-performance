@@ -4,19 +4,19 @@ import performance, { PerformanceObserver } from 'react-native-performance';
 const IDENTIFIER = 'flipper-plugin-performance';
 const SCHEMA_VERSION = 1;
 
-const getNativeMarkMap = () =>
-  performance
-    .getEntriesByType('react-native-mark')
-    .reduce((acc, item) => acc.set(item.name, item), new Map());
+const getNativeMarkMap = (
+  entries = performance.getEntriesByType('react-native-mark')
+) => entries.reduce((acc, item) => acc.set(item.name, item), new Map());
 
 // The bundle download trace can be very long but has no real impact on
 // perf so we try to alter the marks to act as if it wasn't there
-const subtractDownloadDuration = (entries, entryMap) =>
+const subtractDownloadDuration = (entries, entryMap = getNativeMarkMap()) =>
   entries.map(entry => {
     const downloadEnd = entryMap.get('downloadEnd');
     let transformed = entry.toJSON ? entry.toJSON() : { ...entry };
     if (
       downloadEnd &&
+      entry.name !== 'downloadStart' &&
       entry.name !== 'downloadEnd' &&
       entry.startTime <= downloadEnd.startTime
     ) {
@@ -120,8 +120,8 @@ export function setupDefaultFlipperReporter() {
 
       addObserver(
         list => {
-          const entryMap = getNativeMarkMap();
-          const entries = subtractDownloadDuration(list.getEntries(), entryMap);
+          const entries = subtractDownloadDuration(list.getEntries());
+          const entryMap = getNativeMarkMap(entries);
           const measures = calculateNativeMeasures(entries, entryMap);
           if (measures.length !== 0) {
             appendMeasures(measures);
