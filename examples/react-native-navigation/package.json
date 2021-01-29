@@ -1,6 +1,6 @@
 {
   "name": "react-native-navigation-example",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -14,7 +14,7 @@
     "react-native": "0.63.3",
     "react-native-flipper": "0.54.0",
     "react-native-navigation": "^7.4.0",
-    "react-native-performance-flipper-reporter": "0.6.0"
+    "react-native-performance-flipper-reporter": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
