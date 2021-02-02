@@ -16,15 +16,15 @@ export class PerformanceObserverEntryList {
     this.entries = entries;
   }
 
-  getEntries(): PerformanceEntry[] {
+  getEntries() {
     return this.entries.slice(0);
   }
 
-  getEntriesByType(type: EntryType): PerformanceEntry[] {
+  getEntriesByType(type: EntryType) {
     return this.entries.filter(entry => entry.entryType === type);
   }
 
-  getEntriesByName(name: string, type: EntryType): PerformanceEntry[] {
+  getEntriesByName(name: string, type: EntryType) {
     return this.entries.filter(
       entry => entry.name === name && (!type || entry.entryType === type)
     );
@@ -114,11 +114,11 @@ export const createPerformanceObserver = ({
       addEventListener(this.receiveRecord);
     }
 
-    disconnect(): void {
+    disconnect() {
       removeEventListener(this.receiveRecord);
     }
 
-    takeRecords(): PerformanceObserverEntryList {
+    takeRecords() {
       const entries = new PerformanceObserverEntryList(this.buffer);
       this.buffer = [];
       return entries;

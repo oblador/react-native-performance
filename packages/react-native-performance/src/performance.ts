@@ -53,7 +53,7 @@ export const createPerformance = () => {
   const marks = new Map<string, number>();
   let entries: PerformanceEntry[] = [];
 
-  function addEntry(entry: PerformanceEntry): PerformanceEntry {
+  function addEntry(entry: PerformanceEntry) {
     entries.push(entry);
     if (entry.entryType === 'mark' || entry.entryType === 'react-native-mark') {
       marks.set(entry.name, entry.startTime);

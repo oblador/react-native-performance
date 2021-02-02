@@ -1,39 +1,18 @@
 type MarkOptions = {
   startTime: number;
-  detail?: string;
+  detail?: any;
 }
 
 type MetricOptions = {
   startTime: number;
   value: string | number;
-  detail?: string;
+  detail?: any;
 }
 
 type MeasureOptions = {
   startTime: number;
-  detail: string;
+  detail?: any;
   duration?: number;
-}
-
-type TimingOptions = {
-  initiatorType?: string;
-  responseEnd?: number;
-  fetchStart?: number;
-  transferSize?: number;
-  connectEnd?: number;
-  connectStart?: number;
-  decodedBodySize?: number;
-  domainLookupEnd?: number;
-  domainLookupStart?: number;
-  encodedBodySize?: number;
-  redirectEnd?: number;
-  redirectStart?: number;
-  requestStart?: number;
-  responseStart?: number;
-  secureConnectionStart?: number;
-  serverTiming?: number[];
-  workerStart?: number;
-  workerTiming?: number[];
 }
 
 export type EntryType =
@@ -67,7 +46,7 @@ export class PerformanceEntry {
 }
 
 export class PerformanceMark extends PerformanceEntry {
-  detail?: string;
+  detail?: any;
 
   constructor(markName: string, markOptions: MarkOptions) {
     super(markName, 'mark', markOptions.startTime, 0);
@@ -93,7 +72,7 @@ export class PerformanceReactNativeMark extends PerformanceEntry {
 
 export class PerformanceMetric extends PerformanceEntry {
   value: string | number;
-  detail?: string;
+  detail?: any;
 
   constructor(name: string, metricOptions: MetricOptions) {
     super(name, 'metric', metricOptions.startTime, 0);
@@ -113,7 +92,7 @@ export class PerformanceMetric extends PerformanceEntry {
 }
 
 export class PerformanceMeasure extends PerformanceEntry {
-  detail?: string;
+  detail?: any;
 
   constructor(measureName: string, measureOptions: MeasureOptions) {
     super(
@@ -160,31 +139,37 @@ export class PerformanceResourceTiming extends PerformanceEntry {
     name,
     startTime,
     duration,
-    ...params
+    initiatorType,
+    responseEnd,
+    transferSize
   }: { 
     name: string;
     startTime: number;
-    duration: number
-  } & TimingOptions) {
+    duration: number;
+    initiatorType?: string;
+    responseEnd?: number;
+    transferSize?: number;
+  }) {
     super(name, 'resource', startTime, duration);
-    this.initiatorType = params.initiatorType;
+    this.initiatorType = initiatorType;
     this.fetchStart = startTime;
-    this.responseEnd = params.responseEnd;
-    this.transferSize = params.transferSize;
-    this.connectEnd = params.connectEnd;
-    this.connectStart = params.connectStart;
-    this.decodedBodySize = params.decodedBodySize;
-    this.domainLookupEnd = params.domainLookupEnd;
-    this.domainLookupStart = params.domainLookupStart;
-    this.encodedBodySize = params.encodedBodySize;
-    this.redirectEnd = params.redirectEnd;
-    this.redirectStart = params.redirectStart;
-    this.requestStart = params.requestStart;
-    this.responseStart = params.responseStart;
-    this.secureConnectionStart = params.secureConnectionStart;
-    this.serverTiming = params.serverTiming;
-    this.workerStart = params.workerStart;
-    this.workerTiming = params.workerTiming;
+    this.responseEnd = responseEnd;
+    this.transferSize = transferSize;
+    this.connectEnd = 0;	
+    this.connectStart = 0;	
+    this.decodedBodySize = 0;	
+    this.domainLookupEnd = 0;	
+    this.domainLookupStart = 0;	
+    this.encodedBodySize = 0;	
+    this.redirectEnd = 0;	
+    this.redirectStart = 0;	
+    this.requestStart = 0;	
+    this.responseStart = 0;	
+    this.secureConnectionStart = 0;	
+    this.serverTiming = [];	
+    this.transferSize = 0;	
+    this.workerStart = 0;	
+    this.workerTiming = [];
   }
 
   toJSON() {
