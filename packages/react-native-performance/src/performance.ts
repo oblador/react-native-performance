@@ -72,7 +72,7 @@ export const createPerformance = () => {
     });
   };
 
-  const mark = (markName: string, markOptions?: MarkOptions) =>
+  const mark = (markName: string, markOptions: MarkOptions = {}) =>
     addEntry(
       new PerformanceMark(markName, {
         startTime:
@@ -109,7 +109,7 @@ export const createPerformance = () => {
     }
   };
 
-  const measure = (measureName: string, startOrMeasureOptions: StartOrMeasureOptions, endMark?: string | number) => {
+  const measure = (measureName: string, startOrMeasureOptions: StartOrMeasureOptions = {}, endMark?: string | number) => {
     let start = 0;
     let end = 0;
     let detail: string | undefined;

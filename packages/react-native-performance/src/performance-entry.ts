@@ -1,5 +1,5 @@
 type MarkOptions = {
-  startTime: number;
+  startTime?: number;
   detail?: any;
 }
 
@@ -10,7 +10,7 @@ type MetricOptions = {
 }
 
 type MeasureOptions = {
-  startTime: number;
+  startTime?: number;
   detail?: any;
   duration?: number;
 }
@@ -48,7 +48,7 @@ export class PerformanceEntry {
 export class PerformanceMark extends PerformanceEntry {
   detail?: any;
 
-  constructor(markName: string, markOptions: MarkOptions) {
+  constructor(markName: string, markOptions: MarkOptions = {}) {
     super(markName, 'mark', markOptions.startTime, 0);
     this.detail = markOptions.detail;
   }
@@ -94,7 +94,7 @@ export class PerformanceMetric extends PerformanceEntry {
 export class PerformanceMeasure extends PerformanceEntry {
   detail?: any;
 
-  constructor(measureName: string, measureOptions: MeasureOptions) {
+  constructor(measureName: string, measureOptions: MeasureOptions = {}) {
     super(
       measureName,
       'measure',
@@ -116,7 +116,7 @@ export class PerformanceMeasure extends PerformanceEntry {
 }
 
 export class PerformanceResourceTiming extends PerformanceEntry {
-  initiatorType: string;
+  initiatorType?: string;
   responseEnd: number;
   fetchStart: number;
   transferSize: number;
@@ -132,7 +132,7 @@ export class PerformanceResourceTiming extends PerformanceEntry {
   responseStart: number;
   secureConnectionStart?: number;
   serverTiming: number[];
-  workerStart?: number;
+  workerStart: number;
   workerTiming: number[];
 
   constructor({
@@ -143,13 +143,13 @@ export class PerformanceResourceTiming extends PerformanceEntry {
     responseEnd,
     transferSize
   }: { 
-    name: string;
-    startTime: number;
-    duration: number;
+    name?: string;
+    startTime?: number;
+    duration?: number;
     initiatorType?: string;
     responseEnd?: number;
     transferSize?: number;
-  }) {
+  } = {}) {
     super(name, 'resource', startTime, duration);
     this.initiatorType = initiatorType;
     this.fetchStart = startTime;
