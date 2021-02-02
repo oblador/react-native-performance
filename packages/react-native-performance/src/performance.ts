@@ -47,11 +47,7 @@ export interface Performance {
   getEntriesByType(type: EntryType): PerformanceEntry[],
 }
 
-export const createPerformance = (): {
-    PerformanceObserver: any,
-    addEntry: (entry: PerformanceEntry) => PerformanceEntry,
-    performance: Performance
-} => {
+export const createPerformance = () => {
   const timeOrigin = now();
   const { addEventListener, removeEventListener, emit } = createEventEmitter();
   const marks = new Map<string, number>();
