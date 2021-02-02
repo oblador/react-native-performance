@@ -33,6 +33,7 @@ export default performance;
 
 export const setResourceLoggingEnabled = (enabled = true) => {
   if (enabled) {
+    //@ts-ignore
     installResourceLogger(globalThis, performance, addEntry);
   } else {
     uninstallResourceLogger(globalThis);
