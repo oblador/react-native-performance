@@ -16,24 +16,24 @@ type MeasureOptions = {
 }
 
 type TimingOptions = {
-  initiatorType: string;
-  responseEnd: string;
-  fetchStart: number;
-  transferSize: string;
-  connectEnd: number;
-  connectStart: number;
-  decodedBodySize: number;
-  domainLookupEnd: number;
-  domainLookupStart: number;
-  encodedBodySize: number;
-  redirectEnd: number;
-  redirectStart: number;
-  requestStart: number;
-  responseStart: number;
+  initiatorType?: string;
+  responseEnd?: number;
+  fetchStart?: number;
+  transferSize?: number;
+  connectEnd?: number;
+  connectStart?: number;
+  decodedBodySize?: number;
+  domainLookupEnd?: number;
+  domainLookupStart?: number;
+  encodedBodySize?: number;
+  redirectEnd?: number;
+  redirectStart?: number;
+  requestStart?: number;
+  responseStart?: number;
   secureConnectionStart?: number;
-  serverTiming: number[];
+  serverTiming?: number[];
   workerStart?: number;
-  workerTiming: number[];
+  workerTiming?: number[];
 }
 
 export type EntryType =
@@ -138,9 +138,9 @@ export class PerformanceMeasure extends PerformanceEntry {
 
 export class PerformanceResourceTiming extends PerformanceEntry {
   initiatorType: string;
-  responseEnd: string;
+  responseEnd: number;
   fetchStart: number;
-  transferSize: string;
+  transferSize: number;
   connectEnd: number;
   connectStart: number;
   decodedBodySize: number;
