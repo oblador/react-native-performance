@@ -49,7 +49,7 @@ export interface Performance {
 
 export const createPerformance = () => {
   const timeOrigin = now();
-  const { addEventListener, removeEventListener, emit } = createEventEmitter();
+  const { addEventListener, removeEventListener, emit } = createEventEmitter<PerformanceEntry>();
   const marks = new Map<string, number>();
   let entries: PerformanceEntry[] = [];
 

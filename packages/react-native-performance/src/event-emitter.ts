@@ -1,19 +1,17 @@
-import { PerformanceEntry } from "./performance-entry";
+type Callback<T> = (entry: T) => void;
 
-type Callback = (entry: PerformanceEntry) => void;
+export const createEventEmitter = <T>() => {
+  const callbacks = new Set<Callback<T>>();
 
-export const createEventEmitter = () => {
-  const callbacks = new Set<Callback>();
-
-  const addEventListener = (callback: Callback) => {
+  const addEventListener = (callback: Callback<T>) => {
     callbacks.add(callback);
   };
 
-  const removeEventListener = (callback: Callback) => {
+  const removeEventListener = (callback: Callback<T>) => {
     callbacks.delete(callback);
   };
 
-  const emit = (event: PerformanceEntry) => {
+  const emit = (event: T) => {
     callbacks.forEach(callback => {
       callback(event);
     });
