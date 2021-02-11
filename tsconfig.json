@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": ["es6"],
+    "isolatedModules": true,
+    "moduleResolution": "node",
+  },
+  "include": [
+    "packages/react-native-performance/src"
+  ]
+}

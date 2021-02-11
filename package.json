@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "format": "prettier '{,packages/*/,examples/*/}*.{md,js,json}' --write",
-    "test": "yarn workspace react-native-performance test"
+    "test": "yarn workspace react-native-performance test",
+    "types": "tsc --noEmit"
   },
   "workspaces": {
     "packages": [

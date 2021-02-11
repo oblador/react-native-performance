@@ -24,7 +24,10 @@
     "metro-react-native-babel-preset": "^0.59.0",
     "react-native-flipper": "0.54.0",
     "react-native-performance-flipper-reporter": "^1.0.0",
-    "react-test-renderer": "16.13.1"
+    "react-test-renderer": "16.13.1",
+    "typescript": "^4.1.3",
+    "@types/react": "^17.0.0",
+    "@types/react-native": "^0.63.46"
   },
   "jest": {
     "preset": "react-native"

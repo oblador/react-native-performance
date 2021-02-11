@@ -2,6 +2,7 @@ name: Tests
 
 on:
   - push
+  - pull_request
 
 jobs:
   unit-tests:
@@ -18,3 +19,18 @@ jobs:
         run: yarn --frozen-lockfile --non-interactive --silent --ignore-scripts
       - name: Run tests
         run: yarn test
+
+  types:
+    name: Type checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - name: Install dependencies
+        run: yarn --frozen-lockfile --non-interactive --silent --ignore-scripts
+      - name: Check types
+        run: yarn types

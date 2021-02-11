@@ -1,5 +1,39 @@
+type MarkOptions = {
+  startTime?: number;
+  detail?: any;
+};
+
+type MetricOptions = {
+  startTime: number;
+  value: string | number;
+  detail?: any;
+};
+
+type MeasureOptions = {
+  startTime?: number;
+  detail?: any;
+  duration?: number;
+};
+
+export type EntryType =
+  | 'mark'
+  | 'measure'
+  | 'resource'
+  | 'metric'
+  | 'react-native-mark';
+
 export class PerformanceEntry {
-  constructor(name, entryType, startTime, duration) {
+  name: string;
+  entryType: EntryType;
+  startTime: number;
+  duration: number;
+
+  constructor(
+    name: string,
+    entryType: EntryType,
+    startTime: number,
+    duration: number
+  ) {
     this.name = name;
     this.entryType = entryType;
     this.startTime = startTime;
@@ -17,7 +51,9 @@ export class PerformanceEntry {
 }
 
 export class PerformanceMark extends PerformanceEntry {
-  constructor(markName, markOptions = {}) {
+  detail?: any;
+
+  constructor(markName: string, markOptions: MarkOptions = {}) {
     super(markName, 'mark', markOptions.startTime, 0);
     this.detail = markOptions.detail;
   }
@@ -34,13 +70,16 @@ export class PerformanceMark extends PerformanceEntry {
 }
 
 export class PerformanceReactNativeMark extends PerformanceEntry {
-  constructor(name, startTime) {
+  constructor(name: string, startTime: number) {
     super(name, 'react-native-mark', startTime, 0);
   }
 }
 
 export class PerformanceMetric extends PerformanceEntry {
-  constructor(name, metricOptions = {}) {
+  value: string | number;
+  detail?: any;
+
+  constructor(name: string, metricOptions: MetricOptions) {
     super(name, 'metric', metricOptions.startTime, 0);
     this.value = metricOptions.value;
     this.detail = metricOptions.detail;
@@ -59,7 +98,9 @@ export class PerformanceMetric extends PerformanceEntry {
 }
 
 export class PerformanceMeasure extends PerformanceEntry {
-  constructor(measureName, measureOptions = {}) {
+  detail?: any;
+
+  constructor(measureName: string, measureOptions: MeasureOptions = {}) {
     super(
       measureName,
       'measure',
@@ -81,6 +122,25 @@ export class PerformanceMeasure extends PerformanceEntry {
 }
 
 export class PerformanceResourceTiming extends PerformanceEntry {
+  initiatorType?: string;
+  responseEnd: number;
+  fetchStart: number;
+  transferSize: number;
+  connectEnd: number;
+  connectStart: number;
+  decodedBodySize: number;
+  domainLookupEnd: number;
+  domainLookupStart: number;
+  encodedBodySize: number;
+  redirectEnd: number;
+  redirectStart: number;
+  requestStart: number;
+  responseStart: number;
+  secureConnectionStart?: number;
+  serverTiming: number[];
+  workerStart: number;
+  workerTiming: number[];
+
   constructor({
     name,
     startTime,
@@ -88,6 +148,13 @@ export class PerformanceResourceTiming extends PerformanceEntry {
     initiatorType,
     responseEnd,
     transferSize,
+  }: {
+    name?: string;
+    startTime?: number;
+    duration?: number;
+    initiatorType?: string;
+    responseEnd?: number;
+    transferSize?: number;
   } = {}) {
     super(name, 'resource', startTime, duration);
     this.initiatorType = initiatorType;
@@ -133,7 +200,6 @@ export class PerformanceResourceTiming extends PerformanceEntry {
       responseStart: this.responseStart,
       secureConnectionStart: this.secureConnectionStart,
       serverTiming: this.serverTiming,
-      transferSize: this.transferSize,
       workerStart: this.workerStart,
       workerTiming: this.workerTiming,
     };

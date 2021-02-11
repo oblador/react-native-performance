@@ -1,9 +1,28 @@
-import { PerformanceResourceTiming } from './performance-entry';
+import {
+  PerformanceResourceTiming,
+  PerformanceEntry,
+} from './performance-entry';
+import { Performance } from './performance';
 
-export const installResourceLogger = (context, performance, addEntry) => {
+interface XMLHttpRequestType extends XMLHttpRequest {
+  new (...args: any): XMLHttpRequestType;
+  performanceOriginal: XMLHttpRequest;
+  performanceStartTime?: number;
+  responseURL: string;
+  responseHeaders: string[];
+}
+interface Context {
+  XMLHttpRequest: XMLHttpRequestType;
+}
+
+export const installResourceLogger = (
+  context: Context,
+  performance: Performance,
+  addEntry: (entry: PerformanceEntry) => PerformanceEntry
+) => {
   if (context.XMLHttpRequest && !context.XMLHttpRequest.performanceOriginal) {
     class XMLHttpRequest extends context.XMLHttpRequest {
-      constructor(...args) {
+      constructor(...args: any) {
         super(...args);
         this.performanceStartTime = null;
 
@@ -29,8 +48,9 @@ export const installResourceLogger = (context, performance, addEntry) => {
         };
       }
 
-      open(...args) {
+      open(...args: any) {
         this.performanceStartTime = performance.now();
+        //@ts-ignore
         super.open(...args);
       }
     }
@@ -39,7 +59,7 @@ export const installResourceLogger = (context, performance, addEntry) => {
   }
 };
 
-export const uninstallResourceLogger = context => {
+export const uninstallResourceLogger = (context: any) => {
   if (context.XMLHttpRequest && context.XMLHttpRequest.performanceOriginal) {
     context.XMLHttpRequest = context.XMLHttpRequest.performanceOriginal;
   }

@@ -1,5 +1,18 @@
+import { EntryType, PerformanceEntry } from './performance-entry';
+
+type ObserveOptionType1 = {
+  entryTypes: EntryType[];
+};
+
+type ObserveOptionType2 = {
+  type: EntryType;
+  buffered?: boolean;
+};
+
 export class PerformanceObserverEntryList {
-  constructor(entries) {
+  entries: PerformanceEntry[];
+
+  constructor(entries: PerformanceEntry[]) {
     this.entries = entries;
   }
 
@@ -7,11 +20,11 @@ export class PerformanceObserverEntryList {
     return this.entries.slice(0);
   }
 
-  getEntriesByType(type) {
+  getEntriesByType(type: EntryType) {
     return this.entries.filter(entry => entry.entryType === type);
   }
 
-  getEntriesByName(name, type) {
+  getEntriesByName(name: string, type: EntryType) {
     return this.entries.filter(
       entry => entry.name === name && (!type || entry.entryType === type)
     );
@@ -35,9 +48,28 @@ export const createPerformanceObserver = ({
   addEventListener,
   removeEventListener,
   getEntriesByType,
-}) => {
+}) =>
   class PerformanceObserver {
-    constructor(callback) {
+    callback: (
+      list: PerformanceObserverEntryList,
+      observer: PerformanceObserver
+    ) => void;
+    buffer: PerformanceEntry[];
+    entryTypes: Set<EntryType>;
+    timer?: number;
+    observerType:
+      | null
+      | typeof OBSERVER_TYPE_SINGLE
+      | typeof OBSERVER_TYPE_MULTIPLE;
+
+    static supportedEntryTypes = SUPPORTED_ENTRY_TYPES;
+
+    constructor(
+      callback: (
+        list: PerformanceObserverEntryList,
+        observer: PerformanceObserver
+      ) => void
+    ) {
       this.callback = callback;
       this.buffer = [];
       this.timer = null;
@@ -58,14 +90,17 @@ export const createPerformanceObserver = ({
       }
     }
 
-    receiveRecord = entry => {
+    receiveRecord = (entry: PerformanceEntry) => {
       if (this.entryTypes.has(entry.entryType)) {
         this.buffer.push(entry);
         this.scheduleEmission();
       }
     };
 
-    observe(options) {
+    observe(options: ObserveOptionType1): void;
+    observe(options: ObserveOptionType2): void;
+
+    observe(options: any) {
       if (!options || (!options.entryTypes && !options.type)) {
         throw new TypeError(
           "Failed to execute 'observe' on 'PerformanceObserver': An observe() call must include either entryTypes or type arguments."
@@ -135,7 +170,4 @@ export const createPerformanceObserver = ({
       this.buffer = [];
       return entries;
     }
-  }
-  PerformanceObserver.supportedEntryTypes = SUPPORTED_ENTRY_TYPES;
-  return PerformanceObserver;
-};
+  };

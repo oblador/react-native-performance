@@ -1,20 +1,65 @@
 import { createEventEmitter } from './event-emitter';
 import { createPerformanceObserver } from './performance-observer';
 import {
+  EntryType,
   PerformanceMark,
   PerformanceMeasure,
   PerformanceMetric,
+  PerformanceEntry,
 } from './performance-entry';
 
-export const now = () => global.performance.now();
+// @ts-ignore
+export const now = (): number => global.performance.now();
+
+export type MarkOptions = {
+  startTime?: number;
+  detail?: string;
+};
+
+export type MeasureOptions = {
+  start?: string | number;
+  end?: string | number;
+  duration?: string;
+  detail?: string;
+};
+
+export type StartOrMeasureOptions = string | MeasureOptions | undefined;
+
+export type MetricOptions = {
+  startTime: number;
+  detail: string;
+  value: number | string;
+};
+
+export type ValueOrOptions = number | string | MetricOptions;
+
+export interface Performance {
+  timeOrigin: number;
+  now(): number;
+  mark(markName: string, markOptions?: MarkOptions): void;
+  clearMarks(name: string): void;
+  measure(
+    measureName: string,
+    startOrMeasureOptions: StartOrMeasureOptions,
+    endMark?: string | number
+  ): void;
+  clearMeasures(name: string): void;
+  metric(name: string, valueOrOptions: ValueOrOptions): void;
+  clearMetrics(name: string): void;
+  getEntries(): PerformanceEntry[];
+  getEntriesByName(name: string, type: EntryType): PerformanceEntry[];
+  getEntriesByType(type: EntryType): PerformanceEntry[];
+}
 
 export const createPerformance = () => {
   const timeOrigin = now();
-  const { addEventListener, removeEventListener, emit } = createEventEmitter();
-  const marks = new Map();
-  let entries = [];
+  const { addEventListener, removeEventListener, emit } = createEventEmitter<
+    PerformanceEntry
+  >();
+  const marks = new Map<string, number>();
+  let entries: PerformanceEntry[] = [];
 
-  function addEntry(entry) {
+  function addEntry(entry: PerformanceEntry) {
     entries.push(entry);
     if (entry.entryType === 'mark' || entry.entryType === 'react-native-mark') {
       marks.set(entry.name, entry.startTime);
@@ -23,7 +68,7 @@ export const createPerformance = () => {
     return entry;
   }
 
-  const removeEntries = (type, name) => {
+  const removeEntries = (type: EntryType, name: string) => {
     entries = entries.filter(entry => {
       if (entry.entryType === type && (!name || entry.name === name)) {
         marks.delete(entry.name);
@@ -33,7 +78,7 @@ export const createPerformance = () => {
     });
   };
 
-  const mark = (markName, markOptions = {}) =>
+  const mark = (markName: string, markOptions: MarkOptions = {}) =>
     addEntry(
       new PerformanceMark(markName, {
         startTime:
@@ -44,13 +89,13 @@ export const createPerformance = () => {
       })
     );
 
-  const clearMarks = name => removeEntries('mark', name);
+  const clearMarks = (name: string) => removeEntries('mark', name);
 
-  const clearMeasures = name => removeEntries('measure', name);
+  const clearMeasures = (name: string) => removeEntries('measure', name);
 
-  const clearMetrics = name => removeEntries('metric', name);
+  const clearMetrics = (name: string) => removeEntries('metric', name);
 
-  const convertMarkToTimestamp = markOrTimestamp => {
+  const convertMarkToTimestamp = (markOrTimestamp: string | number) => {
     switch (typeof markOrTimestamp) {
       case 'string': {
         if (!marks.has(markOrTimestamp)) {
@@ -70,9 +115,14 @@ export const createPerformance = () => {
     }
   };
 
-  const measure = (measureName, startOrMeasureOptions, endMark) => {
+  const measure = (
+    measureName: string,
+    startOrMeasureOptions?: StartOrMeasureOptions,
+    endMark?: string | number
+  ) => {
     let start = 0;
     let end = 0;
+    let detail: string | undefined;
 
     if (
       typeof startOrMeasureOptions === 'object' &&
@@ -97,53 +147,59 @@ export const createPerformance = () => {
           `Failed to execute 'measure' on 'Performance': Cannot send start, end and duration options together.`
         );
       }
-    }
 
-    if (endMark) {
-      end = convertMarkToTimestamp(endMark);
-    } else if (startOrMeasureOptions && startOrMeasureOptions.end) {
-      end = convertMarkToTimestamp(startOrMeasureOptions.end);
-    } else if (
-      startOrMeasureOptions &&
-      startOrMeasureOptions.start &&
-      startOrMeasureOptions.duration
-    ) {
-      end =
-        convertMarkToTimestamp(startOrMeasureOptions.start) +
-        convertMarkToTimestamp(startOrMeasureOptions.duration);
-    } else {
-      end = now();
-    }
+      detail = startOrMeasureOptions.detail;
 
-    if (startOrMeasureOptions && startOrMeasureOptions.start) {
-      start = convertMarkToTimestamp(startOrMeasureOptions.start);
-    } else if (
-      startOrMeasureOptions &&
-      startOrMeasureOptions.end &&
-      startOrMeasureOptions.duration
-    ) {
-      start =
-        convertMarkToTimestamp(startOrMeasureOptions.end) -
-        convertMarkToTimestamp(startOrMeasureOptions.duration);
-    } else if (typeof startOrMeasureOptions === 'string') {
-      start = convertMarkToTimestamp(startOrMeasureOptions);
+      if (startOrMeasureOptions && startOrMeasureOptions.end) {
+        end = convertMarkToTimestamp(startOrMeasureOptions.end);
+      } else if (
+        startOrMeasureOptions &&
+        startOrMeasureOptions.start &&
+        startOrMeasureOptions.duration
+      ) {
+        end =
+          convertMarkToTimestamp(startOrMeasureOptions.start) +
+          convertMarkToTimestamp(startOrMeasureOptions.duration);
+      }
+
+      if (startOrMeasureOptions && startOrMeasureOptions.start) {
+        start = convertMarkToTimestamp(startOrMeasureOptions.start);
+      } else if (
+        startOrMeasureOptions &&
+        startOrMeasureOptions.end &&
+        startOrMeasureOptions.duration
+      ) {
+        start =
+          convertMarkToTimestamp(startOrMeasureOptions.end) -
+          convertMarkToTimestamp(startOrMeasureOptions.duration);
+      }
     } else {
-      start = timeOrigin;
+      if (endMark) {
+        end = convertMarkToTimestamp(endMark);
+      } else {
+        end = now();
+      }
+
+      if (typeof startOrMeasureOptions === 'string') {
+        start = convertMarkToTimestamp(startOrMeasureOptions);
+      } else {
+        start = timeOrigin;
+      }
     }
 
     return addEntry(
       new PerformanceMeasure(measureName, {
-        detail: startOrMeasureOptions
-          ? startOrMeasureOptions.detail
-          : undefined,
+        detail,
         startTime: start,
         duration: end - start,
       })
     );
   };
 
-  const metric = (name, valueOrOptions = {}) => {
-    let value;
+  const metric = (name: string, valueOrOptions: ValueOrOptions) => {
+    let value: string | number;
+    let startTime: number | undefined;
+    let detail: string | undefined;
 
     if (
       typeof valueOrOptions === 'object' &&
@@ -155,6 +211,8 @@ export const createPerformance = () => {
         );
       }
       value = valueOrOptions.value;
+      startTime = valueOrOptions.startTime;
+      detail = valueOrOptions.detail;
     } else if (
       typeof valueOrOptions === 'undefined' ||
       valueOrOptions === null
@@ -163,28 +221,26 @@ export const createPerformance = () => {
         `Failed to execute 'metric' on 'Performance': The value option must be passed.`
       );
     } else {
-      value = valueOrOptions;
+      value = valueOrOptions as string | number;
     }
 
     return addEntry(
       new PerformanceMetric(name, {
-        startTime:
-          'startTime' in valueOrOptions ? valueOrOptions.startTime : now(),
+        startTime: startTime ? startTime : now(),
         value,
-        unit: valueOrOptions.detail,
-        detail: valueOrOptions.detail,
+        detail,
       })
     );
   };
 
   const getEntries = () => entries.slice(0);
 
-  const getEntriesByName = (name, type) =>
+  const getEntriesByName = (name: string, type: EntryType) =>
     entries.filter(
       entry => entry.name === name && (!type || entry.entryType === type)
     );
 
-  const getEntriesByType = type =>
+  const getEntriesByType = (type: EntryType) =>
     entries.filter(entry => entry.entryType === type);
 
   const PerformanceObserver = createPerformanceObserver({
