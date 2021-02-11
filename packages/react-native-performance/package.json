@@ -15,7 +15,7 @@
     "android"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [
     "react-native",
@@ -27,5 +27,11 @@
   "license": "MIT",
   "peerDependencies": {
     "react-native": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
+    "babel-jest": "^26.6.3",
+    "jest": "^26.6.3"
   }
 }

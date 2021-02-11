@@ -4,7 +4,8 @@
   "author": "Joel Arvidsson",
   "license": "MIT",
   "scripts": {
-    "format": "prettier '{,packages/*/,examples/*/}*.{md,js,json}' --write"
+    "format": "prettier '{,packages/*/,examples/*/}*.{md,js,json}' --write",
+    "test": "yarn workspace react-native-performance test"
   },
   "workspaces": {
     "packages": [
