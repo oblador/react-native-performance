@@ -91,6 +91,7 @@ export class PerformanceMetric extends PerformanceEntry {
       entryType: this.entryType,
       startTime: this.startTime,
       duration: this.duration,
+      detail: this.detail,
       value: this.value,
     };
   }
