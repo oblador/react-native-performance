@@ -9,47 +9,53 @@ import {
 } from './performance-entry';
 
 // @ts-ignore
-export const now = (): number => global.nativePerformanceNow();
+export const now = (): number => global.performance.now();
 
 export type MarkOptions = {
-  startTime?: number,
-  detail?: string
-}
+  startTime?: number;
+  detail?: string;
+};
 
 export type MeasureOptions = {
-  start?: string | number,
-  end?: string | number,
-  duration?: string,
-  detail?: string
-}
+  start?: string | number;
+  end?: string | number;
+  duration?: string;
+  detail?: string;
+};
 
 export type StartOrMeasureOptions = string | MeasureOptions | undefined;
 
 export type MetricOptions = {
-  startTime: number,
-  detail: string,
-  value: number | string
-}
+  startTime: number;
+  detail: string;
+  value: number | string;
+};
 
 export type ValueOrOptions = number | string | MetricOptions;
 
 export interface Performance {
-  timeOrigin: number,
-  now(): number,
-  mark(markName: string, markOptions?: MarkOptions): void,
-  clearMarks(name: string): void,
-  measure(measureName: string, startOrMeasureOptions: StartOrMeasureOptions, endMark?: string | number): void,
-  clearMeasures(name: string): void,
-  metric(name: string, valueOrOptions: ValueOrOptions): void,
-  clearMetrics(name: string): void,
-  getEntries(): PerformanceEntry[],
-  getEntriesByName(name: string, type: EntryType): PerformanceEntry[],
-  getEntriesByType(type: EntryType): PerformanceEntry[],
+  timeOrigin: number;
+  now(): number;
+  mark(markName: string, markOptions?: MarkOptions): void;
+  clearMarks(name: string): void;
+  measure(
+    measureName: string,
+    startOrMeasureOptions: StartOrMeasureOptions,
+    endMark?: string | number
+  ): void;
+  clearMeasures(name: string): void;
+  metric(name: string, valueOrOptions: ValueOrOptions): void;
+  clearMetrics(name: string): void;
+  getEntries(): PerformanceEntry[];
+  getEntriesByName(name: string, type: EntryType): PerformanceEntry[];
+  getEntriesByType(type: EntryType): PerformanceEntry[];
 }
 
 export const createPerformance = () => {
   const timeOrigin = now();
-  const { addEventListener, removeEventListener, emit } = createEventEmitter<PerformanceEntry>();
+  const { addEventListener, removeEventListener, emit } = createEventEmitter<
+    PerformanceEntry
+  >();
   const marks = new Map<string, number>();
   let entries: PerformanceEntry[] = [];
 
@@ -109,7 +115,11 @@ export const createPerformance = () => {
     }
   };
 
-  const measure = (measureName: string, startOrMeasureOptions: StartOrMeasureOptions = {}, endMark?: string | number) => {
+  const measure = (
+    measureName: string,
+    startOrMeasureOptions?: StartOrMeasureOptions,
+    endMark?: string | number
+  ) => {
     let start = 0;
     let end = 0;
     let detail: string | undefined;
@@ -163,8 +173,8 @@ export const createPerformance = () => {
           convertMarkToTimestamp(startOrMeasureOptions.end) -
           convertMarkToTimestamp(startOrMeasureOptions.duration);
       }
-    } else { 
-      if(endMark) {
+    } else {
+      if (endMark) {
         end = convertMarkToTimestamp(endMark);
       } else {
         end = now();
@@ -211,7 +221,7 @@ export const createPerformance = () => {
         `Failed to execute 'metric' on 'Performance': The value option must be passed.`
       );
     } else {
-      value = valueOrOptions as (string | number);
+      value = valueOrOptions as string | number;
     }
 
     return addEntry(
