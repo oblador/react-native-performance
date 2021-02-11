@@ -14,8 +14,7 @@
     "android"
   ],
   "scripts": {
-    "test": "jest",
-    "types": "tsc src/index.ts --noEmit"
+    "test": "jest"
   },
   "keywords": [
     "react-native",
