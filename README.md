@@ -52,6 +52,12 @@ yarn start # important to run this before the next step!
 yarn ios # or yarn android
 ```
 
+Run the unit tests with:
+
+```bash
+yarn test
+```
+
 ## License
 
 MIT © Joel Arvidsson 2019 – present

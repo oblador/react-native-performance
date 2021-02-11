@@ -6,7 +6,7 @@ import {
   PerformanceMetric,
 } from './performance-entry';
 
-export const now = () => global.nativePerformanceNow();
+export const now = () => global.performance.now();
 
 export const createPerformance = () => {
   const timeOrigin = now();
@@ -70,7 +70,7 @@ export const createPerformance = () => {
     }
   };
 
-  const measure = (measureName, startOrMeasureOptions = {}, endMark) => {
+  const measure = (measureName, startOrMeasureOptions, endMark) => {
     let start = 0;
     let end = 0;
 

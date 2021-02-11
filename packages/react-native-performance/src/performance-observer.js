@@ -21,26 +21,32 @@ export class PerformanceObserverEntryList {
 const SUPPORTED_ENTRY_TYPES = [
   'mark',
   'measure',
-  'resource',
   'metric',
   'react-native-mark',
+  'resource',
 ];
+
+const sortByStartTime = (a, b) => a.startTime - b.startTime;
+
+const OBSERVER_TYPE_SINGLE = 'single';
+const OBSERVER_TYPE_MULTIPLE = 'multiple';
 
 export const createPerformanceObserver = ({
   addEventListener,
   removeEventListener,
   getEntriesByType,
-}) =>
+}) => {
   class PerformanceObserver {
     constructor(callback) {
       this.callback = callback;
       this.buffer = [];
       this.timer = null;
       this.entryTypes = new Set();
+      this.observerType = null;
     }
 
     emitRecords = () => {
-      this.callback(this.takeRecords(), this);
+      this.callback(new PerformanceObserverEntryList(this.takeRecords()), this);
     };
 
     scheduleEmission() {
@@ -65,8 +71,22 @@ export const createPerformanceObserver = ({
           "Failed to execute 'observe' on 'PerformanceObserver': An observe() call must include either entryTypes or type arguments."
         );
       }
+      if (options.entryTypes && options.type) {
+        throw new TypeError(
+          "Failed to execute 'observe' on 'PerformanceObserver': An observe() call must not include both entryTypes and type arguments."
+        );
+      }
 
       if (options.entryTypes) {
+        if (this.observerType === OBSERVER_TYPE_SINGLE) {
+          throw new Error(
+            'This PerformanceObserver has performed observe({type:...}, therefore it cannot perform observe({entryTypes:...})'
+          );
+        }
+        if (!Array.isArray(options.entryTypes)) {
+          throw new TypeError('entryTypes argument must be an array');
+        }
+        this.observerType = OBSERVER_TYPE_MULTIPLE;
         this.entryTypes = new Set(options.entryTypes);
         this.buffer = [];
         if (options.buffered) {
@@ -75,7 +95,13 @@ export const createPerformanceObserver = ({
           );
         }
       } else {
-        this.entryTypes = new Set([options.type]);
+        if (this.observerType === OBSERVER_TYPE_MULTIPLE) {
+          throw new Error(
+            'This PerformanceObserver has performed observe({entryTypes:...}, therefore it cannot perform observe({type:...})'
+          );
+        }
+        this.observerType = OBSERVER_TYPE_SINGLE;
+        this.entryTypes.add(options.type);
         if (options.buffered) {
           this.buffer = getEntriesByType(options.type);
           this.scheduleEmission();
@@ -95,11 +121,21 @@ export const createPerformanceObserver = ({
 
     disconnect() {
       removeEventListener(this.receiveRecord);
+      this.entryTypes = new Set();
+      this.observerType = null;
+      this.buffer = [];
+      if (this.timer !== null) {
+        cancelAnimationFrame(this.timer);
+        this.timer = null;
+      }
     }
 
     takeRecords() {
-      const entries = new PerformanceObserverEntryList(this.buffer);
+      const entries = this.buffer.sort(sortByStartTime);
       this.buffer = [];
       return entries;
     }
-  };
+  }
+  PerformanceObserver.supportedEntryTypes = SUPPORTED_ENTRY_TYPES;
+  return PerformanceObserver;
+};
