@@ -1,18 +1,25 @@
-import { PerformanceResourceTiming, PerformanceEntry } from './performance-entry';
+import {
+  PerformanceResourceTiming,
+  PerformanceEntry,
+} from './performance-entry';
 import { Performance } from './performance';
 
 interface XMLHttpRequestType extends XMLHttpRequest {
-    new(...args: any): XMLHttpRequestType
-    performanceOriginal: XMLHttpRequest;
-    performanceStartTime?: number;
-    responseURL: string;
-    responseHeaders: string[];
+  new (...args: any): XMLHttpRequestType;
+  performanceOriginal: XMLHttpRequest;
+  performanceStartTime?: number;
+  responseURL: string;
+  responseHeaders: string[];
 }
 interface Context {
-    XMLHttpRequest: XMLHttpRequestType;
+  XMLHttpRequest: XMLHttpRequestType;
 }
 
-export const installResourceLogger = (context: Context, performance: Performance, addEntry: (entry: PerformanceEntry) => PerformanceEntry ) => {
+export const installResourceLogger = (
+  context: Context,
+  performance: Performance,
+  addEntry: (entry: PerformanceEntry) => PerformanceEntry
+) => {
   if (context.XMLHttpRequest && !context.XMLHttpRequest.performanceOriginal) {
     class XMLHttpRequest extends context.XMLHttpRequest {
       constructor(...args: any) {

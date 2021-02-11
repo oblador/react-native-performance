@@ -1,26 +1,26 @@
 type MarkOptions = {
   startTime?: number;
   detail?: any;
-}
+};
 
 type MetricOptions = {
   startTime: number;
   value: string | number;
   detail?: any;
-}
+};
 
 type MeasureOptions = {
   startTime?: number;
   detail?: any;
   duration?: number;
-}
+};
 
 export type EntryType =
-  'mark' |
-  'measure' |
-  'resource' |
-  'metric' |
-  'react-native-mark';
+  | 'mark'
+  | 'measure'
+  | 'resource'
+  | 'metric'
+  | 'react-native-mark';
 
 export class PerformanceEntry {
   name: string;
@@ -28,7 +28,12 @@ export class PerformanceEntry {
   startTime: number;
   duration: number;
 
-  constructor(name: string, entryType: EntryType, startTime: number, duration: number) {
+  constructor(
+    name: string,
+    entryType: EntryType,
+    startTime: number,
+    duration: number
+  ) {
     this.name = name;
     this.entryType = entryType;
     this.startTime = startTime;
@@ -141,8 +146,8 @@ export class PerformanceResourceTiming extends PerformanceEntry {
     duration,
     initiatorType,
     responseEnd,
-    transferSize
-  }: { 
+    transferSize,
+  }: {
     name?: string;
     startTime?: number;
     duration?: number;
@@ -155,20 +160,20 @@ export class PerformanceResourceTiming extends PerformanceEntry {
     this.fetchStart = startTime;
     this.responseEnd = responseEnd;
     this.transferSize = transferSize;
-    this.connectEnd = 0;	
-    this.connectStart = 0;	
-    this.decodedBodySize = 0;	
-    this.domainLookupEnd = 0;	
-    this.domainLookupStart = 0;	
-    this.encodedBodySize = 0;	
-    this.redirectEnd = 0;	
-    this.redirectStart = 0;	
-    this.requestStart = 0;	
-    this.responseStart = 0;	
-    this.secureConnectionStart = 0;	
-    this.serverTiming = [];	
-    this.transferSize = 0;	
-    this.workerStart = 0;	
+    this.connectEnd = 0;
+    this.connectStart = 0;
+    this.decodedBodySize = 0;
+    this.domainLookupEnd = 0;
+    this.domainLookupStart = 0;
+    this.encodedBodySize = 0;
+    this.redirectEnd = 0;
+    this.redirectStart = 0;
+    this.requestStart = 0;
+    this.responseStart = 0;
+    this.secureConnectionStart = 0;
+    this.serverTiming = [];
+    this.transferSize = 0;
+    this.workerStart = 0;
     this.workerTiming = [];
   }
 

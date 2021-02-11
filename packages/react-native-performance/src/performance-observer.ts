@@ -1,4 +1,4 @@
-import { EntryType, PerformanceEntry } from "./performance-entry";
+import { EntryType, PerformanceEntry } from './performance-entry';
 
 type ObserveOptionType1 = {
   entryTypes: EntryType[];
@@ -7,7 +7,7 @@ type ObserveOptionType1 = {
 type ObserveOptionType2 = {
   type: EntryType;
   buffered?: boolean;
-}
+};
 
 export class PerformanceObserverEntryList {
   entries: PerformanceEntry[];
@@ -48,14 +48,28 @@ export const createPerformanceObserver = ({
   addEventListener,
   removeEventListener,
   getEntriesByType,
-}) => {
+}) =>
   class PerformanceObserver {
-    callback: (list: PerformanceObserverEntryList, observer: PerformanceObserver) => void;
+    callback: (
+      list: PerformanceObserverEntryList,
+      observer: PerformanceObserver
+    ) => void;
     buffer: PerformanceEntry[];
     entryTypes: Set<EntryType>;
     timer?: number;
+    observerType:
+      | null
+      | typeof OBSERVER_TYPE_SINGLE
+      | typeof OBSERVER_TYPE_MULTIPLE;
 
-    constructor(callback: (list: PerformanceObserverEntryList, observer: PerformanceObserver) => void) {
+    static supportedEntryTypes = SUPPORTED_ENTRY_TYPES;
+
+    constructor(
+      callback: (
+        list: PerformanceObserverEntryList,
+        observer: PerformanceObserver
+      ) => void
+    ) {
       this.callback = callback;
       this.buffer = [];
       this.timer = null;
@@ -156,7 +170,4 @@ export const createPerformanceObserver = ({
       this.buffer = [];
       return entries;
     }
-  }
-  PerformanceObserver.supportedEntryTypes = SUPPORTED_ENTRY_TYPES;
-  return PerformanceObserver;
-};
+  };
