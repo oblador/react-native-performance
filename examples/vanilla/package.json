@@ -1,6 +1,6 @@
 {
   "name": "vanilla-example",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -12,12 +12,14 @@
   "dependencies": {
     "react": "16.13.1",
     "react-native": "0.63.3",
-    "react-native-performance": "^1.0.0"
+    "react-native-performance": "^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@babel/runtime": "^7.8.4",
     "@react-native-community/eslint-config": "^1.1.0",
+    "@types/react": "^17.0.0",
+    "@types/react-native": "^0.63.46",
     "babel-jest": "^25.1.0",
     "eslint": "^6.5.1",
     "jest": "^25.1.0",
@@ -25,9 +27,7 @@
     "react-native-flipper": "0.54.0",
     "react-native-performance-flipper-reporter": "^1.0.0",
     "react-test-renderer": "16.13.1",
-    "typescript": "^4.1.3",
-    "@types/react": "^17.0.0",
-    "@types/react-native": "^0.63.46"
+    "typescript": "^4.1.3"
   },
   "jest": {
     "preset": "react-native"
