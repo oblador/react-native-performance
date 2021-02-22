@@ -2,7 +2,7 @@
   "$schema": "https://fbflipper.com/schemas/plugin-package/v2.json",
   "name": "flipper-plugin-performance",
   "id": "flipper-plugin-performance",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Inspect React Native performance with Flipper",
   "homepage": "https://github.com/oblador/react-native-performance",
   "main": "dist/bundle.js",
