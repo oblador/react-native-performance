@@ -17,7 +17,7 @@ export function checkEntries(perfEntriesToCheck, expectedEntries) {
 
   expect(perfEntriesToCheck.length).toBe(expectedEntries.length);
 
-  perfEntriesToCheck.forEach(function(pe1) {
+  perfEntriesToCheck.forEach(function (pe1) {
     expect(findMatch(pe1)).not.toBe(null);
   });
 }

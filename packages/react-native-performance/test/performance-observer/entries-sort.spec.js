@@ -2,7 +2,7 @@ import { createPerformance } from '../../src/performance';
 import { checkEntries, checkSorted, wait } from './helpers';
 
 describe('PerformanceObserver', () => {
-  test('getEntries, getEntriesByType, getEntriesByName sort order', done => {
+  test('getEntries, getEntriesByType, getEntriesByName sort order', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
     const observer = new PerformanceObserver((entryList, obs) => {
       const stored_entries = entryList.getEntries();

@@ -46,7 +46,7 @@ export class App extends FlipperPlugin {
     const { selectedSessionStartedAt } = this.state;
     const session =
       sessions.find(
-        session => session.sessionStartedAt === selectedSessionStartedAt
+        (session) => session.sessionStartedAt === selectedSessionStartedAt
       ) || sessions[0];
     const { measures, metrics, marks } = session || {
       measures: [],

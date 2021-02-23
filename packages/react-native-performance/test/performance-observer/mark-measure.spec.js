@@ -2,7 +2,7 @@ import { createPerformance } from '../../src/performance';
 import { checkEntries } from './helpers';
 
 describe('PerformanceObserver', () => {
-  test('entries are observable', done => {
+  test('entries are observable', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
     let stored_entries = [];
 
@@ -26,7 +26,7 @@ describe('PerformanceObserver', () => {
     performance.measure('measure2');
   });
 
-  test('mark entries are observable', done => {
+  test('mark entries are observable', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
     let mark_entries = [];
 
@@ -46,7 +46,7 @@ describe('PerformanceObserver', () => {
     performance.mark('mark2');
   });
 
-  test('measure entries are observable', done => {
+  test('measure entries are observable', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
     let measure_entries = [];
 

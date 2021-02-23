@@ -13,7 +13,7 @@ const getUpdatedSession = (persistedState, getUpdatedSession) => {
   return persistedState;
 };
 
-const setDefaultCategoryIfNoneExists = entry => {
+const setDefaultCategoryIfNoneExists = (entry) => {
   if (!entry.category) {
     return { ...entry, category: 'Other' };
   }
@@ -30,7 +30,7 @@ export function persistedStateReducer(persistedState, method, payload) {
   if (method === 'setSession') {
     let sessions = persistedState.sessions.slice();
     let existingSession = persistedState.sessions.find(
-      session => session.sessionStartedAt === payload.sessionStartedAt
+      (session) => session.sessionStartedAt === payload.sessionStartedAt
     );
     const session = {
       sessionStartedAt: payload.sessionStartedAt,
@@ -50,7 +50,7 @@ export function persistedStateReducer(persistedState, method, payload) {
       sessions,
     });
   } else if (method === 'appendMeasures') {
-    return getUpdatedSession(persistedState, session => ({
+    return getUpdatedSession(persistedState, (session) => ({
       ...session,
       measures: session.measures
         .concat(payload.measures)
@@ -58,14 +58,14 @@ export function persistedStateReducer(persistedState, method, payload) {
         .map(setDefaultCategoryIfNoneExists),
     }));
   } else if (method === 'appendMarks') {
-    return getUpdatedSession(persistedState, session => ({
+    return getUpdatedSession(persistedState, (session) => ({
       ...session,
       marks: session.marks
         .concat(payload.marks)
         .sort((a, b) => a.startTime - b.startTime),
     }));
   } else if (method === 'setMetrics') {
-    return getUpdatedSession(persistedState, session => ({
+    return getUpdatedSession(persistedState, (session) => ({
       ...session,
       metrics: payload.metrics.reduce(
         (acc, item) => {

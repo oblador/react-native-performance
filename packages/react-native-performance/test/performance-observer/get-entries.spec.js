@@ -2,7 +2,7 @@ import { createPerformance } from '../../src/performance';
 import { checkEntries } from './helpers';
 
 describe('PerformanceObserver', () => {
-  test('getEntries, getEntriesByType and getEntriesByName work', done => {
+  test('getEntries, getEntriesByType and getEntriesByName work', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
     const observer = new PerformanceObserver((entryList, obs) => {
       checkEntries(

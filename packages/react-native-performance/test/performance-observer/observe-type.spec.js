@@ -36,17 +36,17 @@ describe('PerformanceObserver', () => {
     obs.observe({ type: 'marks' });
   });
 
-  test('observe() with different type values stacks', done => {
+  test('observe() with different type values stacks', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
     let observedMark = false;
     let observedMeasure = false;
-    const observer = new PerformanceObserver(function(entryList, obs) {
+    const observer = new PerformanceObserver(function (entryList, obs) {
       observedMark |= entryList
         .getEntries()
-        .filter(entry => entry.entryType === 'mark').length;
+        .filter((entry) => entry.entryType === 'mark').length;
       observedMeasure |= entryList
         .getEntries()
-        .filter(entry => entry.entryType === 'measure').length;
+        .filter((entry) => entry.entryType === 'measure').length;
       // Only conclude the test once we receive both entries!
       if (observedMark && observedMeasure) {
         observer.disconnect();

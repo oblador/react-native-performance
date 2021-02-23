@@ -1,4 +1,4 @@
-export const formatBytesToParts = bytes => {
+export const formatBytesToParts = (bytes) => {
   const UNITS = ['B', 'KiB', 'MiB', 'GiB'];
   const UNIT_STEP = 1024;
 

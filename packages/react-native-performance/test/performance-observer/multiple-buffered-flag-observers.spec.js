@@ -5,11 +5,11 @@ describe('PerformanceObserver', () => {
     const { performance, PerformanceObserver } = createPerformance();
 
     // The first promise waits for one buffered flag observer to receive 3 entries.
-    const promise1 = new Promise(resolve1 => {
+    const promise1 = new Promise((resolve1) => {
       let numObserved1 = 0;
       new PerformanceObserver((entryList, obs) => {
         // This buffered flag observer is constructed after a regular observer detects a mark.
-        new PerformanceObserver(list => {
+        new PerformanceObserver((list) => {
           numObserved1 += list.getEntries().length;
           if (numObserved1 == 3) resolve1();
         }).observe({ type: 'mark', buffered: true });
@@ -19,11 +19,11 @@ describe('PerformanceObserver', () => {
     });
 
     // The second promise waits for another buffered flag observer to receive 3 entries.
-    const promise2 = new Promise(resolve2 => {
+    const promise2 = new Promise((resolve2) => {
       setTimeout(() => {
         let numObserved2 = 0;
         // This buffered flag observer is constructed after a delay of 100ms.
-        new PerformanceObserver(list => {
+        new PerformanceObserver((list) => {
           numObserved2 += list.getEntries().length;
           if (numObserved2 == 3) resolve2();
         }).observe({ type: 'mark', buffered: true });

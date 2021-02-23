@@ -12,7 +12,7 @@ export const createEventEmitter = <T>() => {
   };
 
   const emit = (event: T) => {
-    callbacks.forEach(callback => {
+    callbacks.forEach((callback) => {
       callback(event);
     });
   };

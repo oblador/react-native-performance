@@ -11,7 +11,7 @@ const getNativeMarkMap = (
 // The bundle download trace can be very long but has no real impact on
 // perf so we try to alter the marks to act as if it wasn't there
 const subtractDownloadDuration = (entries, entryMap = getNativeMarkMap()) =>
-  entries.map(entry => {
+  entries.map((entry) => {
     const downloadEnd = entryMap.get('downloadEnd');
     let transformed = entry.toJSON ? entry.toJSON() : { ...entry };
     if (
@@ -29,12 +29,12 @@ const subtractDownloadDuration = (entries, entryMap = getNativeMarkMap()) =>
 const calculateNativeMeasures = (newEntries, entryMap = getNativeMarkMap()) =>
   newEntries
     .filter(
-      entry =>
+      (entry) =>
         entry.name.endsWith('End') &&
         entry.name !== 'nativeLaunchEnd' &&
         entry.name !== 'downloadEnd'
     )
-    .map(end => {
+    .map((end) => {
       const name = end.name.replace(/End$/, '');
       const { startTime } = entryMap.get(`${name}Start`);
       const duration = end.startTime - startTime;
@@ -48,8 +48,8 @@ const calculateNativeMeasures = (newEntries, entryMap = getNativeMarkMap()) =>
 
 const calculateNativeMetrics = (newEntries, entryMap = getNativeMarkMap()) =>
   newEntries
-    .filter(entry => entry.name === 'nativeLaunchEnd')
-    .map(end => {
+    .filter((entry) => entry.name === 'nativeLaunchEnd')
+    .map((end) => {
       const name = end.name.replace(/End$/, '');
       const { startTime } = entryMap.get(`${name}Start`);
       const value = end.startTime - startTime;
@@ -63,16 +63,16 @@ const calculateNativeMetrics = (newEntries, entryMap = getNativeMarkMap()) =>
 
 const calculateNativeMarks = (newEntries, entryMap = getNativeMarkMap()) =>
   newEntries
-    .filter(entry => !isMeasureMark(entry))
-    .map(entry => ({
+    .filter((entry) => !isMeasureMark(entry))
+    .map((entry) => ({
       name: entry.name,
       startTime: entry.startTime,
     }));
 
-const isMeasureMark = entry =>
+const isMeasureMark = (entry) =>
   entry.name.endsWith('End') || entry.name.endsWith('Start');
 
-const getResourceName = url => {
+const getResourceName = (url) => {
   const [urlSansQuery] = url.split('?');
   return urlSansQuery.replace(/^https?:\/\//i, '');
 };
@@ -97,21 +97,21 @@ export function setupDefaultFlipperReporter() {
         sessionStartedAt,
       });
 
-      const appendMeasures = measures => {
+      const appendMeasures = (measures) => {
         connection.send('appendMeasures', {
           schemaVersion: SCHEMA_VERSION,
           measures,
         });
       };
 
-      const appendMarks = marks => {
+      const appendMarks = (marks) => {
         connection.send('appendMarks', {
           schemaVersion: SCHEMA_VERSION,
           marks,
         });
       };
 
-      const setMetrics = metrics => {
+      const setMetrics = (metrics) => {
         connection.send('setMetrics', {
           schemaVersion: SCHEMA_VERSION,
           metrics,
@@ -119,7 +119,7 @@ export function setupDefaultFlipperReporter() {
       };
 
       addObserver(
-        list => {
+        (list) => {
           const entries = subtractDownloadDuration(list.getEntries());
           const entryMap = getNativeMarkMap(entries);
           const measures = calculateNativeMeasures(entries, entryMap);
@@ -141,9 +141,9 @@ export function setupDefaultFlipperReporter() {
         }
       );
       addObserver(
-        list => {
+        (list) => {
           appendMeasures(
-            list.getEntries().map(entry => ({
+            list.getEntries().map((entry) => ({
               name: getResourceName(entry.name),
               startTime: entry.startTime,
               duration: entry.duration,
@@ -157,9 +157,9 @@ export function setupDefaultFlipperReporter() {
         }
       );
       addObserver(
-        list => {
+        (list) => {
           appendMeasures(
-            list.getEntries().map(entry => ({
+            list.getEntries().map((entry) => ({
               name: entry.name,
               startTime: entry.startTime,
               duration: entry.duration,
@@ -173,9 +173,9 @@ export function setupDefaultFlipperReporter() {
         }
       );
       addObserver(
-        list => {
+        (list) => {
           setMetrics(
-            list.getEntries().map(entry => ({
+            list.getEntries().map((entry) => ({
               name: entry.name,
               startTime: entry.startTime,
               value: entry.value,
@@ -190,7 +190,7 @@ export function setupDefaultFlipperReporter() {
       );
     },
     onDisconnect() {
-      observers.forEach(observer => observer.disconnect());
+      observers.forEach((observer) => observer.disconnect());
       observers = [];
     },
   });
