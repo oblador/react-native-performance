@@ -1,8 +1,6 @@
-import {
-  PerformanceResourceTiming,
-  PerformanceEntry,
-} from './performance-entry';
-import { Performance } from './performance';
+import { PerformanceResourceTiming } from './performance-entry';
+import type { PerformanceEntry } from './performance-entry';
+import type { Performance } from './performance';
 
 interface XMLHttpRequestType extends XMLHttpRequest {
   new (...args: any): XMLHttpRequestType;
