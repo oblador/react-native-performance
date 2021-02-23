@@ -13,21 +13,21 @@ export const now = (): number => global.performance.now();
 
 export type MarkOptions = {
   startTime?: number;
-  detail?: string;
+  detail?: any;
 };
 
 export type MeasureOptions = {
   start?: string | number;
   end?: string | number;
   duration?: string;
-  detail?: string;
+  detail?: any;
 };
 
 export type StartOrMeasureOptions = string | MeasureOptions | undefined;
 
 export type MetricOptions = {
   startTime: number;
-  detail: string;
+  detail: any;
   value: number | string;
 };
 
@@ -70,7 +70,7 @@ export const createPerformance = () => {
     return entry;
   }
 
-  const removeEntries = (type: EntryType, name: string) => {
+  const removeEntries = (type: EntryType, name?: string) => {
     entries = entries.filter((entry) => {
       if (entry.entryType === type && (!name || entry.name === name)) {
         marks.delete(entry.name);
@@ -91,11 +91,11 @@ export const createPerformance = () => {
       })
     );
 
-  const clearMarks = (name: string) => removeEntries('mark', name);
+  const clearMarks = (name?: string) => removeEntries('mark', name);
 
-  const clearMeasures = (name: string) => removeEntries('measure', name);
+  const clearMeasures = (name?: string) => removeEntries('measure', name);
 
-  const clearMetrics = (name: string) => removeEntries('metric', name);
+  const clearMetrics = (name?: string) => removeEntries('metric', name);
 
   const convertMarkToTimestamp = (markOrTimestamp: string | number) => {
     switch (typeof markOrTimestamp) {
@@ -124,7 +124,7 @@ export const createPerformance = () => {
   ) => {
     let start = 0;
     let end = 0;
-    let detail: string | undefined;
+    let detail: any;
 
     if (
       typeof startOrMeasureOptions === 'object' &&
@@ -201,7 +201,7 @@ export const createPerformance = () => {
   const metric = (name: string, valueOrOptions: ValueOrOptions) => {
     let value: string | number;
     let startTime: number | undefined;
-    let detail: string | undefined;
+    let detail: any;
 
     if (
       typeof valueOrOptions === 'object' &&
@@ -237,7 +237,7 @@ export const createPerformance = () => {
 
   const getEntries = () => entries.slice(0);
 
-  const getEntriesByName = (name: string, type: EntryType) =>
+  const getEntriesByName = (name: string, type?: EntryType) =>
     entries.filter(
       (entry) => entry.name === name && (!type || entry.entryType === type)
     );

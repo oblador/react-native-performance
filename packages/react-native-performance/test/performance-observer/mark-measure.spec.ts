@@ -6,7 +6,7 @@ describe('PerformanceObserver', () => {
     const { performance, PerformanceObserver } = createPerformance();
     let stored_entries = [];
 
-    const observer = new PerformanceObserver((entryList, obs) => {
+    const observer = new PerformanceObserver((entryList) => {
       stored_entries = stored_entries.concat(entryList.getEntries());
       if (stored_entries.length >= 4) {
         checkEntries(stored_entries, [
@@ -30,7 +30,7 @@ describe('PerformanceObserver', () => {
     const { performance, PerformanceObserver } = createPerformance();
     let mark_entries = [];
 
-    const observer = new PerformanceObserver((entryList, obs) => {
+    const observer = new PerformanceObserver((entryList) => {
       mark_entries = mark_entries.concat(entryList.getEntries());
       if (mark_entries.length >= 2) {
         checkEntries(mark_entries, [
@@ -50,7 +50,7 @@ describe('PerformanceObserver', () => {
     const { performance, PerformanceObserver } = createPerformance();
     let measure_entries = [];
 
-    const observer = new PerformanceObserver((entryList, obs) => {
+    const observer = new PerformanceObserver((entryList) => {
       measure_entries = measure_entries.concat(entryList.getEntries());
       if (measure_entries.length >= 2) {
         checkEntries(measure_entries, [

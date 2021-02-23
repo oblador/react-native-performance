@@ -25,7 +25,9 @@ export function checkEntries(perfEntriesToCheck, expectedEntries) {
 // Waits for performance.now to advance. Since precision reduction might
 // cause it to return the same value across multiple calls.
 export function wait() {
+  // @ts-ignore
   const now = global.performance.now();
+  // @ts-ignore
   while (now === global.performance.now()) continue;
 }
 
@@ -34,7 +36,6 @@ export function checkSorted(entries) {
   expect(entries.length).not.toBe(0);
   if (!entries.length) return;
 
-  var sorted = false;
   var lastStartTime = entries[0].startTime;
   for (var i = 1; i < entries.length; ++i) {
     var currStartTime = entries[i].startTime;
@@ -47,10 +48,12 @@ export function muteConsoleWarn() {
   beforeAll(() => {
     const originalWarn = console.warn;
     console.warn = () => {};
-    console.warn.original = console.warn;
+    // @ts-ignore
+    console.warn.original = originalWarn;
   });
 
   afterAll(() => {
+    // @ts-ignore
     console.warn = console.warn.original;
   });
 }
