@@ -24,10 +24,10 @@ const AXIS_LABEL_FONT = `${AXIS_LABEL_FONT_SIZE}px 'Helvetica Neue', Helvetica, 
 const TOOLTIP_HEIGHT = 20;
 const TOOLTIP_CARET_SIZE = 6;
 
-const groupMeasures = measures => {
+const groupMeasures = (measures) => {
   const groups = [];
   for (const measure of measures) {
-    let group = groups.find(group => {
+    let group = groups.find((group) => {
       const last = group[group.length - 1];
       return last.startTime + last.duration < measure.startTime;
     });
@@ -215,7 +215,7 @@ export const Timeline = React.memo(({ measures, marks }) => {
 
   const table = React.useRef();
   const handleTableRef = React.useCallback(
-    ref => {
+    (ref) => {
       table.current = ref;
       if (ref) {
         setVW(ref.offsetWidth);
@@ -225,7 +225,7 @@ export const Timeline = React.memo(({ measures, marks }) => {
   );
   const scrollState = React.useRef(initialScrollState);
   const handleWheel = React.useCallback(
-    event => {
+    (event) => {
       if (event.ctrlKey || !event.deltaX) {
         const prevZoom = zoomRef.current;
         const pointerX = event.clientX;
@@ -293,7 +293,7 @@ export const Timeline = React.memo(({ measures, marks }) => {
   ]);
 
   const updateViewport = React.useCallback(
-    target => {
+    (target) => {
       const { scrollLeft } = target;
       const nextPage = Math.round(scrollLeft / viewportWidth);
       if (nextPage !== page) {
@@ -304,12 +304,12 @@ export const Timeline = React.memo(({ measures, marks }) => {
   );
 
   const handleScroll = React.useCallback(
-    event => updateViewport(event.target),
+    (event) => updateViewport(event.target),
     [updateViewport]
   );
 
   const handleRef = React.useCallback(
-    ref => {
+    (ref) => {
       canvas.current = ref ? ref.getContext('2d') : null;
       if (ref) {
         canvas.current.scale(pixelDensity, pixelDensity);
@@ -324,7 +324,7 @@ export const Timeline = React.memo(({ measures, marks }) => {
   );
 
   const handleMouseMove = React.useCallback(
-    event => {
+    (event) => {
       const x = event.nativeEvent.layerX / zoom;
       const y = event.nativeEvent.offsetY;
       const entry = hitTest(x, y, measuresWithLayout);
@@ -337,7 +337,7 @@ export const Timeline = React.memo(({ measures, marks }) => {
     [measuresWithLayout, start, zoom, tooltip, setTooltip]
   );
 
-  const handleMouseLeave = React.useCallback(event => setTooltip(null), [
+  const handleMouseLeave = React.useCallback((event) => setTooltip(null), [
     setTooltip,
   ]);
 

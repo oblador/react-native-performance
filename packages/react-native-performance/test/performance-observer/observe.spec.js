@@ -26,9 +26,9 @@ describe('PerformanceObserver', () => {
     obs.observe({ entryTypes: ['mark'], others: true });
   });
 
-  test('Check observer callback parameter and this values', done => {
+  test('Check observer callback parameter and this values', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
-    const observer = new PerformanceObserver(function(entryList, obs) {
+    const observer = new PerformanceObserver(function (entryList, obs) {
       expect(entryList).toBeInstanceOf(PerformanceObserverEntryList);
       expect(obs).toBeInstanceOf(PerformanceObserver);
       expect(observer).toBe(this);
@@ -42,9 +42,9 @@ describe('PerformanceObserver', () => {
     performance.mark('mark1');
   });
 
-  test('replace observer if already present', done => {
+  test('replace observer if already present', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
-    const observer = new PerformanceObserver(function(entryList, obs) {
+    const observer = new PerformanceObserver(function (entryList, obs) {
       checkEntries(entryList.getEntries(), [
         { entryType: 'measure', name: 'measure1' },
       ]);

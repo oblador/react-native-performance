@@ -21,12 +21,12 @@ export class PerformanceObserverEntryList {
   }
 
   getEntriesByType(type: EntryType) {
-    return this.entries.filter(entry => entry.entryType === type);
+    return this.entries.filter((entry) => entry.entryType === type);
   }
 
   getEntriesByName(name: string, type: EntryType) {
     return this.entries.filter(
-      entry => entry.name === name && (!type || entry.entryType === type)
+      (entry) => entry.name === name && (!type || entry.entryType === type)
     );
   }
 }
@@ -143,7 +143,7 @@ export const createPerformanceObserver = ({
         }
       }
 
-      this.entryTypes.forEach(entryType => {
+      this.entryTypes.forEach((entryType) => {
         if (!SUPPORTED_ENTRY_TYPES.includes(entryType)) {
           console.warn(
             `The entry type '${entryType}' does not exist or isn't supported.`

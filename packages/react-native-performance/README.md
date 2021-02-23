@@ -64,7 +64,7 @@ Passing `buffered: true` would include entries produced before the `observe()` c
 ```js
 import { PerformanceObserver } from 'react-native-performance';
 const measureObserver = new PerformanceObserver((list, observer) => {
-  list.getEntries().forEach(entry => {
+  list.getEntries().forEach((entry) => {
     console.log(`${entry.name} took ${entry.duration}ms`);
   });
 });
@@ -138,7 +138,7 @@ Note that the native marks are not available immediately upon creation of the JS
 import performance, { PerformanceObserver } from 'react-native-performance';
 
 new PerformanceObserver((list, observer) => {
-  if (list.getEntries().find(entry => entry.name === 'runJsBundleEnd')) {
+  if (list.getEntries().find((entry) => entry.name === 'runJsBundleEnd')) {
     performance.measure('nativeLaunch', 'nativeLaunchStart', 'nativeLaunchEnd');
     performance.measure('runJsBundle', 'runJsBundleStart', 'runJsBundleEnd');
   }

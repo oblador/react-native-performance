@@ -32,7 +32,7 @@ export const Metrics = React.memo(({ metrics }) => {
         marginTop: 10,
       }}
     >
-      {Object.values(metrics).map(metric => {
+      {Object.values(metrics).map((metric) => {
         const { value, unit } = formatValue(metric.value, metric.unit);
         return (
           <li

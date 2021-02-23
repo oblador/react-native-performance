@@ -2,9 +2,9 @@ import { createPerformance } from '../../src/performance';
 import { checkEntries } from './helpers';
 
 describe('PerformanceObserver', () => {
-  test('Types observed are forgotten when disconnect() is called', done => {
+  test('Types observed are forgotten when disconnect() is called', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
-    const observer = new PerformanceObserver(entryList => {
+    const observer = new PerformanceObserver((entryList) => {
       // There should be no mark entry.
       checkEntries(entryList.getEntries(), [
         { entryType: 'measure', name: 'b' },

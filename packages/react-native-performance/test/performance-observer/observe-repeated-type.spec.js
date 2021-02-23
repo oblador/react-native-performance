@@ -2,9 +2,9 @@ import { createPerformance } from '../../src/performance';
 import { checkEntries } from './helpers';
 
 describe('PerformanceObserver', () => {
-  test("Two calls of observe() with the same 'type' cause override", done => {
+  test("Two calls of observe() with the same 'type' cause override", (done) => {
     const { performance, PerformanceObserver } = createPerformance();
-    const observer = new PerformanceObserver(entryList => {
+    const observer = new PerformanceObserver((entryList) => {
       checkEntries(entryList.getEntries(), [
         { entryType: 'mark', name: 'early' },
       ]);

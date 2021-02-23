@@ -1,4 +1,4 @@
-export const formatMillisecondsToParts = millis => {
+export const formatMillisecondsToParts = (millis) => {
   const UNITS = [
     ['ms', 1000],
     ['s', 60],

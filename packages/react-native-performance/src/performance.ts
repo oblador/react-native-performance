@@ -53,9 +53,11 @@ export interface Performance {
 
 export const createPerformance = () => {
   const timeOrigin = now();
-  const { addEventListener, removeEventListener, emit } = createEventEmitter<
-    PerformanceEntry
-  >();
+  const {
+    addEventListener,
+    removeEventListener,
+    emit,
+  } = createEventEmitter<PerformanceEntry>();
   const marks = new Map<string, number>();
   let entries: PerformanceEntry[] = [];
 
@@ -69,7 +71,7 @@ export const createPerformance = () => {
   }
 
   const removeEntries = (type: EntryType, name: string) => {
-    entries = entries.filter(entry => {
+    entries = entries.filter((entry) => {
       if (entry.entryType === type && (!name || entry.name === name)) {
         marks.delete(entry.name);
         return false;
@@ -237,11 +239,11 @@ export const createPerformance = () => {
 
   const getEntriesByName = (name: string, type: EntryType) =>
     entries.filter(
-      entry => entry.name === name && (!type || entry.entryType === type)
+      (entry) => entry.name === name && (!type || entry.entryType === type)
     );
 
   const getEntriesByType = (type: EntryType) =>
-    entries.filter(entry => entry.entryType === type);
+    entries.filter((entry) => entry.entryType === type);
 
   const PerformanceObserver = createPerformanceObserver({
     addEventListener,

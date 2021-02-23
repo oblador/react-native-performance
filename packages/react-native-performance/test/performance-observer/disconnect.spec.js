@@ -1,7 +1,7 @@
 import { createPerformance } from '../../src/performance';
 
 describe('PerformanceObserver', () => {
-  test('disconnected callbacks must not be invoked', done => {
+  test('disconnected callbacks must not be invoked', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
     const observer = new PerformanceObserver((entryList, obs) => {
       throw new Error('This callback must not be invoked');
@@ -20,7 +20,7 @@ describe('PerformanceObserver', () => {
     obs.disconnect();
   });
 
-  test('An observer disconnected after a mark must not have its callback invoked', done => {
+  test('An observer disconnected after a mark must not have its callback invoked', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
     const observer = new PerformanceObserver((entryList, obs) => {
       throw new Error('This callback must not be invoked');

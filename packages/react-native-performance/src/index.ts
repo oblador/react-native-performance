@@ -15,11 +15,11 @@ const { PerformanceObserver, addEntry, performance } = createPerformance();
 if (Platform.OS === 'android' || RNPerformanceManager) {
   const emitter = new NativeEventEmitter(RNPerformanceManager);
 
-  emitter.addListener('mark', data => {
+  emitter.addListener('mark', (data) => {
     addEntry(new PerformanceReactNativeMark(data.name, data.startTime));
   });
 
-  emitter.addListener('metric', data => {
+  emitter.addListener('metric', (data) => {
     addEntry(
       new PerformanceMetric(data.name, {
         startTime: data.startTime,

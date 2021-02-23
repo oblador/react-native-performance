@@ -3,7 +3,7 @@ import { PerformanceObserverEntryList } from '../../src/performance-observer';
 import { checkEntries } from './helpers';
 
 describe('PerformanceObserver', () => {
-  test('takeRecords()', done => {
+  test('takeRecords()', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
     const observer = new PerformanceObserver(() => {
       throw new Error('This callback should not have been called.');
