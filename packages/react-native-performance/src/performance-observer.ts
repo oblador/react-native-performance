@@ -1,4 +1,4 @@
-import { EntryType, PerformanceEntry } from './performance-entry';
+import type { EntryType, PerformanceEntry } from './performance-entry';
 
 type ObserveOptionType1 = {
   entryTypes: EntryType[];
