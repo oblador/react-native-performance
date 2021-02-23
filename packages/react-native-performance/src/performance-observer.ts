@@ -24,7 +24,7 @@ export class PerformanceObserverEntryList {
     return this.entries.filter((entry) => entry.entryType === type);
   }
 
-  getEntriesByName(name: string, type: EntryType) {
+  getEntriesByName(name: string, type?: EntryType) {
     return this.entries.filter(
       (entry) => entry.name === name && (!type || entry.entryType === type)
     );

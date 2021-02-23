@@ -1,5 +1,4 @@
 import { createPerformance } from '../../src/performance';
-import { PerformanceObserverEntryList } from '../../src/performance-observer';
 import { checkEntries } from './helpers';
 
 describe('PerformanceObserver', () => {
@@ -9,10 +8,10 @@ describe('PerformanceObserver', () => {
       throw new Error('This callback should not have been called.');
     });
     let entries = observer.takeRecords();
-    checkEntries(entries, [], 'No records before observe');
+    checkEntries(entries, []); // No records before observe
     observer.observe({ entryTypes: ['mark'] });
     entries = observer.takeRecords();
-    checkEntries(entries, [], 'No records just from observe');
+    checkEntries(entries, []); // No records just from observe
     performance.mark('a');
     performance.mark('b');
     entries = observer.takeRecords();
@@ -30,7 +29,7 @@ describe('PerformanceObserver', () => {
       { entryType: 'mark', name: 'e' },
     ]);
     entries = observer.takeRecords();
-    checkEntries(entries, [], 'No entries right after takeRecords');
+    checkEntries(entries, []); // No entries right after takeRecords
     observer.disconnect();
     done();
   });

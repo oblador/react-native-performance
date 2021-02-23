@@ -4,11 +4,10 @@ import { checkEntries, checkSorted, wait } from './helpers';
 describe('PerformanceObserver', () => {
   test('getEntries, getEntriesByType, getEntriesByName sort order', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
-    const observer = new PerformanceObserver((entryList, obs) => {
+    const observer = new PerformanceObserver((entryList) => {
       const stored_entries = entryList.getEntries();
       const stored_entries_by_type = entryList.getEntriesByType('mark');
       const stored_entries_by_name = entryList.getEntriesByName('name-repeat');
-      const startTimeOfMark2 = entryList.getEntriesByName('mark2')[0].startTime;
 
       checkSorted(stored_entries);
       checkEntries(stored_entries, [

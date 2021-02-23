@@ -6,23 +6,29 @@ describe('PerformanceObserver', () => {
   muteConsoleWarn();
 
   test('entryTypes must be a sequence or throw a TypeError', () => {
-    const { performance, PerformanceObserver } = createPerformance();
+    const { PerformanceObserver } = createPerformance();
     const obs = new PerformanceObserver(() => {});
+    // @ts-ignore
     expect(() => obs.observe({ entryTypes: 'mark' })).toThrow(TypeError);
   });
 
   test('Unknown entryTypes do not throw an exception', () => {
-    const { performance, PerformanceObserver } = createPerformance();
+    const { PerformanceObserver } = createPerformance();
     const obs = new PerformanceObserver(() => {});
+    // @ts-ignore
     obs.observe({ entryTypes: ['this-cannot-match-an-entryType'] });
+    // @ts-ignore
     obs.observe({ entryTypes: ['marks', 'navigate', 'resources'] });
   });
 
   test('Filter unsupported entryType entryType names within the entryTypes sequence', () => {
-    const { performance, PerformanceObserver } = createPerformance();
+    const { PerformanceObserver } = createPerformance();
     const obs = new PerformanceObserver(() => {});
+    // @ts-ignore
     obs.observe({ entryTypes: ['mark', 'this-cannot-match-an-entryType'] });
+    // @ts-ignore
     obs.observe({ entryTypes: ['this-cannot-match-an-entryType', 'mark'] });
+    // @ts-ignore
     obs.observe({ entryTypes: ['mark'], others: true });
   });
 
@@ -44,7 +50,7 @@ describe('PerformanceObserver', () => {
 
   test('replace observer if already present', (done) => {
     const { performance, PerformanceObserver } = createPerformance();
-    const observer = new PerformanceObserver(function (entryList, obs) {
+    const observer = new PerformanceObserver(function (entryList) {
       checkEntries(entryList.getEntries(), [
         { entryType: 'measure', name: 'measure1' },
       ]);
