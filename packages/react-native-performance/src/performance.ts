@@ -9,7 +9,7 @@ import {
 } from './performance-entry';
 
 // @ts-ignore
-export const now = (): number => global.performance.now();
+export const defaultNow = (): number => global.performance.now();
 
 export type MarkOptions = {
   startTime?: number;
@@ -19,7 +19,7 @@ export type MarkOptions = {
 export type MeasureOptions = {
   start?: string | number;
   end?: string | number;
-  duration?: string;
+  duration?: number;
   detail?: any;
 };
 
@@ -51,7 +51,7 @@ export interface Performance {
   getEntriesByType(type: EntryType): PerformanceEntry[];
 }
 
-export const createPerformance = () => {
+export const createPerformance = (now: () => number = defaultNow) => {
   const timeOrigin = now();
   const {
     addEventListener,

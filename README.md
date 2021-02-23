@@ -22,6 +22,10 @@ Visualize performance tracing on a timeline and generic metrics in the debug too
 
 Connect the `react-native-performance` library with the `flipper-plugin-performance` visualization tool in development.
 
+### [`isomorphic-performance`](https://github.com/oblador/react-native-performance/blob/master/packages/isomorphic-performance/README.md)
+
+Isomorphic Performance API for Node, Browser & React Native. Useful if your app targets both web and native.
+
 ## Demo
 
 See the projects in the [`examples`](https://github.com/oblador/flipper-plugin-react-native-performance/tree/master/examples) folder.

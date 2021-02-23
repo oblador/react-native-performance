@@ -6,32 +6,26 @@
  * @flow strict-local
  */
 
-import React, { Profiler } from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+import React, { Profiler, ProfilerOnRenderCallback } from 'react';
+import { StyleSheet, ScrollView, View, Text } from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import { Header, Colors } from 'react-native/Libraries/NewAppScreen';
 
 import performance, {
   setResourceLoggingEnabled,
   PerformanceObserver,
 } from 'react-native-performance';
+import type {
+  PerformanceMetric,
+  PerformanceResourceTiming,
+  PerformanceReactNativeMark,
+} from 'react-native-performance';
+
+declare const global: { HermesInternal: null | {} };
 
 setResourceLoggingEnabled(true);
 
-const traceRender = (
+const traceRender: ProfilerOnRenderCallback = (
   id, // the "id" prop of the Profiler tree that has just committed
   phase, // either "mount" (if the tree just mounted) or "update" (if it re-rendered)
   actualDuration, // time spent rendering the committed update
@@ -45,45 +39,63 @@ const traceRender = (
     duration: actualDuration,
   });
 
-const formatValue = (value, unit) => {
+const formatValue = (value: number, unit?: string) => {
   switch (unit) {
     case 'ms':
       return `${value.toFixed(1)}ms`;
     case 'byte':
       return `${(value / 1024 / 1024).toFixed(1)}MB`;
     default:
-      value.toFixed(1);
+      return value.toFixed(1);
   }
 };
 
-const Entry = ({ name, value, unit = 'ms' }) => (
+const Entry = ({
+  name,
+  value,
+  unit = 'ms',
+}: {
+  name: string;
+  value: number;
+  unit?: string;
+}) => (
   <Text style={styles.entry}>
     {name}: {formatValue(value, unit)}
   </Text>
 );
 
-const App: () => React$Node = () => {
-  const [metrics, setMetrics] = React.useState([]);
-  const [nativeMarks, setNativeMarks] = React.useState([]);
-  const [resources, setResources] = React.useState([]);
+const App = () => {
+  const [metrics, setMetrics] = React.useState<PerformanceMetric[]>([]);
+  const [nativeMarks, setNativeMarks] = React.useState<
+    PerformanceReactNativeMark[]
+  >([]);
+  const [resources, setResources] = React.useState<PerformanceResourceTiming[]>(
+    []
+  );
   React.useEffect(() => {
-    new PerformanceObserver((list, observer) => {
+    new PerformanceObserver(() => {
       setNativeMarks(
         performance
           .getEntriesByType('react-native-mark')
-          .sort((a, b) => a.startTime - b.startTime)
+          .sort(
+            (a: PerformanceReactNativeMark, b: PerformanceReactNativeMark) =>
+              a.startTime - b.startTime
+          )
       );
     }).observe({ type: 'react-native-mark', buffered: true });
 
-    new PerformanceObserver((list, observer) => {
-      setMetrics(performance.getEntriesByType('metric'));
+    new PerformanceObserver(() => {
+      setMetrics(performance.getEntriesByType('metric') as PerformanceMetric[]);
     }).observe({ type: 'metric', buffered: true });
-    new PerformanceObserver((list, observer) => {
-      setResources(performance.getEntriesByType('resource'));
+    new PerformanceObserver(() => {
+      setResources(
+        performance.getEntriesByType('resource') as PerformanceResourceTiming[]
+      );
     }).observe({ type: 'resource', buffered: true });
   }, []);
 
   React.useEffect(() => {
+    // @ts-ignore
     fetch('https://xkcd.com/info.0.json', { cache: 'no-cache' });
   }, []);
 
@@ -108,8 +120,8 @@ const App: () => React$Node = () => {
               <Entry
                 key={startTime}
                 name={name}
-                value={value}
-                unit={name === 'bundleSize' ? 'byte' : null}
+                value={value as number}
+                unit={name === 'bundleSize' ? 'byte' : undefined}
               />
             ))}
           </View>
@@ -125,7 +137,7 @@ const App: () => React$Node = () => {
             <Text style={styles.sectionTitle}>
               performance.getEntriesByType('react-native-mark')
             </Text>
-            {nativeMarks.map(({ name, duration, startTime }) => (
+            {nativeMarks.map(({ name, startTime }) => (
               <Entry
                 key={`${name}:${startTime}`}
                 name={name}

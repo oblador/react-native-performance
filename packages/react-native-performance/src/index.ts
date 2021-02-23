@@ -41,3 +41,12 @@ export const setResourceLoggingEnabled = (enabled = true) => {
 };
 
 export { PerformanceObserver };
+export type {
+  EntryType,
+  PerformanceMark,
+  PerformanceMeasure,
+  PerformanceMetric,
+  PerformanceEntry,
+  PerformanceReactNativeMark,
+  PerformanceResourceTiming,
+} from './performance-entry';

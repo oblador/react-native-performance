@@ -12,13 +12,28 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: '14.x'
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive --silent --ignore-scripts
       - name: Run tests
         run: yarn test
+
+  integration-tests:
+    name: Integration tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Install dependencies
+        run: yarn --frozen-lockfile --non-interactive --silent
+      - name: Run tests
+        run: yarn workspace web-example run test
 
   types:
     name: Type checks
@@ -27,13 +42,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: '14.x'
       - name: Install dependencies
-        run: yarn --frozen-lockfile --non-interactive --silent --ignore-scripts
-      - name: Check types
+        run: yarn --frozen-lockfile --non-interactive --silent
+      - name: Check package types
         run: yarn types
+      - name: Check web example types
+        run: yarn workspace web-example run tsc
+      - name: Check vanilla example types
+        run: yarn workspace vanilla-example run tsc
 
   format:
     name: Code formatting
@@ -42,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: '14.x'
       - name: Install dependencies
@@ -57,7 +76,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: '14.x'
       - name: Install dependencies
@@ -72,7 +91,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: '14.x'
       - name: Install dependencies
