@@ -3,8 +3,10 @@
   "author": "Joel Arvidsson",
   "license": "MIT",
   "scripts": {
-    "format": "prettier '{,packages/**/,examples/*/}*.{md,js,ts,tsx,json}' --write",
+    "build": "yarn workspace react-native-performance prepare",
     "check-format": "prettier '{,packages/**/,examples/*/}*.{md,js,ts,tsx,json}' --check",
+    "format": "prettier '{,packages/**/,examples/*/}*.{md,js,ts,tsx,json}' --write",
+    "postinstall": "yarn build",
     "test": "yarn workspace react-native-performance test",
     "types": "tsc --noEmit"
   },
