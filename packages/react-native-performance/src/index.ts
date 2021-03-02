@@ -30,6 +30,7 @@ if (Platform.OS === 'android' || RNPerformanceManager) {
 }
 
 export default performance;
+export type Performance = typeof performance;
 
 export const setResourceLoggingEnabled = (enabled = true) => {
   if (enabled) {
