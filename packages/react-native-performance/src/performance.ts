@@ -127,6 +127,7 @@ export const createPerformance = (now: () => number = defaultNow) => {
     let detail: any;
 
     if (
+      startOrMeasureOptions &&
       typeof startOrMeasureOptions === 'object' &&
       startOrMeasureOptions.constructor == Object
     ) {
@@ -162,6 +163,8 @@ export const createPerformance = (now: () => number = defaultNow) => {
         end =
           convertMarkToTimestamp(startOrMeasureOptions.start) +
           convertMarkToTimestamp(startOrMeasureOptions.duration);
+      } else {
+        end = now();
       }
 
       if (startOrMeasureOptions && startOrMeasureOptions.start) {
@@ -174,6 +177,8 @@ export const createPerformance = (now: () => number = defaultNow) => {
         start =
           convertMarkToTimestamp(startOrMeasureOptions.end) -
           convertMarkToTimestamp(startOrMeasureOptions.duration);
+      } else {
+        start = timeOrigin;
       }
     } else {
       if (endMark) {
