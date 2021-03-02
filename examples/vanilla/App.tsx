@@ -85,12 +85,10 @@ const App = () => {
     }).observe({ type: 'react-native-mark', buffered: true });
 
     new PerformanceObserver(() => {
-      setMetrics(performance.getEntriesByType('metric') as PerformanceMetric[]);
+      setMetrics(performance.getEntriesByType('metric'));
     }).observe({ type: 'metric', buffered: true });
     new PerformanceObserver(() => {
-      setResources(
-        performance.getEntriesByType('resource') as PerformanceResourceTiming[]
-      );
+      setResources(performance.getEntriesByType('resource'));
     }).observe({ type: 'resource', buffered: true });
   }, []);
 

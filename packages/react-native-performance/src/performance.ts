@@ -6,6 +6,8 @@ import {
   PerformanceMeasure,
   PerformanceMetric,
   PerformanceEntry,
+  PerformanceReactNativeMark,
+  PerformanceResourceTiming,
 } from './performance-entry';
 
 // @ts-ignore
@@ -33,24 +35,6 @@ export type MetricOptions = {
 
 export type ValueOrOptions = number | string | MetricOptions;
 
-export interface Performance {
-  timeOrigin: number;
-  now(): number;
-  mark(markName: string, markOptions?: MarkOptions): void;
-  clearMarks(name: string): void;
-  measure(
-    measureName: string,
-    startOrMeasureOptions: StartOrMeasureOptions,
-    endMark?: string | number
-  ): void;
-  clearMeasures(name: string): void;
-  metric(name: string, valueOrOptions: ValueOrOptions): void;
-  clearMetrics(name: string): void;
-  getEntries(): PerformanceEntry[];
-  getEntriesByName(name: string, type: EntryType): PerformanceEntry[];
-  getEntriesByType(type: EntryType): PerformanceEntry[];
-}
-
 export const createPerformance = (now: () => number = defaultNow) => {
   const timeOrigin = now();
   const {
@@ -61,7 +45,7 @@ export const createPerformance = (now: () => number = defaultNow) => {
   const marks = new Map<string, number>();
   let entries: PerformanceEntry[] = [];
 
-  function addEntry(entry: PerformanceEntry) {
+  function addEntry<T extends PerformanceEntry>(entry: T): T {
     entries.push(entry);
     if (entry.entryType === 'mark' || entry.entryType === 'react-native-mark') {
       marks.set(entry.name, entry.startTime);
@@ -247,8 +231,16 @@ export const createPerformance = (now: () => number = defaultNow) => {
       (entry) => entry.name === name && (!type || entry.entryType === type)
     );
 
-  const getEntriesByType = (type: EntryType) =>
-    entries.filter((entry) => entry.entryType === type);
+  function getEntriesByType(type: 'measure'): PerformanceMeasure[];
+  function getEntriesByType(type: 'mark'): PerformanceMark[];
+  function getEntriesByType(type: 'resource'): PerformanceResourceTiming[];
+  function getEntriesByType(type: 'metric'): PerformanceMetric[];
+  function getEntriesByType(
+    type: 'react-native-mark'
+  ): PerformanceReactNativeMark[];
+  function getEntriesByType(type: EntryType) {
+    return entries.filter((entry) => entry.entryType === type);
+  }
 
   const PerformanceObserver = createPerformanceObserver({
     addEventListener,
@@ -274,3 +266,5 @@ export const createPerformance = (now: () => number = defaultNow) => {
     },
   };
 };
+
+export type Performance = ReturnType<typeof createPerformance>['performance'];
