@@ -23,7 +23,7 @@ import java.io.IOException;
 
 public class PerformanceModule extends ReactContextBaseJavaModule {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
-    private static final long MODULE_INITIALIZED_AT = SystemClock.elapsedRealtime();
+    private static final long MODULE_INITIALIZED_AT = SystemClock.uptimeMillis();
 
     private boolean eventsBuffered = true;
     private static Map<String, Long> markBuffer = new HashMap();
@@ -34,7 +34,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
         setupMarkerListener();
     }
 
-    // Need to set up the marker listener before the react module is initialized 
+    // Need to set up the marker listener before the react module is initialized
     // to capture all events
     public static void setupListener() {
         ReactMarker.addListener(
@@ -74,7 +74,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
                     case SETUP_REACT_CONTEXT_END:
                     case SETUP_REACT_CONTEXT_START:
                     case VM_INIT:
-                        long startTime = SystemClock.elapsedRealtime();
+                        long startTime = SystemClock.uptimeMillis();
                         markBuffer.put(getMarkName(name), startTime);
                     break;
 
@@ -106,7 +106,8 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
 
     private void emitNativeStartupTime() {
         try {
-            safelyEmitMark("nativeLaunchStart", PerformanceModule.getStartTime(Process.myPid()));
+            long timeSleeping = SystemClock.elapsedRealtime() - SystemClock.uptimeMillis();
+            safelyEmitMark("nativeLaunchStart", PerformanceModule.getStartTime(Process.myPid()) - timeSleeping);
             safelyEmitMark("nativeLaunchEnd", MODULE_INITIALIZED_AT);
         } catch (IOException e) {
             e.printStackTrace();
