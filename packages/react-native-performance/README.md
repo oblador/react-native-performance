@@ -14,6 +14,18 @@ const timestamp = Date.now() - performance.timeOrigin + entry.startTime;
 
 **NPM**: `npm install --save-dev react-native-performance`
 
+### Manual integration
+
+If your project is not set up with autolinking you need to link manually.
+
+#### iOS
+
+Add the following to your `Podfile` and run `pod install`:
+
+```ruby
+pod 'react-native-performance', :path => '../node_modules/react-native-performance/ios'
+```
+
 ## Usage
 
 See [`examples/vanilla`](https://github.com/oblador/flipper-plugin-react-native-performance/tree/master/examples/vanilla) for a demo of the different features.
