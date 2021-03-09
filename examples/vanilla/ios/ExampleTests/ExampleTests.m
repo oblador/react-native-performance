@@ -4,8 +4,7 @@
 #import <React/RCTLog.h>
 #import <React/RCTRootView.h>
 
-#define TIMEOUT_SECONDS 600
-#define TEXT_TO_LOOK_FOR @"Welcome to React"
+#define TIMEOUT_SECONDS 60
 
 @interface ExampleTests : XCTestCase
 
@@ -26,11 +25,30 @@
   return NO;
 }
 
-- (void)testRendersWelcomeScreen
+- (BOOL)hasSubview:(UIView *)view withText:(NSString *)text
+{
+  return [self findSubviewInView:view matching:^BOOL(UIView *view) {
+    if ([view.accessibilityLabel containsString:text]) {
+      return YES;
+    }
+    return NO;
+  }];
+}
+
+
+- (void)testRendersNativeMarks
 {
   UIViewController *vc = [[[RCTSharedApplication() delegate] window] rootViewController];
   NSDate *date = [NSDate dateWithTimeIntervalSinceNow:TIMEOUT_SECONDS];
-  BOOL foundElement = NO;
+  NSArray<NSString *>* marks = @[
+    @"nativeLaunchStart",
+    @"nativeLaunchEnd",
+    @"bridgeSetupStart",
+    @"bridgeSetupEnd",
+    @"contentAppeared"
+  ];
+  
+  BOOL foundElements = NO;
 
   __block NSString *redboxError = nil;
 #ifdef DEBUG
@@ -41,16 +59,12 @@
   });
 #endif
 
-  while ([date timeIntervalSinceNow] > 0 && !foundElement && !redboxError) {
+  while ([date timeIntervalSinceNow] > 0 && !foundElements && !redboxError) {
     [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
     [[NSRunLoop mainRunLoop] runMode:NSRunLoopCommonModes beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-
-    foundElement = [self findSubviewInView:vc.view matching:^BOOL(UIView *view) {
-      if ([view.accessibilityLabel isEqualToString:TEXT_TO_LOOK_FOR]) {
-        return YES;
-      }
-      return NO;
-    }];
+    for (NSString *mark in marks) {
+      foundElements = foundElements || [self hasSubview:vc.view withText:mark];
+    }
   }
 
 #ifdef DEBUG
@@ -58,8 +72,7 @@
 #endif
 
   XCTAssertNil(redboxError, @"RedBox error: %@", redboxError);
-  XCTAssertTrue(foundElement, @"Couldn't find element with text '%@' in %d seconds", TEXT_TO_LOOK_FOR, TIMEOUT_SECONDS);
+  XCTAssertTrue(foundElements, @"Couldn't find all of the following native marks '%@' in %d seconds", [marks componentsJoinedByString:@", "], TIMEOUT_SECONDS);
 }
-
 
 @end

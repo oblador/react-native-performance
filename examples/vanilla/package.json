@@ -7,6 +7,7 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
+    "test-ios": "concurrently --success first --kill-others \"yarn start\" \"xcodebuild test -workspace ios/Example.xcworkspace -scheme 'Example' -destination 'platform=iOS Simulator,name=iPhone 8'\"",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -21,6 +22,7 @@
     "@types/react": "^17.0.0",
     "@types/react-native": "^0.63.46",
     "babel-jest": "^25.1.0",
+    "concurrently": "^6.0.0",
     "eslint": "^6.5.1",
     "jest": "^25.1.0",
     "metro-react-native-babel-preset": "^0.59.0",

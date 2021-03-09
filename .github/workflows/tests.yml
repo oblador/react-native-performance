@@ -20,8 +20,8 @@ jobs:
       - name: Run tests
         run: yarn test
 
-  integration-tests:
-    name: Integration tests
+  web-integration:
+    name: Web integration tests
     runs-on: ubuntu-latest
 
     steps:
@@ -34,6 +34,27 @@ jobs:
         run: yarn --frozen-lockfile --non-interactive --silent
       - name: Run tests
         run: yarn workspace web-example run test
+
+  ios-integration:
+    name: iOS integration tests
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Use CocoaPods
+        uses: maxim-lobanov/setup-cocoapods@v1
+        with:
+          podfile-path: examples/vanilla/ios/Podfile.lock
+      - name: Install NPM dependencies
+        run: yarn --frozen-lockfile --non-interactive --network-timeout 60000
+      - name: Install CocoaPods dependencies
+        run: pod install --project-directory=examples/vanilla/ios
+      - name: Run tests
+        run: yarn workspace vanilla-example run test-ios
 
   types:
     name: Type checks
