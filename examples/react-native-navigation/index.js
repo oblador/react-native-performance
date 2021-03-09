@@ -16,8 +16,5 @@ Navigation.events().registerAppLaunchedListener(() => {
 });
 
 if (__DEV__) {
-  const {
-    setupDefaultFlipperReporter,
-  } = require('react-native-performance-flipper-reporter');
-  setupDefaultFlipperReporter();
+  require('react-native-performance-flipper-reporter').setupDefaultFlipperReporter();
 }

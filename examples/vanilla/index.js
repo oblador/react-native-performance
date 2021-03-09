@@ -5,8 +5,5 @@ import { name as appName } from './app.json';
 AppRegistry.registerComponent(appName, () => App);
 
 if (__DEV__) {
-  const {
-    setupDefaultFlipperReporter,
-  } = require('react-native-performance-flipper-reporter');
-  setupDefaultFlipperReporter();
+  require('react-native-performance-flipper-reporter').setupDefaultFlipperReporter();
 }
