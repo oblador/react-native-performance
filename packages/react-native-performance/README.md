@@ -147,41 +147,41 @@ new PerformanceObserver((list, observer) => {
 
 #### Supported marks
 
-| Name                                  | Platforms | Description                                                            |
-| ------------------------------------- | --------- | ---------------------------------------------------------------------- |
-| `nativeLaunchStart`                   | Both      | Native process initialization started                                  |
-| `nativeLaunchEnd`                     | Both      | Native process initialization ended                                    |
-| `downloadStart`                       | Both      | **Only available in development.** Development bundle download started |
-| `downloadEnd`                         | Both      | **Only available in development.** Development bundle download ended   |
-| `runJsBundleStart`                    | Both      | Parse and execution of the bundle started                              |
-| `runJsBundleEnd`                      | Both      | Parse and execution of the bundle ended                                |
-| `contentAppeared`                     | Both      | Initial component mounted and presented to the user.                   |
-| `bridgeSetupStart`                    | iOS       |                                                                        |
-| `bridgeSetupEnd`                      | iOS       |                                                                        |
-| `reactContextThreadStart`             | Android   |                                                                        |
-| `reactContextThreadEnd`               | Android   |                                                                        |
-| `vmInit`                              | Android   |                                                                        |
-| `createReactContextStart`             | Android   |                                                                        |
-| `processCoreReactPackageStart`        | Android   |                                                                        |
-| `processCoreReactPackageEnd`          | Android   |                                                                        |
-| `buildNativeModuleRegistryStart`      | Android   |                                                                        |
-| `buildNativeModuleRegistryEnd`        | Android   |                                                                        |
-| `createCatalystInstanceStart`         | Android   |                                                                        |
-| `createCatalystInstanceEnd`           | Android   |                                                                        |
-| `preRunJsBundleStart`                 | Android   |                                                                        |
-| `createReactContextEnd`               | Android   |                                                                        |
-| `preSetupReactContextStart`           | Android   |                                                                        |
-| `preSetupReactContextEnd`             | Android   |                                                                        |
-| `setupReactContextStart`              | Android   |                                                                        |
-| `attachMeasuredRootViewsStart`        | Android   |                                                                        |
-| `createUiManagerModuleStart`          | Android   |                                                                        |
-| `createViewManagersStart`             | Android   |                                                                        |
-| `createViewManagersEnd`               | Android   |                                                                        |
-| `createUiManagerModuleConstantsStart` | Android   |                                                                        |
-| `createUiManagerModuleConstantsEnd`   | Android   |                                                                        |
-| `createUiManagerModuleEnd`            | Android   |                                                                        |
-| `attachMeasuredRootViewsEnd`          | Android   |                                                                        |
-| `setupReactContextEnd`                | Android   |                                                                        |
+| Name                                  | Platforms | Description                                                                 |
+| ------------------------------------- | --------- | --------------------------------------------------------------------------- |
+| `nativeLaunchStart`                   | Both      | Native process initialization started                                       |
+| `nativeLaunchEnd`                     | Both      | Native process initialization ended                                         |
+| `downloadStart`                       | Both      | **Only available in development.** Development bundle download started      |
+| `downloadEnd`                         | Both      | **Only available in development.** Development bundle download ended        |
+| `runJsBundleStart`                    | Both      | **Not available with debugger.** Parse and execution of the bundle started. |
+| `runJsBundleEnd`                      | Both      | **Not available with debugger.** Parse and execution of the bundle ended    |
+| `contentAppeared`                     | Both      | Initial component mounted and presented to the user.                        |
+| `bridgeSetupStart`                    | Both      |                                                                             |
+| `bridgeSetupEnd`                      | iOS       |                                                                             |
+| `reactContextThreadStart`             | Android   |                                                                             |
+| `reactContextThreadEnd`               | Android   |                                                                             |
+| `vmInit`                              | Android   |                                                                             |
+| `createReactContextStart`             | Android   |                                                                             |
+| `processCoreReactPackageStart`        | Android   |                                                                             |
+| `processCoreReactPackageEnd`          | Android   |                                                                             |
+| `buildNativeModuleRegistryStart`      | Android   |                                                                             |
+| `buildNativeModuleRegistryEnd`        | Android   |                                                                             |
+| `createCatalystInstanceStart`         | Android   |                                                                             |
+| `createCatalystInstanceEnd`           | Android   |                                                                             |
+| `preRunJsBundleStart`                 | Android   |                                                                             |
+| `createReactContextEnd`               | Android   |                                                                             |
+| `preSetupReactContextStart`           | Android   |                                                                             |
+| `preSetupReactContextEnd`             | Android   |                                                                             |
+| `setupReactContextStart`              | Android   |                                                                             |
+| `attachMeasuredRootViewsStart`        | Android   |                                                                             |
+| `createUiManagerModuleStart`          | Android   |                                                                             |
+| `createViewManagersStart`             | Android   |                                                                             |
+| `createViewManagersEnd`               | Android   |                                                                             |
+| `createUiManagerModuleConstantsStart` | Android   |                                                                             |
+| `createUiManagerModuleConstantsEnd`   | Android   |                                                                             |
+| `createUiManagerModuleEnd`            | Android   |                                                                             |
+| `attachMeasuredRootViewsEnd`          | Android   |                                                                             |
+| `setupReactContextEnd`                | Android   |                                                                             |
 
 ## License
 

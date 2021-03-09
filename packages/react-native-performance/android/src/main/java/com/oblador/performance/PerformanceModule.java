@@ -23,6 +23,7 @@ import java.io.IOException;
 
 public class PerformanceModule extends ReactContextBaseJavaModule {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
+    public static final String BRIDGE_SETUP_START = "bridgeSetupStart";
     private static final long MODULE_INITIALIZED_AT = SystemClock.uptimeMillis();
 
     private boolean eventsBuffered = true;
@@ -42,6 +43,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
                 switch (name) {
                     case RELOAD:
                         markBuffer.clear();
+                        markBuffer.put(BRIDGE_SETUP_START, SystemClock.uptimeMillis());
                         break;
                     case ATTACH_MEASURED_ROOT_VIEWS_END:
                     case ATTACH_MEASURED_ROOT_VIEWS_START:
