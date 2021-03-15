@@ -11,7 +11,7 @@ It can be used as a generic profiler, or used together with the `react-native-pe
 ### Flipper Desktop
 
 1. Go to **Manage Plugins** by pressing the button in the lower left corner of the Flipper app, or in the **View** menu
-2. Select **Install Plugins** and search for `react-native-performance`
+2. Select **Install Plugins** and search for `flipper-plugin-performance`
 3. Press the **Install** button
 
 ### Optional: React Native Performance
