@@ -16103,6 +16103,11 @@ react-native-flipper@0.54.0:
   resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.54.0.tgz#520a6cd99ebfd52db687564db0eea83ab7648b80"
   integrity sha512-xRHtE8/t2c4i/5o8+xe5vEXHmt5s7a5aetYOoRkv9lKebWSu+b8/mhd7SnZonXtMsGqouzKRyFdqC7x45rLwWw==
 
+react-native-flipper@0.75.0:
+  version "0.75.0"
+  resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.75.0.tgz#3c03d4d8a32edefa26cf603b26e82c5ba323ddc0"
+  integrity sha512-HSO7SC9WjAdAqJKwekzOERYwL/iaQwgzM47jXiUgIE81pbgthUeTU7tE35wAI1Mx2zADgHTAXuC9WSo74iTu7A==
+
 react-native-navigation@^7.4.0:
   version "7.11.0"
   resolved "https://registry.yarnpkg.com/react-native-navigation/-/react-native-navigation-7.11.0.tgz#a218f8a810bd63519d03535a7904abef32c56458"
