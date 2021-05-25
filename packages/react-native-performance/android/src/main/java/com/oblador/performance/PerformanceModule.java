@@ -2,8 +2,6 @@ package com.oblador.performance;
 
 import android.os.Process;
 import android.os.SystemClock;
-import android.system.Os;
-import android.system.OsConstants;
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -17,17 +15,15 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.lang.StringBuffer;
 import java.util.Map;
 import java.util.HashMap;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 public class PerformanceModule extends ReactContextBaseJavaModule {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
     public static final String BRIDGE_SETUP_START = "bridgeSetupStart";
     private static final long MODULE_INITIALIZED_AT = SystemClock.uptimeMillis();
+    private static final long START_UP_DURATION = Process.getElapsedCpuTime();
 
     private boolean eventsBuffered = true;
-    private static Map<String, Long> markBuffer = new HashMap();
+    private static final Map<String, Long> markBuffer = new HashMap<>();
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
@@ -107,13 +103,8 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
     }
 
     private void emitNativeStartupTime() {
-        try {
-            long timeSleeping = SystemClock.elapsedRealtime() - SystemClock.uptimeMillis();
-            safelyEmitMark("nativeLaunchStart", PerformanceModule.getStartTime(Process.myPid()) - timeSleeping);
-            safelyEmitMark("nativeLaunchEnd", MODULE_INITIALIZED_AT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        safelyEmitMark("nativeLaunchStart", (MODULE_INITIALIZED_AT - START_UP_DURATION));
+        safelyEmitMark("nativeLaunchEnd", MODULE_INITIALIZED_AT);
     }
 
     private void setupMarkerListener() {
@@ -144,30 +135,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
     private void emitBufferedMarks() {
         for (Map.Entry<String, Long> entry : markBuffer.entrySet()) {
             emitMark(entry.getKey(), entry.getValue());
-        }
-    }
-
-    private static long getStartTime(final int pid) throws IOException {
-        final String path = "/proc/" + pid + "/stat";
-        final BufferedReader reader = new BufferedReader(new FileReader(path));
-        final String stat;
-        try {
-            stat = reader.readLine();
-        } finally {
-            reader.close();
-        }
-        final String field2End = ") ";
-        final String fieldSep = " ";
-        final int fieldStartTime = 20;
-        final int msInSec = 1000;
-        try {
-            final String[] fields = stat.substring(stat.lastIndexOf(field2End)).split(fieldSep);
-            final long t = Long.parseLong(fields[fieldStartTime]);
-            final long tck;
-            tck = Os.sysconf(OsConstants._SC_CLK_TCK);
-            return (t * msInSec) / tck;
-        } catch (final Exception e) {
-            throw new IOException(e);
         }
     }
 
