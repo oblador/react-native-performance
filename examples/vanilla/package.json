@@ -24,7 +24,7 @@
     "eslint": "^6.5.1",
     "jest": "^25.1.0",
     "metro-react-native-babel-preset": "^0.59.0",
-    "react-native-flipper": "0.54.0",
+    "react-native-flipper": "0.75.1",
     "react-native-performance-flipper-reporter": "^1.2.0",
     "react-test-renderer": "16.13.1",
     "typescript": "^4.1.3"
