@@ -2,4 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.oblador.performance">
 
+    <application>
+        <provider
+            android:name=".StartTimeProvider"
+            android:authorities="${applicationId}.start.time.provider"
+            android:exported="false" />
+
+    </application>
+
 </manifest>
