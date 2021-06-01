@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
 import android.os.SystemClock;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,7 +47,6 @@ public class StartTimeProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        Log.v("mymeasure", "mymeasure content provider is up.");
         setEndTime();
         setStartTime();
         return false;
