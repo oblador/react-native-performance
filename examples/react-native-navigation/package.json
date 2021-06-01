@@ -1,6 +1,6 @@
 {
   "name": "react-native-navigation-example",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -13,7 +13,7 @@
     "react": "16.13.1",
     "react-native": "0.63.3",
     "react-native-navigation": "^7.4.0",
-    "react-native-performance": "^1.4.0"
+    "react-native-performance": "^2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
@@ -26,7 +26,7 @@
     "jest": "^25.1.0",
     "metro-react-native-babel-preset": "^0.59.0",
     "react-native-flipper": "0.75.1",
-    "react-native-performance-flipper-reporter": "^1.2.0",
+    "react-native-performance-flipper-reporter": "^2.0.0",
     "react-test-renderer": "16.13.1",
     "typescript": "^4.1.3"
   },
