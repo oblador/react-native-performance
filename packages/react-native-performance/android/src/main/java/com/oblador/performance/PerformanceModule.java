@@ -1,37 +1,28 @@
 package com.oblador.performance;
 
-import android.os.Process;
 import android.os.SystemClock;
-import android.system.Os;
-import android.system.OsConstants;
 import androidx.annotation.NonNull;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMarker;
 import com.facebook.react.bridge.ReactMarkerConstants;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.Arguments;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
-import java.lang.StringBuffer;
-import java.util.Map;
 import java.util.HashMap;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.util.Map;
 
 public class PerformanceModule extends ReactContextBaseJavaModule {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
     public static final String BRIDGE_SETUP_START = "bridgeSetupStart";
-    private static final long MODULE_INITIALIZED_AT = SystemClock.uptimeMillis();
 
     private boolean eventsBuffered = true;
-    private static Map<String, Long> markBuffer = new HashMap();
+    private static final Map<String, Long> markBuffer = new HashMap<>();
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
-
         setupMarkerListener();
     }
 
@@ -39,49 +30,49 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
     // to capture all events
     public static void setupListener() {
         ReactMarker.addListener(
-            (name, tag, instanceKey) -> {
-                switch (name) {
-                    case RELOAD:
-                        markBuffer.clear();
-                        markBuffer.put(BRIDGE_SETUP_START, SystemClock.uptimeMillis());
-                        break;
-                    case ATTACH_MEASURED_ROOT_VIEWS_END:
-                    case ATTACH_MEASURED_ROOT_VIEWS_START:
-                    case BUILD_NATIVE_MODULE_REGISTRY_END:
-                    case BUILD_NATIVE_MODULE_REGISTRY_START:
-                    case CONTENT_APPEARED:
-                    case CREATE_CATALYST_INSTANCE_END:
-                    case CREATE_CATALYST_INSTANCE_START:
-                    case CREATE_REACT_CONTEXT_END:
-                    case CREATE_REACT_CONTEXT_START:
-                    case CREATE_UI_MANAGER_MODULE_CONSTANTS_END:
-                    case CREATE_UI_MANAGER_MODULE_CONSTANTS_START:
-                    case CREATE_UI_MANAGER_MODULE_END:
-                    case CREATE_UI_MANAGER_MODULE_START:
-                    case CREATE_VIEW_MANAGERS_END:
-                    case CREATE_VIEW_MANAGERS_START:
-                    case DOWNLOAD_END:
-                    case DOWNLOAD_START:
-                    case LOAD_REACT_NATIVE_SO_FILE_END:
-                    case LOAD_REACT_NATIVE_SO_FILE_START:
-                    case PRE_RUN_JS_BUNDLE_START:
-                    case PRE_SETUP_REACT_CONTEXT_END:
-                    case PRE_SETUP_REACT_CONTEXT_START:
-                    case PROCESS_CORE_REACT_PACKAGE_END:
-                    case PROCESS_CORE_REACT_PACKAGE_START:
-                    case REACT_CONTEXT_THREAD_END:
-                    case REACT_CONTEXT_THREAD_START:
-                    case RUN_JS_BUNDLE_END:
-                    case RUN_JS_BUNDLE_START:
-                    case SETUP_REACT_CONTEXT_END:
-                    case SETUP_REACT_CONTEXT_START:
-                    case VM_INIT:
-                        long startTime = SystemClock.uptimeMillis();
-                        markBuffer.put(getMarkName(name), startTime);
-                    break;
+                (name, tag, instanceKey) -> {
+                    switch (name) {
+                        case RELOAD:
+                            markBuffer.clear();
+                            markBuffer.put(BRIDGE_SETUP_START, SystemClock.uptimeMillis());
+                            break;
+                        case ATTACH_MEASURED_ROOT_VIEWS_END:
+                        case ATTACH_MEASURED_ROOT_VIEWS_START:
+                        case BUILD_NATIVE_MODULE_REGISTRY_END:
+                        case BUILD_NATIVE_MODULE_REGISTRY_START:
+                        case CONTENT_APPEARED:
+                        case CREATE_CATALYST_INSTANCE_END:
+                        case CREATE_CATALYST_INSTANCE_START:
+                        case CREATE_REACT_CONTEXT_END:
+                        case CREATE_REACT_CONTEXT_START:
+                        case CREATE_UI_MANAGER_MODULE_CONSTANTS_END:
+                        case CREATE_UI_MANAGER_MODULE_CONSTANTS_START:
+                        case CREATE_UI_MANAGER_MODULE_END:
+                        case CREATE_UI_MANAGER_MODULE_START:
+                        case CREATE_VIEW_MANAGERS_END:
+                        case CREATE_VIEW_MANAGERS_START:
+                        case DOWNLOAD_END:
+                        case DOWNLOAD_START:
+                        case LOAD_REACT_NATIVE_SO_FILE_END:
+                        case LOAD_REACT_NATIVE_SO_FILE_START:
+                        case PRE_RUN_JS_BUNDLE_START:
+                        case PRE_SETUP_REACT_CONTEXT_END:
+                        case PRE_SETUP_REACT_CONTEXT_START:
+                        case PROCESS_CORE_REACT_PACKAGE_END:
+                        case PROCESS_CORE_REACT_PACKAGE_START:
+                        case REACT_CONTEXT_THREAD_END:
+                        case REACT_CONTEXT_THREAD_START:
+                        case RUN_JS_BUNDLE_END:
+                        case RUN_JS_BUNDLE_START:
+                        case SETUP_REACT_CONTEXT_END:
+                        case SETUP_REACT_CONTEXT_START:
+                        case VM_INIT:
+                            long startTime = SystemClock.uptimeMillis();
+                            markBuffer.put(getMarkName(name), startTime);
+                            break;
 
+                    }
                 }
-            }
         );
     }
 
@@ -103,33 +94,28 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
     @Override
     @NonNull
     public String getName() {
-      return PERFORMANCE_MODULE;
+        return PERFORMANCE_MODULE;
     }
 
     private void emitNativeStartupTime() {
-        try {
-            long timeSleeping = SystemClock.elapsedRealtime() - SystemClock.uptimeMillis();
-            safelyEmitMark("nativeLaunchStart", PerformanceModule.getStartTime(Process.myPid()) - timeSleeping);
-            safelyEmitMark("nativeLaunchEnd", MODULE_INITIALIZED_AT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        safelyEmitMark("nativeLaunchStart", StartTimeProvider.getStartTime());
+        safelyEmitMark("nativeLaunchEnd", StartTimeProvider.getEndTime());
     }
 
     private void setupMarkerListener() {
         ReactMarker.addListener(
-            (name, tag, instanceKey) -> {
-                switch (name) {
-                    case CONTENT_APPEARED:
-                        eventsBuffered = false;
-                        emitNativeStartupTime();
-                        emitBufferedMarks();
-                        break;
-                    case RELOAD:
-                        eventsBuffered = true;
-                        break;
+                (name, tag, instanceKey) -> {
+                    switch (name) {
+                        case CONTENT_APPEARED:
+                            eventsBuffered = false;
+                            emitNativeStartupTime();
+                            emitBufferedMarks();
+                            break;
+                        case RELOAD:
+                            eventsBuffered = true;
+                            break;
+                    }
                 }
-            }
         );
     }
 
@@ -147,30 +133,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private static long getStartTime(final int pid) throws IOException {
-        final String path = "/proc/" + pid + "/stat";
-        final BufferedReader reader = new BufferedReader(new FileReader(path));
-        final String stat;
-        try {
-            stat = reader.readLine();
-        } finally {
-            reader.close();
-        }
-        final String field2End = ") ";
-        final String fieldSep = " ";
-        final int fieldStartTime = 20;
-        final int msInSec = 1000;
-        try {
-            final String[] fields = stat.substring(stat.lastIndexOf(field2End)).split(fieldSep);
-            final long t = Long.parseLong(fields[fieldStartTime]);
-            final long tck;
-            tck = Os.sysconf(OsConstants._SC_CLK_TCK);
-            return (t * msInSec) / tck;
-        } catch (final Exception e) {
-            throw new IOException(e);
-        }
-    }
-
     private void emitMark(String name,
                           long startTime) {
         emit("mark", name, startTime);
@@ -183,7 +145,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
         params.putString("name", name);
         params.putInt("startTime", (int) startTime);
         getReactApplicationContext()
-            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-            .emit(eventName, params);
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit(eventName, params);
     }
 }
