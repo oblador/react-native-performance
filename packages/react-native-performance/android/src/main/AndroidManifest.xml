@@ -6,7 +6,8 @@
         <provider
             android:name=".StartTimeProvider"
             android:authorities="${applicationId}.start.time.provider"
-            android:exported="false" />
+            android:exported="false"
+            android:initOrder="200" />
 
     </application>
 
