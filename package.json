@@ -26,6 +26,6 @@
     "lerna": "^3.20.2",
     "prettier": "^2.2.1",
     "react": "16.13.1",
-    "react-native": "0.63.3"
+    "react-native": "0.64.1"
   }
 }
