@@ -8,6 +8,7 @@ import {
   PerformanceEntry,
   PerformanceReactNativeMark,
   PerformanceResourceTiming,
+  MetricUnit,
 } from './performance-entry';
 
 // @ts-ignore
@@ -29,8 +30,9 @@ export type StartOrMeasureOptions = string | MeasureOptions | undefined;
 
 export type MetricOptions = {
   startTime: number;
-  detail: any;
+  detail?: any;
   value: number | string;
+  unit?: MetricUnit;
 };
 
 export type ValueOrOptions = number | string | MetricOptions;
@@ -191,6 +193,7 @@ export const createPerformance = (now: () => number = defaultNow) => {
     let value: string | number;
     let startTime: number | undefined;
     let detail: any;
+    let unit: MetricUnit | undefined;
 
     if (
       typeof valueOrOptions === 'object' &&
@@ -204,6 +207,7 @@ export const createPerformance = (now: () => number = defaultNow) => {
       value = valueOrOptions.value;
       startTime = valueOrOptions.startTime;
       detail = valueOrOptions.detail;
+      unit = valueOrOptions.unit;
     } else if (
       typeof valueOrOptions === 'undefined' ||
       valueOrOptions === null
@@ -220,6 +224,7 @@ export const createPerformance = (now: () => number = defaultNow) => {
         startTime: startTime ? startTime : now(),
         value,
         detail,
+        unit,
       })
     );
   };
