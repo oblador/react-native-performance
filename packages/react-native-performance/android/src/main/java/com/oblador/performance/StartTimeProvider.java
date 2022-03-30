@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Process;
-import android.os.SystemClock;
+import java.lang.System;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,7 +41,7 @@ public class StartTimeProvider extends ContentProvider {
 
     private static void setEndTime() {
         if (endTime == 0) {
-            endTime = SystemClock.uptimeMillis();
+            endTime = System.currentTimeMillis();
         }
     }
 

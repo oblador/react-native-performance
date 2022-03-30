@@ -11,8 +11,8 @@ Pod::Spec.new do |s|
   s.license      = package['license']
   s.source       = { :git => 'https://github.com/oblador/react-native-performance.git', :tag => "v#{s.version}" }
 
-  s.platform     = :ios, "9.0"
-  s.source_files = "**/*.{h,m}"
+  s.platform     = :ios, "11.0"
+  s.source_files = "**/*.{h,m,mm}"
 
   s.dependency 'React-Core'
 end

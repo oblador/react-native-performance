@@ -1,6 +1,5 @@
 package com.oblador.performance;
 
-import android.os.SystemClock;
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
@@ -13,6 +12,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.System;
 
 public class PerformanceModule extends ReactContextBaseJavaModule {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
@@ -34,7 +34,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
                     switch (name) {
                         case RELOAD:
                             markBuffer.clear();
-                            markBuffer.put(BRIDGE_SETUP_START, SystemClock.uptimeMillis());
+                            markBuffer.put(BRIDGE_SETUP_START, System.currentTimeMillis());
                             break;
                         case ATTACH_MEASURED_ROOT_VIEWS_END:
                         case ATTACH_MEASURED_ROOT_VIEWS_START:
@@ -67,7 +67,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
                         case SETUP_REACT_CONTEXT_END:
                         case SETUP_REACT_CONTEXT_START:
                         case VM_INIT:
-                            long startTime = SystemClock.uptimeMillis();
+                            long startTime = System.currentTimeMillis();
                             markBuffer.put(getMarkName(name), startTime);
                             break;
 
@@ -143,7 +143,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule {
                       long startTime) {
         WritableMap params = Arguments.createMap();
         params.putString("name", name);
-        params.putInt("startTime", (int) startTime);
+        params.putDouble("startTime", startTime);
         getReactApplicationContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(eventName, params);

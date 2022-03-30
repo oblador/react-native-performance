@@ -1,11 +1,13 @@
 #import "RNPerformanceManager.h"
 #import <sys/sysctl.h>
 #include <math.h>
+#include <chrono>
 #import <QuartzCore/QuartzCore.h>
 #import <React/RCTRootView.h>
 #import <React/RCTPerformanceLogger.h>
 
-static CFTimeInterval getProcessStartTime() {
+static CFTimeInterval getProcessStartTime()
+{
     size_t len = 4;
     int mib[len];
     struct kinfo_proc kp;
@@ -17,6 +19,11 @@ static CFTimeInterval getProcessStartTime() {
 
     struct timeval startTime = kp.kp_proc.p_un.__p_starttime;
     return startTime.tv_sec + startTime.tv_usec / 1e6;
+}
+
+static int64_t getTimestamp()
+{
+    return std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
 }
 
 static int64_t sNativeLaunchStart;
@@ -32,9 +39,8 @@ RCT_EXPORT_MODULE();
 + (void) initialize
 {
     [super initialize];
-    CFTimeInterval absoluteTimeToRelativeTime =  CACurrentMediaTime() - [NSDate date].timeIntervalSince1970;
-    sNativeLaunchStart = (getProcessStartTime() + absoluteTimeToRelativeTime) * 1000;
-    sNativeLaunchEnd = CACurrentMediaTime() * 1000;
+    sNativeLaunchStart = (getProcessStartTime() - [NSDate date].timeIntervalSince1970) * 1000 + getTimestamp();
+    sNativeLaunchEnd = getTimestamp();
 }
 
 - (void)setBridge:(RCTBridge *)bridge
@@ -49,7 +55,7 @@ RCT_EXPORT_MODULE();
 
 - (void)contentDidAppear
 {
-    int64_t startTime = CACurrentMediaTime() * 1000;
+    int64_t startTime = getTimestamp();
     [self emitMarkNamed:@"nativeLaunchStart" withStartTime:sNativeLaunchStart];
     [self emitMarkNamed:@"nativeLaunchEnd" withStartTime:sNativeLaunchEnd];
     [self emitTag:RCTPLScriptDownload withNamePrefix:@"download"];
@@ -66,6 +72,7 @@ RCT_EXPORT_MODULE();
 
 - (void)invalidate
 {
+    [super invalidate];
     NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
     [notificationCenter removeObserver:self];
 }
@@ -88,6 +95,7 @@ RCT_EXPORT_MODULE();
         NSLog(@"Ignoring marks prefixed %@ (%lu) as data is unavailable (duration: %lld, end: %lld)", namePrefix, (unsigned long)tag, duration, end);
         return;
     }
+    end += getTimestamp() - (CACurrentMediaTime() * 1000);
     [self emitMarkNamed:[namePrefix stringByAppendingString:@"Start"] withStartTime:end-duration];
     [self emitMarkNamed:[namePrefix stringByAppendingString:@"End"] withStartTime:end];
 }
@@ -107,7 +115,7 @@ RCT_EXPORT_MODULE();
     if (hasListeners) {
         [self sendEventWithName:@"metric" body:@{
             @"name": name,
-            @"startTime": @(CACurrentMediaTime() * 1000),
+            @"startTime": @(getTimestamp()),
             @"value": value
         }];
     }
