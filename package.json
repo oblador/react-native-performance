@@ -29,6 +29,7 @@
     "react-native": "0.68.0-rc.4"
   },
   "resolutions": {
+    "@types/eslint": "^7.28.2",
     "@types/react": "^17.0.39"
   },
   "volta": {
