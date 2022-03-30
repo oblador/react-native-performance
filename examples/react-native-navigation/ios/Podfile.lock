@@ -551,7 +551,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 83ab4f136376e39e8b324cef45977e1ac8100265
   React-logger: b2c25c4769127bebfaf7259b5434318665716982
   react-native-flipper: 3d9e214b412b3ce81e0d73bdcdc8097c0b0e8578
-  react-native-performance: f4b6604a9d5a8a7407e34a82fab6c641d9a3ec12
+  react-native-performance: a8910cfcdcdb7274a81c5357a55fc4c6ef3ca5e9
   React-perflogger: faeb84f20075000ff7ddc597c5a3279a1e02f2e1
   React-RCTActionSheet: c6ba54f797b15fa1d920963171c425fca8b3868b
   React-RCTAnimation: dc00cf33f6798059f769c4546d04cdf01480baef

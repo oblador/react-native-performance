@@ -1,3 +1,5 @@
+import java.nio.file.Paths
+
 buildscript {
     if (project == rootProject) {
         repositories {
@@ -5,24 +7,70 @@ buildscript {
             jcenter()
         }
         dependencies {
-            classpath 'com.android.tools.build:gradle:3.6.4'
+            classpath 'com.android.tools.build:gradle:7.0.4'
         }
     }
 }
 
+static def findNodeModules(baseDir) {
+    def basePath = baseDir.toPath().normalize()
+    // Node's module resolution algorithm searches up to the root directory,
+    // after which the base path will be null
+    while (basePath) {
+        def nodeModulesPath = Paths.get(basePath.toString(), "node_modules")
+        def reactNativePath = Paths.get(nodeModulesPath.toString(), "react-native")
+        if (nodeModulesPath.toFile().exists() && reactNativePath.toFile().exists()) {
+            return nodeModulesPath.toString()
+        }
+        basePath = basePath.getParent()
+    }
+    throw new GradleException("Unable to locate node_modules")
+}
+
+def isNewArchitectureEnabled() {
+    // To opt-in for the New Architecture, you can either:
+    // - Set `newArchEnabled` to true inside the `gradle.properties` file
+    // - Invoke gradle with `-newArchEnabled=true`
+    // - Set an environment variable `ORG_GRADLE_PROJECT_newArchEnabled=true`
+    return rootProject.hasProperty("newArchEnabled") && rootProject.newArchEnabled == "true"
+}
+
+if (isNewArchitectureEnabled()) {
+    apply plugin: 'com.facebook.react'
+}
 apply plugin: 'com.android.library'
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
 
+def nodeModules = findNodeModules(projectDir)
+
 android {
-    compileSdkVersion safeExtGet('compileSdkVersion', 30)
-    buildToolsVersion safeExtGet('buildToolsVersion', "30.0.2")
+    compileSdkVersion safeExtGet('compileSdkVersion', 31)
+    buildToolsVersion safeExtGet('buildToolsVersion', "31.0.0")
 
     defaultConfig {
-        minSdkVersion safeExtGet('minSdkVersion', 16)
-        targetSdkVersion safeExtGet('targetSdkVersion', 30)
+        minSdkVersion safeExtGet('minSdkVersion', 21)
+        targetSdkVersion safeExtGet('targetSdkVersion', 31)
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+        if (isNewArchitectureEnabled()) {
+            var appProject = rootProject.allprojects.find {it.plugins.hasPlugin('com.android.application')}
+            externalNativeBuild {
+                ndkBuild {
+                    arguments "APP_PLATFORM=android-21",
+                            "APP_STL=c++_shared",
+                            "NDK_TOOLCHAIN_VERSION=clang",
+                            "GENERATED_SRC_DIR=${appProject.buildDir}/generated/source",
+                            "PROJECT_BUILD_DIR=${appProject.buildDir}",
+                            "REACT_ANDROID_DIR=${nodeModules}/react-native/ReactAndroid",
+                            "REACT_ANDROID_BUILD_DIR=${nodeModules}/react-native/ReactAndroid/build"
+                    cFlags "-Wall", "-Werror", "-fexceptions", "-frtti", "-DWITH_INSPECTOR=1"
+                    cppFlags "-std=c++17"
+                    targets "rnperformance_modules"
+                }
+            }
+        }
     }
 
     compileOptions {
@@ -33,15 +81,38 @@ android {
 
 repositories {
     if (project == rootProject) {
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url "$rootDir/../../../node_modules/react-native/android"
+        repositories {
+            maven {
+                // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+                url("${$nodeModules}/react-native/android")
+            }
+            mavenCentral {
+                // We don't want to fetch react-native from Maven Central as there are
+                // older versions over there.
+                content {
+                    excludeGroup "com.facebook.react"
+                }
+            }
+            google()
+            maven { url 'https://www.jitpack.io' }
         }
-        google()
-        jcenter()
     }
 }
 
 dependencies {
-    implementation "com.facebook.react:react-native:+"
+    if (isNewArchitectureEnabled()) {
+        implementation project(":ReactAndroid")
+    } else {
+        implementation 'com.facebook.react:react-native:+'
+    }
+}
+
+if (isNewArchitectureEnabled()) {
+    react {
+        libraryName = "rnperformance"
+        codegenJavaPackageName = "com.oblador.performance"
+        reactNativeDir = rootProject.file("${nodeModules}/react-native")
+        jsRootDir = file("../src/")
+        codegenDir = rootProject.file("${nodeModules}/react-native-codegen")
+    }
 }
