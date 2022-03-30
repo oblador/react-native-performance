@@ -6,6 +6,10 @@
 #import <React/RCTRootView.h>
 #import <React/RCTPerformanceLogger.h>
 
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <RNPerformanceSpec/RNPerformanceSpec.h>
+#endif
+
 static CFTimeInterval getProcessStartTime()
 {
     size_t len = 4;
@@ -120,5 +124,12 @@ RCT_EXPORT_MODULE();
         }];
     }
 }
+
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
+{
+    return std::make_shared<facebook::react::NativeRNPerformanceManagerSpecJSI>(params);
+}
+#endif
 
 @end

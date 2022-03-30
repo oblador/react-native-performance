@@ -47,6 +47,15 @@
     "react-native-builder-bob": "^0.17.1",
     "typescript": "^4.1.3"
   },
+  "codegenConfig": {
+    "libraries": [
+      {
+        "name": "RNPerformanceSpec",
+        "type": "modules",
+        "jsSrcsDir": "src"
+      }
+    ]
+  },
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",

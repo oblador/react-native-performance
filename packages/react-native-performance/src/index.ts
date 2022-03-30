@@ -8,9 +8,15 @@ import {
   installResourceLogger,
   uninstallResourceLogger,
 } from './resource-logger';
-
-const { RNPerformanceManager } = NativeModules;
 const { PerformanceObserver, addEntry, performance } = createPerformance();
+
+declare const global: { __turboModuleProxy: null | {} };
+
+const isTurboModuleEnabled = global.__turboModuleProxy != null;
+
+const RNPerformanceManager = isTurboModuleEnabled
+  ? require('./NativeRNPerformanceManager').default
+  : NativeModules.RNPerformanceManager;
 
 if (Platform.OS === 'android' || RNPerformanceManager) {
   const emitter = new NativeEventEmitter(RNPerformanceManager);

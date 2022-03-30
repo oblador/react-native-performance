@@ -9,12 +9,14 @@ import com.facebook.react.bridge.ReactMarker;
 import com.facebook.react.bridge.ReactMarkerConstants;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.turbomodule.core.interfaces.TurboModule;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.lang.System;
 
-public class PerformanceModule extends ReactContextBaseJavaModule {
+// Should extend NativeRNPerformanceManagerSpec when codegen for old architecture is solved
+public class PerformanceModule extends ReactContextBaseJavaModule implements TurboModule {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
     public static final String BRIDGE_SETUP_START = "bridgeSetupStart";
 
