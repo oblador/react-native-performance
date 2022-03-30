@@ -28,6 +28,9 @@
     "react": "17.0.2",
     "react-native": "0.68.0-rc.4"
   },
+  "resolutions": {
+    "@types/react": "^17.0.39"
+  },
   "volta": {
     "node": "16.14.0"
   }
