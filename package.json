@@ -25,7 +25,14 @@
   "devDependencies": {
     "lerna": "^3.20.2",
     "prettier": "^2.2.1",
-    "react": "16.13.1",
-    "react-native": "0.63.3"
+    "react": "17.0.2",
+    "react-native": "0.68.0-rc.4"
+  },
+  "resolutions": {
+    "@types/eslint": "^7.28.2",
+    "@types/react": "^17.0.39"
+  },
+  "volta": {
+    "node": "16.14.0"
   }
 }
