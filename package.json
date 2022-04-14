@@ -26,7 +26,7 @@
     "lerna": "^3.20.2",
     "prettier": "^2.2.1",
     "react": "17.0.2",
-    "react-native": "0.68.0-rc.4"
+    "react-native": "0.68.1"
   },
   "resolutions": {
     "@types/eslint": "^7.28.2",
