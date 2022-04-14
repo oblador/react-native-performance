@@ -10,7 +10,7 @@
 #import <RNPerformanceSpec/RNPerformanceSpec.h>
 #endif
 
-static CFTimeInterval getProcessStartTime()
+static CFTimeInterval RNPerformanceGetProcessStartTime()
 {
     size_t len = 4;
     int mib[len];
@@ -25,7 +25,7 @@ static CFTimeInterval getProcessStartTime()
     return startTime.tv_sec + startTime.tv_usec / 1e6;
 }
 
-static int64_t getTimestamp()
+static int64_t RNPerformanceGetTimestamp()
 {
     return std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
 }
@@ -36,6 +36,7 @@ static int64_t sNativeLaunchEnd;
 @implementation RNPerformanceManager
 {
     bool hasListeners;
+    bool didEmit;
 }
 
 RCT_EXPORT_MODULE();
@@ -43,29 +44,35 @@ RCT_EXPORT_MODULE();
 + (void) initialize
 {
     [super initialize];
-    sNativeLaunchStart = (getProcessStartTime() - [NSDate date].timeIntervalSince1970) * 1000 + getTimestamp();
-    sNativeLaunchEnd = getTimestamp();
+    sNativeLaunchStart = (RNPerformanceGetProcessStartTime() - [NSDate date].timeIntervalSince1970) * 1000 + RNPerformanceGetTimestamp();
+    sNativeLaunchEnd = RNPerformanceGetTimestamp();
 }
 
 - (void)setBridge:(RCTBridge *)bridge
 {
     [super setBridge:bridge];
-    NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
-    [notificationCenter addObserver:self
-                           selector:@selector(contentDidAppear)
-                               name:RCTContentDidAppearNotification
-                             object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(contentDidAppear)
+                                                 name:RCTContentDidAppearNotification
+                                               object:nil];
 }
 
 - (void)contentDidAppear
 {
-    int64_t startTime = getTimestamp();
+    if(didEmit != YES) {
+        [self emitMarks];
+    }
+}
+
+- (void)emitMarks
+{
+    didEmit = YES;
     [self emitMarkNamed:@"nativeLaunchStart" withStartTime:sNativeLaunchStart];
     [self emitMarkNamed:@"nativeLaunchEnd" withStartTime:sNativeLaunchEnd];
     [self emitTag:RCTPLScriptDownload withNamePrefix:@"download"];
     [self emitTag:RCTPLScriptExecution withNamePrefix:@"runJsBundle"];
     [self emitTag:RCTPLBridgeStartup withNamePrefix:@"bridgeSetup"];
-    [self emitMarkNamed:@"contentAppeared" withStartTime:startTime];
+    [self emitMarkNamed:@"contentAppeared" withMediaTime:[self.bridge.performanceLogger valueForTag:RCTPLTTI]];
     [self emitMetricNamed:@"bundleSize" withValue:@([self.bridge.performanceLogger valueForTag:RCTPLBundleSize])];
 }
 
@@ -84,6 +91,9 @@ RCT_EXPORT_MODULE();
 - (void)startObserving
 {
     hasListeners = YES;
+    if (didEmit != YES && [self.bridge.performanceLogger valueForTag:RCTPLTTI] != 0) {
+        [self emitMarks];
+    }
 }
 
 -(void)stopObserving
@@ -99,9 +109,13 @@ RCT_EXPORT_MODULE();
         NSLog(@"Ignoring marks prefixed %@ (%lu) as data is unavailable (duration: %lld, end: %lld)", namePrefix, (unsigned long)tag, duration, end);
         return;
     }
-    end += getTimestamp() - (CACurrentMediaTime() * 1000);
-    [self emitMarkNamed:[namePrefix stringByAppendingString:@"Start"] withStartTime:end-duration];
-    [self emitMarkNamed:[namePrefix stringByAppendingString:@"End"] withStartTime:end];
+    [self emitMarkNamed:[namePrefix stringByAppendingString:@"Start"] withMediaTime:end-duration];
+    [self emitMarkNamed:[namePrefix stringByAppendingString:@"End"] withMediaTime:end];
+}
+
+- (void)emitMarkNamed:(NSString *)name withMediaTime:(int64_t)mediaTime
+{
+    [self emitMarkNamed:name withStartTime:mediaTime + RNPerformanceGetTimestamp() - (CACurrentMediaTime() * 1000)];
 }
 
 - (void)emitMarkNamed:(NSString *)name withStartTime:(int64_t)startTime
@@ -119,7 +133,7 @@ RCT_EXPORT_MODULE();
     if (hasListeners) {
         [self sendEventWithName:@"metric" body:@{
             @"name": name,
-            @"startTime": @(getTimestamp()),
+            @"startTime": @(RNPerformanceGetTimestamp()),
             @"value": value
         }];
     }
