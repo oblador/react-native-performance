@@ -151,6 +151,22 @@ new PerformanceObserver((list, observer) => {
 }).observe({ type: 'react-native-mark', buffered: true });
 ```
 
+#### Custom iOS marks
+
+```objc
+#import <react-native-performance/RNPerformanceMarks.h>
+
+[RNPerformanceMarks.sharedInstance setMarkNamed:@"myCustomMark"];
+```
+
+#### Custom Android marks
+
+```java
+import com.oblador.performance.PerformanceModule;
+
+PerformanceModule.setMark("myCustomMark");
+```
+
 #### Supported marks
 
 | Name                                  | Platforms | Description                                                                 |

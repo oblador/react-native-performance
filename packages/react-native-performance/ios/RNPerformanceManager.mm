@@ -1,7 +1,6 @@
 #import "RNPerformanceManager.h"
+#import "RNPerformanceMarks.h"
 #import <sys/sysctl.h>
-#include <math.h>
-#include <chrono>
 #import <QuartzCore/QuartzCore.h>
 #import <React/RCTRootView.h>
 #import <React/RCTPerformanceLogger.h>
@@ -23,11 +22,6 @@ static CFTimeInterval RNPerformanceGetProcessStartTime()
 
     struct timeval startTime = kp.kp_proc.p_un.__p_starttime;
     return startTime.tv_sec + startTime.tv_usec / 1e6;
-}
-
-static int64_t RNPerformanceGetTimestamp()
-{
-    return std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
 }
 
 static int64_t sNativeLaunchStart;
@@ -55,12 +49,23 @@ RCT_EXPORT_MODULE();
                                              selector:@selector(contentDidAppear)
                                                  name:RCTContentDidAppearNotification
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(customMarkWasSet:)
+                                                 name:RNPerformanceMarkWasSetNotification
+                                               object:nil];
 }
 
 - (void)contentDidAppear
 {
     if(didEmit != YES) {
         [self emitMarks];
+    }
+}
+
+- (void)customMarkWasSet:(NSNotification *)notification
+{
+    if(didEmit == YES) {
+        [self emitMarkNamed:notification.userInfo[@"name"] withStartTime:((NSNumber *)notification.userInfo[@"startTime"]).longLongValue];
     }
 }
 
@@ -74,6 +79,9 @@ RCT_EXPORT_MODULE();
     [self emitTag:RCTPLBridgeStartup withNamePrefix:@"bridgeSetup"];
     [self emitMarkNamed:@"contentAppeared" withMediaTime:[self.bridge.performanceLogger valueForTag:RCTPLTTI]];
     [self emitMetricNamed:@"bundleSize" withValue:@([self.bridge.performanceLogger valueForTag:RCTPLBundleSize])];
+    [[RNPerformanceMarks.sharedInstance marks] enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull name, NSNumber * _Nonnull startTime, BOOL * _Nonnull stop) {
+        [self emitMarkNamed:name withStartTime:startTime.longLongValue];
+    }];
 }
 
 - (NSArray<NSString *> *)supportedEvents
@@ -84,8 +92,7 @@ RCT_EXPORT_MODULE();
 - (void)invalidate
 {
     [super invalidate];
-    NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
-    [notificationCenter removeObserver:self];
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 - (void)startObserving
