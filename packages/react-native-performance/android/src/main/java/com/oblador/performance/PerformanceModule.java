@@ -22,10 +22,15 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     private boolean eventsBuffered = true;
     private static final Map<String, Long> markBuffer = new HashMap<>();
+    private static final Map<String, Long> customMarks = new HashMap<>();
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
         setupMarkerListener();
+    }
+
+    public static void setMark(String name) {
+        customMarks.put(name, System.currentTimeMillis());
     }
 
     // Need to set up the marker listener before the react module is initialized
@@ -131,6 +136,9 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     private void emitBufferedMarks() {
         for (Map.Entry<String, Long> entry : markBuffer.entrySet()) {
+            emitMark(entry.getKey(), entry.getValue());
+        }
+        for (Map.Entry<String, Long> entry : customMarks.entrySet()) {
             emitMark(entry.getKey(), entry.getValue());
         }
     }
