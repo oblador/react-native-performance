@@ -162,9 +162,9 @@ new PerformanceObserver((list, observer) => {
 #### Custom Android marks
 
 ```java
-import com.oblador.performance.PerformanceModule;
+import com.oblador.performance.PerformanceMarks;
 
-PerformanceModule.setMark("myCustomMark");
+PerformanceMarks.getInstance().setMark("myCustomMark");
 ```
 
 #### Supported marks

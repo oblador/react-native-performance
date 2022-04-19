@@ -22,15 +22,11 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     private boolean eventsBuffered = true;
     private static final Map<String, Long> markBuffer = new HashMap<>();
-    private static final Map<String, Long> customMarks = new HashMap<>();
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
         setupMarkerListener();
-    }
-
-    public static void setMark(String name) {
-        customMarks.put(name, System.currentTimeMillis());
+        setupCustomPerformanceMarkObserver();
     }
 
     // Need to set up the marker listener before the react module is initialized
@@ -98,6 +94,22 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         return sb.toString();
     }
 
+    private void setupCustomPerformanceMarkObserver() {
+        PerformanceMarks.getInstance().setupCustomPerformanceMarkObserver(new PerformanceMarks.Callback() {
+            @Override
+            public void call(PerformanceMarks.CustomPerformanceMark mark) {
+                emitMark(mark.getMark(), mark.getTimestamp());
+            }
+        });
+    }
+
+    private void emitCustomMarks() {
+        Map<String, Long> buffer = PerformanceMarks.getInstance().get();
+        for (Map.Entry<String, Long> entry : buffer.entrySet()) {
+            emitMark(entry.getKey(), entry.getValue());
+        }
+    }
+
     @Override
     @NonNull
     public String getName() {
@@ -117,6 +129,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                             eventsBuffered = false;
                             emitNativeStartupTime();
                             emitBufferedMarks();
+                            emitCustomMarks();
                             break;
                         case RELOAD:
                             eventsBuffered = true;
@@ -138,9 +151,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         for (Map.Entry<String, Long> entry : markBuffer.entrySet()) {
             emitMark(entry.getKey(), entry.getValue());
         }
-        for (Map.Entry<String, Long> entry : customMarks.entrySet()) {
-            emitMark(entry.getKey(), entry.getValue());
-        }
     }
 
     private void emitMark(String name,
@@ -157,5 +167,11 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         getReactApplicationContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(eventName, params);
+    }
+
+    @Override
+    public void onCatalystInstanceDestroy() {
+        super.onCatalystInstanceDestroy();
+        PerformanceMarks.getInstance().dispose();
     }
 }
