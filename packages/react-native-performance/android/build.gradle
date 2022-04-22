@@ -105,7 +105,6 @@ dependencies {
     } else {
         implementation 'com.facebook.react:react-native:+'
     }
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.4'
 }
 
 if (isNewArchitectureEnabled()) {

@@ -1,5 +1,7 @@
 package com.oblador.performance;
 
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
@@ -13,7 +15,6 @@ import com.facebook.react.turbomodule.core.interfaces.TurboModule;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.System;
 
 // Should extend NativeRNPerformanceManagerSpec when codegen for old architecture is solved
 public class PerformanceModule extends ReactContextBaseJavaModule implements TurboModule {
@@ -21,12 +22,16 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     public static final String BRIDGE_SETUP_START = "bridgeSetupStart";
 
     private boolean eventsBuffered = true;
-    private static final Map<String, Long> markBuffer = new HashMap<>();
+    private static final Map<String, PerformanceMark> markBuffer = new HashMap<>();
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
         setupMarkerListener();
-        setupCustomPerformanceMarkObserver();
+        setupNativeMarkerListener();
+    }
+
+    private void setupNativeMarkerListener() {
+        PerformanceMarks.addListener(this::safelyEmitMark);
     }
 
     // Need to set up the marker listener before the react module is initialized
@@ -36,8 +41,8 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                 (name, tag, instanceKey) -> {
                     switch (name) {
                         case RELOAD:
-                            markBuffer.clear();
-                            markBuffer.put(BRIDGE_SETUP_START, System.currentTimeMillis());
+                            clearMarkBuffer();
+                            addMark(new PerformanceMark(BRIDGE_SETUP_START, System.currentTimeMillis()));
                             break;
                         case ATTACH_MEASURED_ROOT_VIEWS_END:
                         case ATTACH_MEASURED_ROOT_VIEWS_START:
@@ -71,12 +76,24 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                         case SETUP_REACT_CONTEXT_START:
                         case VM_INIT:
                             long startTime = System.currentTimeMillis();
-                            markBuffer.put(getMarkName(name), startTime);
+                            addMark(new PerformanceMark(getMarkName(name), startTime));
                             break;
 
                     }
                 }
         );
+    }
+
+    private static void clearMarkBuffer() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            markBuffer.entrySet().removeIf(entry -> !entry.getValue().isPersistBuffer());
+        } else {
+            for (Map.Entry<String, PerformanceMark> entry : markBuffer.entrySet()) {
+                if (!entry.getValue().isPersistBuffer()) {
+                    markBuffer.remove(entry.getKey());
+                }
+            }
+        }
     }
 
     private static String getMarkName(ReactMarkerConstants name) {
@@ -94,22 +111,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         return sb.toString();
     }
 
-    private void setupCustomPerformanceMarkObserver() {
-        PerformanceMarks.getInstance().setupCustomPerformanceMarkObserver(new PerformanceMarks.Callback() {
-            @Override
-            public void call(PerformanceMarks.CustomPerformanceMark mark) {
-                emitMark(mark.getMark(), mark.getTimestamp());
-            }
-        });
-    }
-
-    private void emitCustomMarks() {
-        Map<String, Long> buffer = PerformanceMarks.getInstance().get();
-        for (Map.Entry<String, Long> entry : buffer.entrySet()) {
-            emitMark(entry.getKey(), entry.getValue());
-        }
-    }
-
     @Override
     @NonNull
     public String getName() {
@@ -117,8 +118,8 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     }
 
     private void emitNativeStartupTime() {
-        safelyEmitMark("nativeLaunchStart", StartTimeProvider.getStartTime());
-        safelyEmitMark("nativeLaunchEnd", StartTimeProvider.getEndTime());
+        safelyEmitMark(new PerformanceMark("nativeLaunchStart", StartTimeProvider.getStartTime(), false));
+        safelyEmitMark(new PerformanceMark("nativeLaunchEnd", StartTimeProvider.getEndTime(), false));
     }
 
     private void setupMarkerListener() {
@@ -129,7 +130,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                             eventsBuffered = false;
                             emitNativeStartupTime();
                             emitBufferedMarks();
-                            emitCustomMarks();
                             break;
                         case RELOAD:
                             eventsBuffered = true;
@@ -139,17 +139,21 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         );
     }
 
-    private void safelyEmitMark(String name, long startTime) {
+    private void safelyEmitMark(PerformanceMark mark) {
         if (eventsBuffered) {
-            markBuffer.put(name, startTime);
+            addMark(mark);
         } else {
-            emitMark(name, startTime);
+            emitMark(mark.getMark(), mark.getTimestamp());
         }
     }
 
+    private static void addMark(PerformanceMark mark) {
+        markBuffer.put(mark.getMark(), mark);
+    }
+
     private void emitBufferedMarks() {
-        for (Map.Entry<String, Long> entry : markBuffer.entrySet()) {
-            emitMark(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, PerformanceMark> entry : markBuffer.entrySet()) {
+            emitMark(entry.getKey(), entry.getValue().getTimestamp());
         }
     }
 
@@ -167,11 +171,5 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         getReactApplicationContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(eventName, params);
-    }
-
-    @Override
-    public void onCatalystInstanceDestroy() {
-        super.onCatalystInstanceDestroy();
-        PerformanceMarks.getInstance().dispose();
     }
 }

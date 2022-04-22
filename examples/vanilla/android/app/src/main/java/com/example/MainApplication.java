@@ -14,6 +14,7 @@ import com.oblador.performance.PerformanceMarks;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import android.os.Handler;
+import android.os.Looper;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -60,7 +61,7 @@ public class MainApplication extends Application implements ReactApplication {
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     PerformanceMarks.getInstance().setMark("onCreateEnd");
-    new Handler().postDelayed(new Runnable() {
+    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
       @Override
       public void run() {
         PerformanceMarks.getInstance().setMark("Delayed Mark");
