@@ -3,18 +3,18 @@ package com.oblador.performance;
 public class PerformanceMark {
     private final String mark;
     private final long timestamp;
-    private final boolean persistBuffer;
+    private final boolean resetOnLoad;
 
     public PerformanceMark(String mark, long timestamp) {
         this.mark = mark;
         this.timestamp = timestamp;
-        this.persistBuffer = false;
+        this.resetOnLoad = true;
     }
 
-    public PerformanceMark(String mark, long timestamp, boolean persistBuffer) {
+    public PerformanceMark(String mark, long timestamp, boolean resetOnLoad) {
         this.mark = mark;
         this.timestamp = timestamp;
-        this.persistBuffer = persistBuffer;
+        this.resetOnLoad = resetOnLoad;
     }
 
     public String getMark() {
@@ -25,7 +25,7 @@ public class PerformanceMark {
         return this.timestamp;
     }
 
-    public boolean isPersistBuffer() {
-        return persistBuffer;
+    public boolean shouldResetOnLoad() {
+        return resetOnLoad;
     }
 }

@@ -13,32 +13,36 @@ public class PerformanceMarks {
         static final PerformanceMarks instance = new PerformanceMarks();
     }
 
-    public static PerformanceMarks getInstance() {
+    protected static PerformanceMarks getInstance() {
         return LoadPerformanceMarks.instance;
     }
 
     private static final List<MarkerListener> sListeners = new CopyOnWriteArrayList<>();
 
-    public interface MarkerListener {
+    protected interface MarkerListener {
         void logMarker(PerformanceMark mark);
     }
 
     @DoNotStrip
-    public static void addListener(MarkerListener listener) {
+    protected void addListener(MarkerListener listener) {
         if (!sListeners.contains(listener)) {
             sListeners.add(listener);
         }
     }
 
     @DoNotStrip
-    public static void removeListener(MarkerListener listener) {
+    protected void removeListener(MarkerListener listener) {
         sListeners.remove(listener);
     }
 
-    public void setMark(String name) {
+    protected void setMark(String name) {
+        setMark(name, false);
+    }
+
+    protected void setMark(String name, boolean resetOnLoad) {
         long timestamp = System.currentTimeMillis();
         for (MarkerListener listener : sListeners) {
-            listener.logMarker(new PerformanceMark(name, timestamp));
+            listener.logMarker(new PerformanceMark(name, timestamp, resetOnLoad));
         }
     }
 }

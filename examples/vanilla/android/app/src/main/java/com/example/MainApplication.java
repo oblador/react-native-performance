@@ -10,7 +10,8 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.config.ReactFeatureFlags;
 import com.facebook.soloader.SoLoader;
 import com.example.newarchitecture.MainApplicationReactNativeHost;
-import com.oblador.performance.PerformanceMarks;
+import com.oblador.performance.PerformanceModule;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import android.os.Handler;
@@ -54,17 +55,17 @@ public class MainApplication extends Application implements ReactApplication {
 
   @Override
   public void onCreate() {
-    PerformanceMarks.getInstance().setMark("onCreateStart");
+    PerformanceModule.setMark("onCreateStart");
     super.onCreate();
     // If you opted-in for the New Architecture, we enable the TurboModule system
     ReactFeatureFlags.useTurboModules = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
-    PerformanceMarks.getInstance().setMark("onCreateEnd");
+    PerformanceModule.setMark("onCreateEnd");
     new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
       @Override
       public void run() {
-        PerformanceMarks.getInstance().setMark("Delayed Mark");
+        PerformanceModule.setMark("Delayed Mark");
       }
      }, 3000L);
   }

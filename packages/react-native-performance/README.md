@@ -161,10 +161,13 @@ new PerformanceObserver((list, observer) => {
 
 #### Custom Android marks
 
-```java
-import com.oblador.performance.PerformanceMarks;
+`resetOnLoad` is an optional parameter to `setMark` function which enables removing the marks when the `RELOAD` is returned from React.
 
-PerformanceMarks.getInstance().setMark("myCustomMark");
+```java
+import com.oblador.performance.PerformanceModule;
+
+PerformanceModule.setMark("myCustomMark");
+PerformanceModule.setMark("myCustomMark", false);
 ```
 
 #### Supported marks

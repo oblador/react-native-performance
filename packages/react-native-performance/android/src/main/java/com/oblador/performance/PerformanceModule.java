@@ -1,6 +1,7 @@
 package com.oblador.performance;
 
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -17,11 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 // Should extend NativeRNPerformanceManagerSpec when codegen for old architecture is solved
-public class PerformanceModule extends ReactContextBaseJavaModule implements TurboModule {
+public class PerformanceModule extends ReactContextBaseJavaModule implements TurboModule, PerformanceMarks.MarkerListener {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
     public static final String BRIDGE_SETUP_START = "bridgeSetupStart";
 
-    private boolean eventsBuffered = true;
+    private static boolean eventsBuffered = true;
     private static final Map<String, PerformanceMark> markBuffer = new HashMap<>();
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
@@ -31,7 +32,19 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     }
 
     private void setupNativeMarkerListener() {
-        PerformanceMarks.addListener(this::safelyEmitMark);
+        PerformanceMarks.getInstance().addListener(this);
+    }
+
+    public static void setMark(String name) {
+        setMark(name, false);
+    }
+
+    public static void setMark(String name, boolean resetOnLoad) {
+        if (eventsBuffered) {
+            markBuffer.put(name, new PerformanceMark(name, System.currentTimeMillis(), resetOnLoad));
+        } else {
+            PerformanceMarks.getInstance().setMark(name, resetOnLoad);
+        }
     }
 
     // Need to set up the marker listener before the react module is initialized
@@ -86,10 +99,10 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     private static void clearMarkBuffer() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            markBuffer.entrySet().removeIf(entry -> !entry.getValue().isPersistBuffer());
+            markBuffer.entrySet().removeIf(entry -> entry.getValue().shouldResetOnLoad());
         } else {
             for (Map.Entry<String, PerformanceMark> entry : markBuffer.entrySet()) {
-                if (!entry.getValue().isPersistBuffer()) {
+                if (entry.getValue().shouldResetOnLoad()) {
                     markBuffer.remove(entry.getKey());
                 }
             }
@@ -171,5 +184,16 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         getReactApplicationContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(eventName, params);
+    }
+
+    @Override
+    public void logMarker(PerformanceMark mark) {
+        safelyEmitMark(mark);
+    }
+
+    @Override
+    public void onCatalystInstanceDestroy() {
+        super.onCatalystInstanceDestroy();
+        PerformanceMarks.getInstance().removeListener(this);
     }
 }
