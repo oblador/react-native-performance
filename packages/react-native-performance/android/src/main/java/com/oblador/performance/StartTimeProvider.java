@@ -30,9 +30,13 @@ public class StartTimeProvider extends ContentProvider {
         if (startTime == 0) {
             long fallbackTime = endTime - Process.getElapsedCpuTime();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                startTime = endTime - SystemClock.uptimeMillis() - Process.getStartUptimeMillis();
-                if (endTime - startTime > MINUTE_IN_MS) {
-                    startTime = fallbackTime;
+                long duration = SystemClock.uptimeMillis() - Process.getStartUptimeMillis();
+                startTime = endTime - duration;
+                if (duration > MINUTE_IN_MS) {
+                  // On API >= 28, Process.getStartUptimeMillis() sometimes returns values greater than
+                  // than 1 minute (see https://dev.to/pyricau/android-vitals-when-did-my-app-start-24p4)
+                  // If that happens, we fallback on Process.getElapsedCpuTime()
+                  startTime = fallbackTime;
                 }
             } else {
                 startTime = fallbackTime;
