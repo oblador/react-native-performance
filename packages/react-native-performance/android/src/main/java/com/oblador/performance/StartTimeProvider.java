@@ -4,10 +4,8 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Process;
 import java.lang.System;
-import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,7 +14,6 @@ public class StartTimeProvider extends ContentProvider {
 
     private static long startTime = 0;
     private static long endTime = 0;
-    private static final long MINUTE_IN_MS = 60000;
 
     public static long getStartTime() {
         return startTime;
@@ -28,19 +25,7 @@ public class StartTimeProvider extends ContentProvider {
 
     private static void setStartTime() {
         if (startTime == 0) {
-            long fallbackTime = endTime - Process.getElapsedCpuTime();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                long duration = SystemClock.uptimeMillis() - Process.getStartUptimeMillis();
-                startTime = endTime - duration;
-                if (duration > MINUTE_IN_MS) {
-                  // On API >= 28, Process.getStartUptimeMillis() sometimes returns values greater than
-                  // than 1 minute (see https://dev.to/pyricau/android-vitals-when-did-my-app-start-24p4)
-                  // If that happens, we fallback on Process.getElapsedCpuTime()
-                  startTime = fallbackTime;
-                }
-            } else {
-                startTime = fallbackTime;
-            }
+            startTime = endTime - Process.getElapsedCpuTime();
         }
     }
 
