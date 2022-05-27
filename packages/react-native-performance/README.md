@@ -2,12 +2,6 @@
 
 This is an implementation of the [`Performance` API](https://developer.mozilla.org/en-US/docs/Web/API/Performance) for React Native based on the [User Timing Level 3](https://www.w3.org/TR/user-timing-3/) and [Performance Timeline Level 2](https://www.w3.org/TR/performance-timeline-2/) drafts.
 
-_Note_: The timestamps used are high resolution (fractions of milliseconds) and monotonically increasing, meaning that they are independent of system clock adjustments. To convert a performance timestamp to a unix epoch timestamp do like this:
-
-```js
-const timestamp = Date.now() - performance.timeOrigin + entry.startTime;
-```
-
 ## Installation
 
 **Yarn**: `yarn add --dev react-native-performance`
