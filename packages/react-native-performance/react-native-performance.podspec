@@ -1,6 +1,6 @@
 require 'json'
 
-package = JSON.parse(File.read(File.join(__dir__, '../package.json')))
+package = JSON.parse(File.read(File.join(__dir__, './package.json')))
 
 folly_version = '2021.06.28.00-v2'
 folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => 'https://github.com/oblador/react-native-performance.git', :tag => "v#{s.version}" }
 
   s.platform     = :ios, "11.0"
-  s.source_files = "**/*.{h,m,mm}"
+  s.source_files = "ios/**/*.{h,m,mm}"
 
   s.dependency 'React-Core'
 

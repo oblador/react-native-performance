@@ -285,7 +285,7 @@ PODS:
     - glog
   - react-native-flipper (0.125.0):
     - React-Core
-  - react-native-performance (3.0.0):
+  - react-native-performance (3.0.1):
     - React-Core
   - React-perflogger (0.68.1)
   - React-RCTActionSheet (0.68.1):
@@ -412,7 +412,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../../../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../../../node_modules/react-native/ReactCommon/logger`)
   - react-native-flipper (from `../../../node_modules/react-native-flipper`)
-  - react-native-performance (from `../../../packages/react-native-performance/ios`)
+  - react-native-performance (from `../../../packages/react-native-performance`)
   - React-perflogger (from `../../../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../../../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../../../node_modules/react-native/Libraries/NativeAnimation`)
@@ -487,7 +487,7 @@ EXTERNAL SOURCES:
   react-native-flipper:
     :path: "../../../node_modules/react-native-flipper"
   react-native-performance:
-    :path: "../../../packages/react-native-performance/ios"
+    :path: "../../../packages/react-native-performance"
   React-perflogger:
     :path: "../../../node_modules/react-native/ReactCommon/reactperflogger"
   React-RCTActionSheet:
@@ -551,7 +551,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 218a2503198ff28a085f8e16622a8d8f507c8019
   React-logger: f79dd3cc0f9b44f5611c6c7862badd891a862cf8
   react-native-flipper: 3d9e214b412b3ce81e0d73bdcdc8097c0b0e8578
-  react-native-performance: 3b18a195447c8302ba4275ee8913f72043ce1ecb
+  react-native-performance: 7f7720dd478cd6f6c46122f3e4d4b57e1eeacdf0
   React-perflogger: 30ab8d6db10e175626069e742eead3ebe8f24fd5
   React-RCTActionSheet: 4b45da334a175b24dabe75f856b98fed3dfd6201
   React-RCTAnimation: d6237386cb04500889877845b3e9e9291146bc2e
