@@ -4,7 +4,6 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Process;
 import java.lang.System;
 
@@ -15,7 +14,6 @@ public class StartTimeProvider extends ContentProvider {
 
     private static long startTime = 0;
     private static long endTime = 0;
-    private static final long MINUTE_IN_MS = 60000;
 
     public static long getStartTime() {
         return startTime;
@@ -27,15 +25,7 @@ public class StartTimeProvider extends ContentProvider {
 
     private static void setStartTime() {
         if (startTime == 0) {
-            long fallbackTime = endTime - Process.getElapsedCpuTime();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                startTime = Process.getStartUptimeMillis();
-                if (endTime - startTime > MINUTE_IN_MS) {
-                    startTime = fallbackTime;
-                }
-            } else {
-                startTime = fallbackTime;
-            }
+            startTime = endTime - Process.getElapsedCpuTime();
         }
     }
 
