@@ -6,7 +6,7 @@
 
 #import <React/RCTAppSetupUtils.h>
 
-#import <react-native-performance/RNPerformanceMarks.h>
+#import <react-native-performance/RNPerformance.h>
 
 #if RCT_NEW_ARCH_ENABLED
 #import <React/CoreModulesPlugins.h>
@@ -31,7 +31,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [RNPerformanceMarks.sharedInstance setMarkNamed:@"appDelegateStart"];
+  [RNPerformance.sharedInstance mark:@"appDelegateStart" ephemeral:NO];
   RCTAppSetupPrepareApp(application);
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
@@ -58,9 +58,9 @@
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-    [RNPerformanceMarks.sharedInstance setMarkNamed:@"slowCustomNativeMark"];
+    [RNPerformance.sharedInstance metric:@"slowCustomMetric" value:@(420.69) detail:@{ @"unit": @"$DOGE" }];
   });
-  [RNPerformanceMarks.sharedInstance setMarkNamed:@"appDelegateEnd"];
+  [RNPerformance.sharedInstance mark:@"appDelegateEnd" ephemeral:NO];
   return YES;
 }
 

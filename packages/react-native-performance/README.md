@@ -151,17 +151,25 @@ new PerformanceObserver((list, observer) => {
 }).observe({ type: 'react-native-mark', buffered: true });
 ```
 
-#### Custom iOS marks
+#### Custom marks
+
+`ephemeral` is an optional parameter to `mark/metric` functions which if set to `NO/false` will retain the entries when the React Native bridge is (re)loaded.
+
+##### iOS
 
 ```objc
-#import <react-native-performance/RNPerformanceMarks.h>
+#import <react-native-performance/RNPerformance.h>
 
-[RNPerformanceMarks.sharedInstance setMarkNamed:@"myCustomMark"];
+[RNPerformance.sharedInstance mark:@"myCustomMark"];
+[RNPerformance.sharedInstance mark:@"myCustomMark" detail:@{ @"extra": @"info" }];
+[RNPerformance.sharedInstance mark:@"myCustomMark" ephemeral:NO];
+
+[RNPerformance.sharedInstance metric:@"myCustomMetric" value:@(123)];
+[RNPerformance.sharedInstance metric:@"myCustomMetric" value:@(123) detail:@{ @"unit": @"ms" }];
+[RNPerformance.sharedInstance metric:@"myCustomMetric" value:@(123) ephemeral:NO];
 ```
 
-#### Custom Android marks
-
-`resetOnLoad` is an optional parameter to `setMark` function which enables removing the marks when the `RELOAD` is returned from React.
+##### Android
 
 ```java
 import com.oblador.performance.PerformanceModule;
