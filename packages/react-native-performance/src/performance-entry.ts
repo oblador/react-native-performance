@@ -70,6 +70,8 @@ export class PerformanceMark extends PerformanceEntry {
 }
 
 export class PerformanceReactNativeMark extends PerformanceEntry {
+  detail?: any;
+
   constructor(name: string, startTime: number, detail: any) {
     super(name, 'react-native-mark', startTime, 0);
     this.detail = detail;
