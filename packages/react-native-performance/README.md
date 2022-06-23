@@ -172,10 +172,19 @@ new PerformanceObserver((list, observer) => {
 ##### Android
 
 ```java
-import com.oblador.performance.PerformanceModule;
+import com.oblador.performance.RNPerformance;
 
-PerformanceModule.setMark("myCustomMark");
-PerformanceModule.setMark("myCustomMark", false);
+RNPerformance.getInstance().mark("myCustomMark");
+RNPerformance.getInstance().mark("myCustomMark", false); // ephermal flag to disable resetOnReload
+Bundle bundle = new Bundle();
+bundle.putString("extra", "info");
+RNPerformance.getInstance().mark("myCustomMark", bundle); // Bundle to pass some detail payload
+
+RNPerformance.getInstance().metric("myCustomMetric", 123);
+RNPerformance.getInstance().metric("myCustomMetric", 123, false); // ephermal flag to disable resetOnReload
+Bundle bundle = new Bundle();
+bundle.putString("unit", "ms");
+RNPerformance.getInstance().metric("myCustomMetric", 123, bundle); // Bundle to pass some detail payload
 ```
 
 #### Supported marks

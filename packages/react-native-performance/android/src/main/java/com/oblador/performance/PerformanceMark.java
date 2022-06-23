@@ -1,31 +1,25 @@
 package com.oblador.performance;
 
-public class PerformanceMark {
-    private final String mark;
-    private final long timestamp;
-    private final boolean resetOnLoad;
+import android.os.Bundle;
 
-    public PerformanceMark(String mark, long timestamp) {
-        this.mark = mark;
-        this.timestamp = timestamp;
-        this.resetOnLoad = true;
+class PerformanceMark extends PerformanceEntry {
+
+    protected PerformanceMark(String name, long startTime) {
+        this(name, startTime, true);
     }
 
-    public PerformanceMark(String mark, long timestamp, boolean resetOnLoad) {
-        this.mark = mark;
-        this.timestamp = timestamp;
-        this.resetOnLoad = resetOnLoad;
+    protected PerformanceMark(String name, long startTime, boolean ephemeral) {
+        this(name, startTime, ephemeral, null);
     }
 
-    public String getMark() {
-        return this.mark;
+    protected PerformanceMark(String name, long startTime, Bundle detail) {
+        this(name, startTime, true, detail);
     }
 
-    public long getTimestamp() {
-        return this.timestamp;
-    }
-
-    public boolean shouldResetOnLoad() {
-        return resetOnLoad;
+    protected PerformanceMark(String name, long startTime, boolean ephemeral, Bundle detail) {
+        this.name = name;
+        this.startTime = startTime;
+        this.ephemeral = ephemeral;
+        this.detail = detail;
     }
 }
