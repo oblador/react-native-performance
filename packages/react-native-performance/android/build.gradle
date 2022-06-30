@@ -46,8 +46,6 @@ def safeExtGet(prop, fallback) {
 
 def nodeModules = findNodeModules(projectDir)
 
-def prebuiltDir = "$nodeModules/react-native/ReactAndroid/src/main/jni/prebuilt/lib"
-
 android {
     compileSdkVersion safeExtGet('compileSdkVersion', 31)
     buildToolsVersion safeExtGet('buildToolsVersion', "31.0.0")
@@ -75,7 +73,7 @@ android {
                     cppFlags "-fexceptions", "-frtti", "-std=c++1y", "-DONANDROID"
                     arguments '-DANDROID_STL=c++_shared',
                             "-DREACT_ANDROID_DIR=${nodeModules}/react-native/ReactAndroid",
-                            "-DPREBUILT_DIR=${prebuiltDir}"
+                            "-DPREBUILT_DIR=${nodeModules}/react-native/ReactAndroid/src/main/jni/prebuilt/lib"
                 }
             }
         }
