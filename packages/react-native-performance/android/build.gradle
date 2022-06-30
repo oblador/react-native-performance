@@ -46,6 +46,8 @@ def safeExtGet(prop, fallback) {
 
 def nodeModules = findNodeModules(projectDir)
 
+def prebuiltDir = "$nodeModules/react-native/ReactAndroid/src/main/jni/prebuilt/lib"
+
 android {
     compileSdkVersion safeExtGet('compileSdkVersion', 31)
     buildToolsVersion safeExtGet('buildToolsVersion', "31.0.0")
@@ -68,6 +70,12 @@ android {
                     cFlags "-Wall", "-Werror", "-fexceptions", "-frtti", "-DWITH_INSPECTOR=1"
                     cppFlags "-std=c++17"
                     targets "rnperformance_modules"
+                }
+                cmake {
+                    cppFlags "-fexceptions", "-frtti", "-std=c++1y", "-DONANDROID"
+                    arguments '-DANDROID_STL=c++_shared',
+                            "-DNODE_MODULES_DIR=${nodeModules}",
+                            "-DPREBUILT_DIR=${prebuiltDir}"
                 }
             }
         }
