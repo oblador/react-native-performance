@@ -10,7 +10,7 @@ import java.lang.System;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class StartTimeProvider extends ContentProvider {
+public class TimeProvider extends ContentProvider {
 
     private static long startTime = 0;
     private static long endTime = 0;

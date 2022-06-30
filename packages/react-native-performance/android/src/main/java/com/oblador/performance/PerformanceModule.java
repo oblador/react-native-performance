@@ -35,7 +35,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                     switch (name) {
                         case RELOAD:
                             markBuffer.clear();
-                            markBuffer.put(BRIDGE_SETUP_START, StartTimeProvider.rnPerformanceNow());
+                            markBuffer.put(BRIDGE_SETUP_START, TimeProvider.rnPerformanceNow());
                             break;
                         case ATTACH_MEASURED_ROOT_VIEWS_END:
                         case ATTACH_MEASURED_ROOT_VIEWS_START:
@@ -68,7 +68,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                         case SETUP_REACT_CONTEXT_END:
                         case SETUP_REACT_CONTEXT_START:
                         case VM_INIT:
-                            long startTime = StartTimeProvider.rnPerformanceNow();
+                            long startTime = TimeProvider.rnPerformanceNow();
                             markBuffer.put(getMarkName(name), startTime);
                             break;
 
@@ -99,8 +99,8 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     }
 
     private void emitNativeStartupTime() {
-        safelyEmitMark("nativeLaunchStart", StartTimeProvider.getStartTime());
-        safelyEmitMark("nativeLaunchEnd", StartTimeProvider.getEndTime());
+        safelyEmitMark("nativeLaunchStart", TimeProvider.getStartTime());
+        safelyEmitMark("nativeLaunchEnd", TimeProvider.getEndTime());
     }
 
     private void setupMarkerListener() {
