@@ -1,5 +1,7 @@
 package com.oblador.performance;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
@@ -25,8 +27,14 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
+        Log.d("hello world", "" + rnPerformanceNow());
         setupMarkerListener();
     }
+    static {
+        System.loadLibrary("rnperformance");
+    }
+
+    public native long rnPerformanceNow();
 
     // Need to set up the marker listener before the react module is initialized
     // to capture all events
