@@ -35,8 +35,11 @@ public class StartTimeProvider extends ContentProvider {
         }
     }
 
+    public static native long rnPerformanceNow();
+
     @Override
     public boolean onCreate() {
+        System.loadLibrary("rnperformance");
         setEndTime();
         setStartTime();
         return false;

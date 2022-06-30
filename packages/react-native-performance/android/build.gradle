@@ -74,7 +74,7 @@ android {
                 cmake {
                     cppFlags "-fexceptions", "-frtti", "-std=c++1y", "-DONANDROID"
                     arguments '-DANDROID_STL=c++_shared',
-                            "-DNODE_MODULES_DIR=${nodeModules}",
+                            "-DREACT_ANDROID_DIR=${nodeModules}/react-native/ReactAndroid",
                             "-DPREBUILT_DIR=${prebuiltDir}"
                 }
             }

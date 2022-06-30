@@ -1,7 +1,5 @@
 package com.oblador.performance;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
@@ -15,7 +13,6 @@ import com.facebook.react.turbomodule.core.interfaces.TurboModule;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.System;
 
 // Should extend NativeRNPerformanceManagerSpec when codegen for old architecture is solved
 public class PerformanceModule extends ReactContextBaseJavaModule implements TurboModule {
@@ -27,14 +24,8 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
-        Log.d("hello world", "" + rnPerformanceNow());
         setupMarkerListener();
     }
-    static {
-        System.loadLibrary("rnperformance");
-    }
-
-    public native long rnPerformanceNow();
 
     // Need to set up the marker listener before the react module is initialized
     // to capture all events
@@ -44,7 +35,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                     switch (name) {
                         case RELOAD:
                             markBuffer.clear();
-                            markBuffer.put(BRIDGE_SETUP_START, System.currentTimeMillis());
+                            markBuffer.put(BRIDGE_SETUP_START, StartTimeProvider.rnPerformanceNow());
                             break;
                         case ATTACH_MEASURED_ROOT_VIEWS_END:
                         case ATTACH_MEASURED_ROOT_VIEWS_START:
@@ -77,7 +68,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                         case SETUP_REACT_CONTEXT_END:
                         case SETUP_REACT_CONTEXT_START:
                         case VM_INIT:
-                            long startTime = System.currentTimeMillis();
+                            long startTime = StartTimeProvider.rnPerformanceNow();
                             markBuffer.put(getMarkName(name), startTime);
                             break;
 
