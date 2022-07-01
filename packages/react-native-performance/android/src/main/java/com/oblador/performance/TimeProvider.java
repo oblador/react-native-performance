@@ -31,7 +31,7 @@ public class TimeProvider extends ContentProvider {
 
     private static void setEndTime() {
         if (endTime == 0) {
-            endTime = System.currentTimeMillis();
+            endTime = rnPerformanceNow();
         }
     }
 
