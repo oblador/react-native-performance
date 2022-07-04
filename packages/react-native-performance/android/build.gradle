@@ -75,6 +75,14 @@ android {
                             "-DPREBUILT_DIR=${nodeModules}/react-native/ReactAndroid/src/main/jni/prebuilt/lib"
                 }
             }
+        } else {
+            externalNativeBuild {
+                cmake {
+                    arguments '-DANDROID_STL=c++_shared',
+                            "-DREACT_ANDROID_DIR=${nodeModules}/react-native/ReactAndroid",
+                            "-DPREBUILT_DIR=${nodeModules}/react-native/ReactAndroid/src/main/jni/prebuilt/lib"
+                }
+            }
         }
         externalNativeBuild {
             cmake {
