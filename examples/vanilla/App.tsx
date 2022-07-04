@@ -43,6 +43,8 @@ const formatValue = (value: number, unit?: string) => {
       return `${value.toFixed(1)}ms`;
     case 'byte':
       return `${(value / 1024 / 1024).toFixed(1)}MB`;
+    case '$DOGE':
+      return `${value} doge coins`;
     default:
       return value.toFixed(1);
   }
@@ -107,12 +109,12 @@ const App = () => {
             <Text style={styles.sectionTitle}>
               performance.getEntriesByType('metric')
             </Text>
-            {metrics.map(({ name, startTime, value }) => (
+            {metrics.map(({ name, startTime, value, detail }) => (
               <Entry
                 key={startTime}
                 name={name}
                 value={value as number}
-                unit={name === 'bundleSize' ? 'byte' : undefined}
+                unit={detail?.unit}
               />
             ))}
           </View>

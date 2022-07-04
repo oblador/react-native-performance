@@ -151,6 +151,42 @@ new PerformanceObserver((list, observer) => {
 }).observe({ type: 'react-native-mark', buffered: true });
 ```
 
+#### Custom marks
+
+`ephemeral` is an optional parameter to `mark/metric` functions which if set to `NO/false` will retain the entries when the React Native bridge is (re)loaded.
+
+##### iOS
+
+```objc
+#import <react-native-performance/RNPerformance.h>
+
+[RNPerformance.sharedInstance mark:@"myCustomMark"];
+[RNPerformance.sharedInstance mark:@"myCustomMark" detail:@{ @"extra": @"info" }];
+[RNPerformance.sharedInstance mark:@"myCustomMark" ephemeral:NO];
+
+[RNPerformance.sharedInstance metric:@"myCustomMetric" value:@(123)];
+[RNPerformance.sharedInstance metric:@"myCustomMetric" value:@(123) detail:@{ @"unit": @"ms" }];
+[RNPerformance.sharedInstance metric:@"myCustomMetric" value:@(123) ephemeral:NO];
+```
+
+##### Android
+
+```java
+import com.oblador.performance.RNPerformance;
+
+RNPerformance.getInstance().mark("myCustomMark");
+RNPerformance.getInstance().mark("myCustomMark", false); // ephermal flag to disable resetOnReload
+Bundle bundle = new Bundle();
+bundle.putString("extra", "info");
+RNPerformance.getInstance().mark("myCustomMark", bundle); // Bundle to pass some detail payload
+
+RNPerformance.getInstance().metric("myCustomMetric", 123);
+RNPerformance.getInstance().metric("myCustomMetric", 123, false); // ephermal flag to disable resetOnReload
+Bundle bundle = new Bundle();
+bundle.putString("unit", "ms");
+RNPerformance.getInstance().metric("myCustomMetric", 123, bundle); // Bundle to pass some detail payload
+```
+
 #### Supported marks
 
 | Name                                  | Platforms | Description                                                                 |

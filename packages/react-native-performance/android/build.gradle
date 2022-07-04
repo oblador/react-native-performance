@@ -84,7 +84,7 @@ repositories {
         repositories {
             maven {
                 // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-                url("${$nodeModules}/react-native/android")
+                url("${nodeModules}/react-native/android")
             }
             mavenCentral {
                 // We don't want to fetch react-native from Maven Central as there are
