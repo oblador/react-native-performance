@@ -18,6 +18,7 @@
     "lib",
     "android",
     "ios",
+    "react-native-performance.*",
     "!.DS_Store",
     "!android/build",
     "!ios/build"
