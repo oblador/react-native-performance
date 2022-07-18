@@ -1,12 +1,16 @@
 package com.oblador.performance;
 
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+
 import com.facebook.proguard.annotations.DoNotStrip;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RNPerformance {
@@ -28,7 +32,7 @@ public class RNPerformance {
     }
 
     private static final List<MarkerListener> sListeners = new CopyOnWriteArrayList<>();
-    private final List<PerformanceEntry> entries = new CopyOnWriteArrayList<>();
+    private final Queue<PerformanceEntry> entries = new ConcurrentLinkedQueue<>();
 
     @DoNotStrip
     protected void addListener(MarkerListener listener) {
@@ -105,7 +109,8 @@ public class RNPerformance {
         }
     }
 
-    protected @NonNull List<PerformanceEntry> getEntries() {
+    protected @NonNull
+    Queue<PerformanceEntry> getEntries() {
         return entries;
     }
 
@@ -114,13 +119,11 @@ public class RNPerformance {
     }
 
     protected void clearEntries(String name) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            entries.removeIf((entry) -> entry.getName().equals(name));
-        } else {
-            for (PerformanceEntry entry : entries) {
-                if (entry.getName().equals(name)) {
-                    entries.remove(entry);
-                }
+        Iterator<PerformanceEntry> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            PerformanceEntry entry = iterator.next();
+            if (entry.getName().equals(name)) {
+                iterator.remove();
             }
         }
     }
@@ -130,13 +133,11 @@ public class RNPerformance {
             return;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            entries.removeIf(PerformanceEntry::isEphemeral);
-        } else {
-            for (PerformanceEntry entry : entries) {
-                if (entry.isEphemeral()) {
-                    entries.remove(entry);
-                }
+        Iterator<PerformanceEntry> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            PerformanceEntry entry = iterator.next();
+            if (entry.isEphemeral()) {
+                iterator.remove();
             }
         }
     }
