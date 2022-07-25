@@ -1,6 +1,6 @@
 {
   "name": "vanilla-example",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "17.0.2",
     "react-native": "0.68.1",
-    "react-native-performance": "^3.1.0"
+    "react-native-performance": "^3.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
