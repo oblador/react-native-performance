@@ -1,7 +1,5 @@
 package com.oblador.performance;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
@@ -14,7 +12,10 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.turbomodule.core.interfaces.TurboModule;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 // Should extend NativeRNPerformanceManagerSpec when codegen for old architecture is solved
 public class PerformanceModule extends ReactContextBaseJavaModule implements TurboModule, RNPerformance.MarkerListener {
@@ -22,7 +23,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     public static final String BRIDGE_SETUP_START = "bridgeSetupStart";
 
     private static boolean eventsBuffered = true;
-    private static final List<PerformanceEntry> markBuffer = new ArrayList<>();
+    private static final Queue<PerformanceEntry> markBuffer = new ConcurrentLinkedQueue<>();
     private static boolean didEmit = false;
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
@@ -88,13 +89,11 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     private static void clearMarkBuffer() {
         RNPerformance.getInstance().clearEphermalEntries();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            markBuffer.removeIf(PerformanceEntry::isEphemeral);
-        } else {
-            for (PerformanceEntry entry : markBuffer) {
-                if (entry.isEphemeral()) {
-                    markBuffer.remove(entry);
-                }
+        Iterator<PerformanceEntry> iterator = markBuffer.iterator();
+        while (iterator.hasNext()) {
+            PerformanceEntry entry = iterator.next();
+            if (entry.isEphemeral()) {
+                iterator.remove();
             }
         }
     }
@@ -156,14 +155,18 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     private void emitBufferedMarks() {
         didEmit = true;
-        for (PerformanceEntry entry : markBuffer) {
+        Iterator<PerformanceEntry> iterator = markBuffer.iterator();
+        while (iterator.hasNext()) {
+            PerformanceEntry entry = iterator.next();
             emitMark(entry);
         }
         emitNativeBufferedMarks();
     }
 
     private void emitNativeBufferedMarks() {
-        for (PerformanceEntry entry : RNPerformance.getInstance().getEntries()) {
+        Iterator<PerformanceEntry> iterator = RNPerformance.getInstance().getEntries().iterator();
+        while (iterator.hasNext()) {
+            PerformanceEntry entry = iterator.next();
             emitMark(entry);
         }
     }
