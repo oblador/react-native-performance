@@ -625,8 +625,8 @@ PODS:
     - glog
   - react-native-flipper (0.125.0):
     - React-Core
-  - react-native-performance (3.0.1):
-    - RCT-Folly (= 2021.06.28.00-v2)
+  - react-native-performance (3.1.1):
+    - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
     - React-Codegen
@@ -876,7 +876,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
-  DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
+  DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 2c76493a346ef8cacf1f442926a39f805fffec1f
   FBReactNativeSpec: d0cd6132e81f71704f0fbe656aa8e7e28e98477b
   Flipper: 26fc4b7382499f1281eb8cb921e5c3ad6de91fe0
@@ -889,7 +889,7 @@ SPEC CHECKSUMS:
   Flipper-RSocket: d9d9ade67cbecf6ac10730304bf5607266dd2541
   FlipperKit: cbdee19bdd4e7f05472a66ce290f1b729ba3cb86
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  glog: 476ee3e89abb49e07f822b48323c51c57124b572
+  glog: 3d02b25ca00c2d456734d0bcff864cbc62f6ae1a
   hermes-engine: 84e3af1ea01dd7351ac5d8689cbbea1f9903ffc3
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
@@ -910,7 +910,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 218a2503198ff28a085f8e16622a8d8f507c8019
   React-logger: f79dd3cc0f9b44f5611c6c7862badd891a862cf8
   react-native-flipper: 3d9e214b412b3ce81e0d73bdcdc8097c0b0e8578
-  react-native-performance: cbc912cb9b673f3de72a542e50702b5c08edbb90
+  react-native-performance: 03af64c64be2aed213723ad0caea5b343e63ff22
   React-perflogger: 30ab8d6db10e175626069e742eead3ebe8f24fd5
   React-RCTActionSheet: 4b45da334a175b24dabe75f856b98fed3dfd6201
   React-RCTAnimation: d6237386cb04500889877845b3e9e9291146bc2e
