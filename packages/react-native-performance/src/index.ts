@@ -22,7 +22,9 @@ if (Platform.OS === 'android' || RNPerformanceManager) {
   const emitter = new NativeEventEmitter(RNPerformanceManager);
 
   emitter.addListener('mark', (data) => {
-    addEntry(new PerformanceReactNativeMark(data.name, data.startTime));
+    addEntry(
+      new PerformanceReactNativeMark(data.name, data.startTime, data.detail)
+    );
   });
 
   emitter.addListener('metric', (data) => {
@@ -30,6 +32,7 @@ if (Platform.OS === 'android' || RNPerformanceManager) {
       new PerformanceMetric(data.name, {
         startTime: data.startTime,
         value: data.value,
+        detail: data.detail,
       })
     );
   });

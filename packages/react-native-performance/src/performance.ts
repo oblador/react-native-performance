@@ -11,7 +11,10 @@ import {
 } from './performance-entry';
 
 // @ts-ignore
-export const defaultNow = (): number => global.performance.now();
+export const defaultNow: () => number = global.performance.now.bind(
+  // @ts-ignore
+  global.performance
+);
 
 export type MarkOptions = {
   startTime?: number;

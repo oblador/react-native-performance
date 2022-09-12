@@ -11,20 +11,27 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.turbomodule.core.interfaces.TurboModule;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 // Should extend NativeRNPerformanceManagerSpec when codegen for old architecture is solved
-public class PerformanceModule extends ReactContextBaseJavaModule implements TurboModule {
+public class PerformanceModule extends ReactContextBaseJavaModule implements TurboModule, RNPerformance.MarkerListener {
     public static final String PERFORMANCE_MODULE = "RNPerformanceManager";
     public static final String BRIDGE_SETUP_START = "bridgeSetupStart";
 
-    private boolean eventsBuffered = true;
-    private static final Map<String, Long> markBuffer = new HashMap<>();
+    private static boolean eventsBuffered = true;
+    private static final Queue<PerformanceEntry> markBuffer = new ConcurrentLinkedQueue<>();
+    private static boolean didEmit = false;
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
         setupMarkerListener();
+        setupNativeMarkerListener();
+    }
+
+    private void setupNativeMarkerListener() {
+        RNPerformance.getInstance().addListener(this);
     }
 
     // Need to set up the marker listener before the react module is initialized
@@ -34,8 +41,8 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                 (name, tag, instanceKey) -> {
                     switch (name) {
                         case RELOAD:
-                            markBuffer.clear();
-                            markBuffer.put(BRIDGE_SETUP_START, TimeProvider.rnPerformanceNow());
+                            clearMarkBuffer();
+                            addMark(new PerformanceMark(BRIDGE_SETUP_START, TimeProvider.rnPerformanceNow()));
                             break;
                         case ATTACH_MEASURED_ROOT_VIEWS_END:
                         case ATTACH_MEASURED_ROOT_VIEWS_START:
@@ -69,12 +76,24 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                         case SETUP_REACT_CONTEXT_START:
                         case VM_INIT:
                             long startTime = TimeProvider.rnPerformanceNow();
-                            markBuffer.put(getMarkName(name), startTime);
+                            addMark(new PerformanceMark(getMarkName(name), startTime));
                             break;
 
                     }
                 }
         );
+    }
+
+    private static void clearMarkBuffer() {
+        RNPerformance.getInstance().clearEphermalEntries();
+
+        Iterator<PerformanceEntry> iterator = markBuffer.iterator();
+        while (iterator.hasNext()) {
+            PerformanceEntry entry = iterator.next();
+            if (entry.isEphemeral()) {
+                iterator.remove();
+            }
+        }
     }
 
     private static String getMarkName(ReactMarkerConstants name) {
@@ -99,8 +118,8 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     }
 
     private void emitNativeStartupTime() {
-        safelyEmitMark("nativeLaunchStart", TimeProvider.getStartTime());
-        safelyEmitMark("nativeLaunchEnd", TimeProvider.getEndTime());
+        safelyEmitMark(new PerformanceMark("nativeLaunchStart", TimeProvider.rnPerformanceNow()));
+        safelyEmitMark(new PerformanceMark("nativeLaunchEnd", TimeProvider.rnPerformanceNow()));
     }
 
     private void setupMarkerListener() {
@@ -120,33 +139,81 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         );
     }
 
-    private void safelyEmitMark(String name, long startTime) {
+    private void safelyEmitMark(PerformanceEntry entry) {
         if (eventsBuffered) {
-            markBuffer.put(name, startTime);
+            addMark(entry);
         } else {
-            emitMark(name, startTime);
+            emitMark(entry);
         }
+    }
+
+    private static void addMark(PerformanceEntry entry) {
+        markBuffer.add(entry);
     }
 
     private void emitBufferedMarks() {
-        for (Map.Entry<String, Long> entry : markBuffer.entrySet()) {
-            emitMark(entry.getKey(), entry.getValue());
+        didEmit = true;
+        Iterator<PerformanceEntry> iterator = markBuffer.iterator();
+        while (iterator.hasNext()) {
+            PerformanceEntry entry = iterator.next();
+            emitMark(entry);
+        }
+        emitNativeBufferedMarks();
+    }
+
+    private void emitNativeBufferedMarks() {
+        Iterator<PerformanceEntry> iterator = RNPerformance.getInstance().getEntries().iterator();
+        while (iterator.hasNext()) {
+            PerformanceEntry entry = iterator.next();
+            emitMark(entry);
         }
     }
 
-    private void emitMark(String name,
-                          long startTime) {
-        emit("mark", name, startTime);
+    private void emitMark(PerformanceEntry entry) {
+        if (entry instanceof PerformanceMark) {
+            emit((PerformanceMark) entry);
+        } else if (entry instanceof PerformanceMetric) {
+            emit((PerformanceMetric) entry);
+        }
     }
 
-    private void emit(String eventName,
-                      String name,
-                      long startTime) {
+    private void emit(PerformanceMetric metric) {
         WritableMap params = Arguments.createMap();
-        params.putString("name", name);
-        params.putDouble("startTime", startTime);
+        params.putString("name", metric.getName());
+        params.putDouble("startTime", metric.getStartTime());
+        params.putDouble("value", metric.getValue());
+        if (metric.getDetail() != null) {
+            WritableMap map = Arguments.fromBundle(metric.getDetail());
+            params.putMap("detail", map);
+        }
         getReactApplicationContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(eventName, params);
+                .emit("metric", params);
+    }
+
+    private void emit(PerformanceMark mark) {
+        WritableMap params = Arguments.createMap();
+        params.putString("name", mark.getName());
+        params.putDouble("startTime", mark.getStartTime());
+        if (mark.getDetail() != null) {
+            WritableMap map = Arguments.fromBundle(mark.getDetail());
+            params.putMap("detail", map);
+        }
+        getReactApplicationContext()
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit("mark", params);
+    }
+
+    @Override
+    public void logMarker(PerformanceEntry entry) {
+        if (didEmit) {
+            emitMark(entry);
+        }
+    }
+
+    @Override
+    public void onCatalystInstanceDestroy() {
+        super.onCatalystInstanceDestroy();
+        RNPerformance.getInstance().removeListener(this);
     }
 }

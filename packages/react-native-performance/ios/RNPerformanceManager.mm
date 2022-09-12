@@ -1,7 +1,6 @@
 #import "RNPerformanceManager.h"
+#import "RNPerformance.h"
 #import <sys/sysctl.h>
-#include <math.h>
-#include <chrono>
 #import <QuartzCore/QuartzCore.h>
 #import <React/RCTRootView.h>
 #import <React/RCTPerformanceLogger.h>
@@ -25,11 +24,6 @@ static CFTimeInterval RNPerformanceGetProcessStartTime()
     return startTime.tv_sec + startTime.tv_usec / 1e6;
 }
 
-static int64_t RNPerformanceGetTimestamp()
-{
-    return std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
-}
-
 static int64_t sNativeLaunchStart;
 static int64_t sNativeLaunchEnd;
 
@@ -51,20 +45,32 @@ RCT_EXPORT_MODULE();
 - (void)setBridge:(RCTBridge *)bridge
 {
     [super setBridge:bridge];
+    [RNPerformance.sharedInstance clearEphemeralEntries];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(contentDidAppear)
                                                  name:RCTContentDidAppearNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(customEntryWasAdded:)
+                                                 name:RNPerformanceEntryWasAddedNotification
                                                object:nil];
 }
 
 - (void)contentDidAppear
 {
     if(didEmit != YES) {
-        [self emitMarks];
+        [self emitEntries];
     }
 }
 
-- (void)emitMarks
+- (void)customEntryWasAdded:(NSNotification *)notification
+{
+    if(didEmit == YES) {
+        [self emitEntry:notification.userInfo[@"entry"]];
+    }
+}
+
+- (void)emitEntries
 {
     didEmit = YES;
     [self emitMarkNamed:@"nativeLaunchStart" withStartTime:sNativeLaunchStart];
@@ -73,7 +79,25 @@ RCT_EXPORT_MODULE();
     [self emitTag:RCTPLScriptExecution withNamePrefix:@"runJsBundle"];
     [self emitTag:RCTPLBridgeStartup withNamePrefix:@"bridgeSetup"];
     [self emitMarkNamed:@"contentAppeared" withMediaTime:[self.bridge.performanceLogger valueForTag:RCTPLTTI]];
-    [self emitMetricNamed:@"bundleSize" withValue:@([self.bridge.performanceLogger valueForTag:RCTPLBundleSize])];
+    [self emitMetricNamed:@"bundleSize" withValue:@([self.bridge.performanceLogger valueForTag:RCTPLBundleSize]) withStartTime:RNPerformanceGetTimestamp() withDetail:@{ @"unit": @"byte" }];
+    [[RNPerformance.sharedInstance getEntries]
+     enumerateObjectsUsingBlock:^(RNPerformanceEntry * _Nonnull entry, NSUInteger idx, BOOL * _Nonnull stop) {
+        [self emitEntry:entry];
+    }];
+}
+
+- (void)emitEntry:(nonnull RNPerformanceEntry *)entry
+{
+    switch (entry.type) {
+        case kMark:
+            [self emitMarkNamed:entry.name withStartTime:entry.startTime withDetail:entry.detail];
+            break;
+            
+        case kMetric:
+            RNPerformanceMetric *metric = (RNPerformanceMetric *)entry;
+            [self emitMetricNamed:metric.name withValue:metric.value withStartTime:metric.startTime withDetail:metric.detail];
+            break;
+    }
 }
 
 - (NSArray<NSString *> *)supportedEvents
@@ -84,15 +108,14 @@ RCT_EXPORT_MODULE();
 - (void)invalidate
 {
     [super invalidate];
-    NSNotificationCenter *notificationCenter = NSNotificationCenter.defaultCenter;
-    [notificationCenter removeObserver:self];
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 - (void)startObserving
 {
     hasListeners = YES;
     if (didEmit != YES && [self.bridge.performanceLogger valueForTag:RCTPLTTI] != 0) {
-        [self emitMarks];
+        [self emitEntries];
     }
 }
 
@@ -120,21 +143,28 @@ RCT_EXPORT_MODULE();
 
 - (void)emitMarkNamed:(NSString *)name withStartTime:(int64_t)startTime
 {
+    [self emitMarkNamed:name withStartTime:startTime withDetail:nil];
+}
+
+- (void)emitMarkNamed:(NSString *)name withStartTime:(int64_t)startTime withDetail:(NSDictionary *)detail
+{
     if (hasListeners) {
         [self sendEventWithName:@"mark" body:@{
             @"name": name,
-            @"startTime": @(startTime)
+            @"startTime": @(startTime),
+            @"detail": detail == nil ? [NSNull null] : detail
         }];
     }
 }
 
-- (void)emitMetricNamed:(NSString *)name withValue:(NSNumber *)value
+- (void)emitMetricNamed:(NSString *)name withValue:(NSNumber *)value withStartTime:(int64_t)startTime withDetail:(NSDictionary *)detail
 {
     if (hasListeners) {
         [self sendEventWithName:@"metric" body:@{
             @"name": name,
-            @"startTime": @(RNPerformanceGetTimestamp()),
-            @"value": value
+            @"startTime": @(startTime),
+            @"value": value,
+            @"detail": detail == nil ? [NSNull null] : detail
         }];
     }
 }

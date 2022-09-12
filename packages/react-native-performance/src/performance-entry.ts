@@ -70,8 +70,21 @@ export class PerformanceMark extends PerformanceEntry {
 }
 
 export class PerformanceReactNativeMark extends PerformanceEntry {
-  constructor(name: string, startTime: number) {
+  detail?: any;
+
+  constructor(name: string, startTime: number, detail: any) {
     super(name, 'react-native-mark', startTime, 0);
+    this.detail = detail;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      entryType: this.entryType,
+      startTime: this.startTime,
+      duration: this.duration,
+      detail: this.detail,
+    };
   }
 }
 
