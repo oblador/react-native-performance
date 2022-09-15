@@ -1,10 +1,8 @@
-#include <math.h>
-#include <chrono>
 #import "RNPerformanceEntry.h"
 
 static int64_t RNPerformanceGetTimestamp()
 {
-    return std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+    return CACurrentMediaTime() * 1000;
 }
 
 NSString * _Nonnull const RNPerformanceEntryWasAddedNotification = @"RNPerformanceEntryWasAdded";

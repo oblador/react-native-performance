@@ -1,5 +1,6 @@
 package com.oblador.performance;
 
+import android.os.SystemClock;
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
@@ -11,9 +12,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.turbomodule.core.interfaces.TurboModule;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -44,7 +43,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                     switch (name) {
                         case RELOAD:
                             clearMarkBuffer();
-                            addMark(new PerformanceMark(BRIDGE_SETUP_START, System.currentTimeMillis()));
+                            addMark(new PerformanceMark(BRIDGE_SETUP_START, SystemClock.uptimeMillis()));
                             break;
                         case ATTACH_MEASURED_ROOT_VIEWS_END:
                         case ATTACH_MEASURED_ROOT_VIEWS_START:
@@ -77,7 +76,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
                         case SETUP_REACT_CONTEXT_END:
                         case SETUP_REACT_CONTEXT_START:
                         case VM_INIT:
-                            long startTime = System.currentTimeMillis();
+                            long startTime = SystemClock.uptimeMillis();
                             addMark(new PerformanceMark(getMarkName(name), startTime));
                             break;
 
