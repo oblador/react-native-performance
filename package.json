@@ -30,6 +30,7 @@
   },
   "resolutions": {
     "@types/eslint": "^7.28.2",
+    "@types/node": "*",
     "@types/react": "^17.0.39"
   },
   "volta": {
