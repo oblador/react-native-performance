@@ -47,8 +47,12 @@ RCT_EXPORT_MODULE();
     [super setBridge:bridge];
     [RNPerformance.sharedInstance clearEphemeralEntries];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(contentDidAppear)
+                                             selector:@selector(emitIfReady)
                                                  name:RCTContentDidAppearNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(emitIfReady)
+                                                 name:RCTJavaScriptDidLoadNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(customEntryWasAdded:)
@@ -56,9 +60,9 @@ RCT_EXPORT_MODULE();
                                                object:nil];
 }
 
-- (void)contentDidAppear
+- (void)emitIfReady
 {
-    if(didEmit != YES) {
+    if (!didEmit && hasListeners && [self.bridge.performanceLogger valueForTag:RCTPLTTI] != 0 && [self.bridge.performanceLogger valueForTag:RCTPLScriptExecution] != 0) {
         [self emitEntries];
     }
 }
@@ -114,7 +118,7 @@ RCT_EXPORT_MODULE();
 - (void)startObserving
 {
     hasListeners = YES;
-    if (didEmit != YES && [self.bridge.performanceLogger valueForTag:RCTPLTTI] != 0) {
+    if (didEmit != YES && [self.bridge.performanceLogger valueForTag:RCTPLTTI] != 0 && [self.bridge.performanceLogger valueForTag:RCTPLScriptExecution] != 0) {
         [self emitEntries];
     }
 }

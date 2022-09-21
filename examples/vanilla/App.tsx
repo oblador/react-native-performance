@@ -33,7 +33,7 @@ const traceRender: ProfilerOnRenderCallback = (
   interactions // the Set of interactions belonging to this update
 ) =>
   performance.measure(id, {
-    start: performance.timeOrigin + startTime,
+    start: startTime,
     duration: actualDuration,
   });
 
