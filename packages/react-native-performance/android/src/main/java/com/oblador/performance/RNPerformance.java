@@ -1,12 +1,12 @@
 package com.oblador.performance;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 
 import com.facebook.proguard.annotations.DoNotStrip;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -63,7 +63,7 @@ public class RNPerformance {
     public void mark(@NonNull String markName, Bundle detail, boolean ephemeral) {
         PerformanceEntry mark = new PerformanceMark(
                 markName,
-                System.currentTimeMillis(),
+                SystemClock.uptimeMillis(),
                 ephemeral,
                 detail
         );
@@ -91,7 +91,7 @@ public class RNPerformance {
         PerformanceEntry mark = new PerformanceMetric(
                 metricName,
                 value,
-                System.currentTimeMillis(),
+                SystemClock.uptimeMillis(),
                 ephemeral,
                 detail
         );

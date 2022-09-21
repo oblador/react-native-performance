@@ -1,5 +1,3 @@
-#include <math.h>
-
 typedef enum EntryType : NSUInteger {
     kMark,
     kMetric
