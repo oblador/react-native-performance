@@ -1,6 +1,6 @@
 {
   "name": "isomorphic-performance",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Isomorphic Performance API for Node, Browser & React Native",
   "homepage": "https://github.com/oblador/react-native-performance",
   "repository": {
