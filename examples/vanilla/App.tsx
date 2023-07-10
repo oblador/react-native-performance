@@ -29,8 +29,8 @@ const traceRender: ProfilerOnRenderCallback = (
   actualDuration, // time spent rendering the committed update
   baseDuration, // estimated time to render the entire subtree without memoization
   startTime, // when React began rendering this update
-  commitTime, // when React committed this update
-  interactions // the Set of interactions belonging to this update
+  _commitTime, // when React committed this update
+  _interactions // the Set of interactions belonging to this update
 ) =>
   performance.measure(id, {
     start: startTime,

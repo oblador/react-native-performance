@@ -14,7 +14,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version-file: '.node-version'
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive --silent --ignore-scripts
       - name: Run tests
@@ -29,7 +29,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version-file: '.node-version'
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive --silent
       - name: Run tests
@@ -44,7 +44,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version-file: '.node-version'
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive --silent
       - name: Check package types
@@ -63,7 +63,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version-file: '.node-version'
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive --silent --ignore-scripts
       - name: Check formatting
@@ -78,7 +78,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version-file: '.node-version'
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive --silent --ignore-scripts
       - name: Lint flipper plugin
@@ -93,7 +93,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version-file: '.node-version'
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive --silent --ignore-scripts
       - name: Build packages

@@ -1,1 +1,1 @@
-global.performance = require('perf_hooks').performance;
+global.performance.now = require('perf_hooks').performance.now;
