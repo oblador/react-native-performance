@@ -24,16 +24,14 @@
   },
   "devDependencies": {
     "lerna": "^3.20.2",
-    "prettier": "^2.2.1",
-    "react": "17.0.2",
-    "react-native": "0.68.3"
+    "prettier": "^2.4.1",
+    "react": "18.2.0",
+    "react-native": "0.72.1"
   },
   "resolutions": {
     "@types/eslint": "^7.28.2",
     "@types/node": "*",
-    "@types/react": "^17.0.39"
-  },
-  "volta": {
-    "node": "16.14.0"
+    "@types/react": "^18.0.24",
+    "flipper-ui-core": "0.0.0"
   }
 }

@@ -40,11 +40,8 @@ export type ValueOrOptions = number | string | MetricOptions;
 
 export const createPerformance = (now: () => number = defaultNow) => {
   const timeOrigin = now();
-  const {
-    addEventListener,
-    removeEventListener,
-    emit,
-  } = createEventEmitter<PerformanceEntry>();
+  const { addEventListener, removeEventListener, emit } =
+    createEventEmitter<PerformanceEntry>();
   const marks = new Map<string, number>();
   let entries: PerformanceEntry[] = [];
 
