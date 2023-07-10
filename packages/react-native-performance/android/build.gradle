@@ -100,19 +100,5 @@ repositories {
 }
 
 dependencies {
-    if (isNewArchitectureEnabled()) {
-        implementation project(":ReactAndroid")
-    } else {
-        implementation 'com.facebook.react:react-native:+'
-    }
-}
-
-if (isNewArchitectureEnabled()) {
-    react {
-        libraryName = "rnperformance"
-        codegenJavaPackageName = "com.oblador.performance"
-        reactNativeDir = rootProject.file("${nodeModules}/react-native")
-        jsRootDir = file("../src/")
-        codegenDir = rootProject.file("${nodeModules}/react-native-codegen")
-    }
+    implementation 'com.facebook.react:react-native:+'
 }
