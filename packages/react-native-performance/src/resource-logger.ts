@@ -24,7 +24,7 @@ export const installResourceLogger = (
         super(...args);
         this.performanceStartTime = null;
 
-        super.onreadystatechange = () => {
+        super.addEventListener('readystatechange', () => {
           if (this.readyState === this.DONE) {
             if (this.responseURL && this.responseHeaders) {
               const responseEnd = performance.now();
@@ -43,7 +43,7 @@ export const installResourceLogger = (
               );
             }
           }
-        };
+        });
       }
 
       open(...args: any) {
