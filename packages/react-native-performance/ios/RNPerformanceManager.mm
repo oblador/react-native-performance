@@ -9,21 +9,6 @@
 #import <RNPerformanceSpec/RNPerformanceSpec.h>
 #endif
 
-static CFTimeInterval RNPerformanceGetProcessStartTime()
-{
-    size_t len = 4;
-    int mib[len];
-    struct kinfo_proc kp;
-
-    sysctlnametomib("kern.proc.pid", mib, &len);
-    mib[3] = getpid();
-    len = sizeof(kp);
-    sysctl(mib, 4, &kp, &len, NULL, 0);
-
-    struct timeval startTime = kp.kp_proc.p_un.__p_starttime;
-    return startTime.tv_sec + startTime.tv_usec / 1e6;
-}
-
 static int64_t sNativeLaunchStart;
 static int64_t sNativeLaunchEnd;
 
@@ -38,8 +23,10 @@ RCT_EXPORT_MODULE();
 + (void) initialize
 {
     [super initialize];
-    sNativeLaunchStart = (RNPerformanceGetProcessStartTime() - [NSDate date].timeIntervalSince1970) * 1000 + RNPerformanceGetTimestamp();
+    struct timespec tp;
+    clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp);
     sNativeLaunchEnd = RNPerformanceGetTimestamp();
+    sNativeLaunchStart = sNativeLaunchEnd - (tp.tv_sec * 1e3 + tp.tv_nsec / 1e6);
 }
 
 - (void)setBridge:(RCTBridge *)bridge
