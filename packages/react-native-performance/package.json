@@ -1,6 +1,6 @@
 {
   "name": "react-native-performance",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "Measure React Native performance",
   "homepage": "https://github.com/oblador/react-native-performance",
   "repository": {
