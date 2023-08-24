@@ -934,12 +934,21 @@ PODS:
   - react-native-flipper (0.182.0):
     - React-Core
   - react-native-performance (4.0.0):
-    - RCT-Folly
+    - hermes-engine
+    - RCT-Folly (= 2021.07.22.00)
     - RCTRequired
     - RCTTypeSafety
     - React-Codegen
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-graphics
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-utils
+    - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
+    - Yoga
   - React-NativeModulesApple (0.72.1):
     - hermes-engine
     - React-callinvoker
@@ -1287,7 +1296,7 @@ SPEC CHECKSUMS:
   React-jsinspector: d0b5bfd1085599265f4212034321e829bdf83cc0
   React-logger: b8103c9b04e707b50cdd2b1aeb382483900cbb37
   react-native-flipper: 6e4e344a0104a34a4e189a9ef2b3b5634b516dc8
-  react-native-performance: 426cc34043381602a59f059755a04452315effb4
+  react-native-performance: 8d52c16b63aa3728464aa10a1e75dff23412ea2e
   React-NativeModulesApple: 4f31a812364443cee6ef768d256c594ad3b20f53
   React-perflogger: 3d501f34c8d4b10cb75f348e43591765788525ad
   React-RCTActionSheet: f5335572c979198c0c3daff67b07bd1ad8370c1d
