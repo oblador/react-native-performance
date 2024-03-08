@@ -187,9 +187,11 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
             WritableMap map = Arguments.fromBundle(metric.getDetail());
             params.putMap("detail", map);
         }
-        getReactApplicationContext()
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit("metric", params);
+        if (getReactApplicationContext().hasActiveCatalystInstance()) {
+            getReactApplicationContext()
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit("metric", params);
+        }
     }
 
     private void emit(PerformanceMark mark) {
