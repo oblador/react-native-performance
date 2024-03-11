@@ -1,5 +1,8 @@
 #import "RNPerformance.h"
 #import "RNPerformanceEntry.h"
+#import "RNPerformanceUtils.h"
+
+NSString *const RNPerformanceEntryWasAddedNotification = @"RNPerformanceEntryWasAdded";
 
 @implementation RNPerformance
 {
