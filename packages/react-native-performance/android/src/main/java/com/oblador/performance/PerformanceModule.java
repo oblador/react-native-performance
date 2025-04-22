@@ -219,4 +219,9 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         super.onCatalystInstanceDestroy();
         RNPerformance.getInstance().removeListener(this);
     }
+
+    // Fix new arch runtime error
+    public void addListener(String eventName) {
+     
+    }
 }
