@@ -18,7 +18,7 @@
     "react-native-performance": "*"
   },
   "devDependencies": {
-    "typescript": "^4.8.3"
+    "typescript": "5.0.4"
   },
   "keywords": [
     "performance",
