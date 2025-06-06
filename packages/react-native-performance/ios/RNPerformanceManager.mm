@@ -4,6 +4,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <React/RCTRootView.h>
 #import <React/RCTPerformanceLogger.h>
+#import "RNPerformanceUtils.h"
 
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <RNPerformanceSpec/RNPerformanceSpec.h>

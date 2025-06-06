@@ -85,6 +85,9 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         );
     }
 
+    public void addListener(String eventName) {
+    }
+
     private static void clearMarkBuffer() {
         RNPerformance.getInstance().clearEphermalEntries();
 
