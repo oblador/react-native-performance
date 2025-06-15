@@ -1,3 +1,5 @@
+#import <Foundation/Foundation.h>
+
 typedef enum EntryType : NSUInteger {
     kMark,
     kMetric

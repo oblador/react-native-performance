@@ -4,6 +4,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import <React/RCTRootView.h>
 #import <React/RCTPerformanceLogger.h>
+#import <cxxreact/ReactMarker.h>
+
 #import "RNPerformanceUtils.h"
 
 #ifdef RCT_NEW_ARCH_ENABLED
@@ -13,10 +15,13 @@
 static int64_t sNativeLaunchStart;
 static int64_t sNativeLaunchEnd;
 
+using namespace facebook::react;
+
 @implementation RNPerformanceManager
 {
     bool hasListeners;
     bool didEmit;
+    int64_t contentAppeared;
 }
 
 RCT_EXPORT_MODULE();
@@ -30,12 +35,22 @@ RCT_EXPORT_MODULE();
     sNativeLaunchStart = sNativeLaunchEnd - (tp.tv_sec * 1e3 + tp.tv_nsec / 1e6);
 }
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        hasListeners = NO;
+        didEmit = NO;
+        contentAppeared = -1;
+    }
+    return self;
+}
+
 - (void)setBridge:(RCTBridge *)bridge
 {
     [super setBridge:bridge];
     [RNPerformance.sharedInstance clearEphemeralEntries];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(emitIfReady)
+                                             selector:@selector(contentAppeared)
                                                  name:RCTContentDidAppearNotification
                                                object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -48,9 +63,20 @@ RCT_EXPORT_MODULE();
                                                object:nil];
 }
 
+- (BOOL)isReady
+{
+    return contentAppeared != -1 && !std::isnan(ReactMarker::StartupLogger::getInstance().getRunJSBundleEndTime());
+}
+
+- (void) contentAppeared
+{
+    contentAppeared = RNPerformanceGetTimestamp();
+    [self emitIfReady];
+}
+
 - (void)emitIfReady
 {
-    if (!didEmit && hasListeners && [self.bridge.performanceLogger valueForTag:RCTPLTTI] != 0 && [self.bridge.performanceLogger valueForTag:RCTPLScriptExecution] != 0) {
+    if (!didEmit && hasListeners && [self isReady]) {
         [self emitEntries];
     }
 }
@@ -67,10 +93,13 @@ RCT_EXPORT_MODULE();
     didEmit = YES;
     [self emitMarkNamed:@"nativeLaunchStart" withStartTime:sNativeLaunchStart];
     [self emitMarkNamed:@"nativeLaunchEnd" withStartTime:sNativeLaunchEnd];
-    [self emitTag:RCTPLScriptDownload withNamePrefix:@"download"];
-    [self emitTag:RCTPLScriptExecution withNamePrefix:@"runJsBundle"];
-    [self emitTag:RCTPLBridgeStartup withNamePrefix:@"bridgeSetup"];
-    [self emitMarkNamed:@"contentAppeared" withMediaTime:[self.bridge.performanceLogger valueForTag:RCTPLTTI]];
+    [self emitMarkNamed:@"runJsBundleStart" withMediaTime:ReactMarker::StartupLogger::getInstance().getRunJSBundleStartTime()];
+    [self emitMarkNamed:@"runJsBundleEnd" withMediaTime:ReactMarker::StartupLogger::getInstance().getRunJSBundleEndTime()];
+    [self emitMarkNamed:@"appStartupStart" withMediaTime:ReactMarker::StartupLogger::getInstance().getAppStartupStartTime()];
+    [self emitMarkNamed:@"appStartupEnd" withMediaTime:ReactMarker::StartupLogger::getInstance().getAppStartupEndTime()];
+    [self emitMarkNamed:@"initReactRuntimeStart" withMediaTime:ReactMarker::StartupLogger::getInstance().getInitReactRuntimeStartTime()];
+    [self emitMarkNamed:@"initReactRuntimeEnd" withMediaTime:ReactMarker::StartupLogger::getInstance().getInitReactRuntimeEndTime()];
+    [self emitMarkNamed:@"contentAppeared" withStartTime:contentAppeared];
     [self emitMetricNamed:@"bundleSize" withValue:@([self.bridge.performanceLogger valueForTag:RCTPLBundleSize]) withStartTime:RNPerformanceGetTimestamp() withDetail:@{ @"unit": @"byte" }];
     [[RNPerformance.sharedInstance getEntries]
      enumerateObjectsUsingBlock:^(RNPerformanceEntry * _Nonnull entry, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -106,7 +135,7 @@ RCT_EXPORT_MODULE();
 - (void)startObserving
 {
     hasListeners = YES;
-    if (didEmit != YES && [self.bridge.performanceLogger valueForTag:RCTPLTTI] != 0 && [self.bridge.performanceLogger valueForTag:RCTPLScriptExecution] != 0) {
+    if (didEmit != YES && [self isReady]) {
         [self emitEntries];
     }
 }
@@ -116,20 +145,12 @@ RCT_EXPORT_MODULE();
     hasListeners = NO;
 }
 
-- (void)emitTag:(RCTPLTag)tag withNamePrefix:(NSString *)namePrefix
-{
-    int64_t duration = [self.bridge.performanceLogger durationForTag:tag];
-    int64_t end = [self.bridge.performanceLogger valueForTag:tag];
-    if (duration == 0 || end == 0) {
-        NSLog(@"Ignoring marks prefixed %@ (%lu) as data is unavailable (duration: %lld, end: %lld)", namePrefix, (unsigned long)tag, duration, end);
-        return;
-    }
-    [self emitMarkNamed:[namePrefix stringByAppendingString:@"Start"] withMediaTime:end-duration];
-    [self emitMarkNamed:[namePrefix stringByAppendingString:@"End"] withMediaTime:end];
-}
-
 - (void)emitMarkNamed:(NSString *)name withMediaTime:(int64_t)mediaTime
 {
+    if (mediaTime == 0) {
+        NSLog(@"Ignoring mark named %@ as timestamp is not set", name);
+        return;
+    }
     [self emitMarkNamed:name withStartTime:mediaTime + RNPerformanceGetTimestamp() - (CACurrentMediaTime() * 1000)];
 }
 
