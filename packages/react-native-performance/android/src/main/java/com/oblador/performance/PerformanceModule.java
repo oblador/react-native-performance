@@ -187,7 +187,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
             WritableMap map = Arguments.fromBundle(metric.getDetail());
             params.putMap("detail", map);
         }
-        if (getReactApplicationContext().hasActiveCatalystInstance()) {
+        if (getReactApplicationContext().hasActiveReactInstance()) {
             getReactApplicationContext()
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("metric", params);
@@ -202,9 +202,11 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
             WritableMap map = Arguments.fromBundle(mark.getDetail());
             params.putMap("detail", map);
         }
-        getReactApplicationContext()
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit("mark", params);
+        if (getReactApplicationContext().hasActiveReactInstance()) {
+            getReactApplicationContext()
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit("mark", params);
+        }
     }
 
     @Override
@@ -222,6 +224,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     // Fix new arch runtime error
     public void addListener(String eventName) {
-     
+
     }
 }
