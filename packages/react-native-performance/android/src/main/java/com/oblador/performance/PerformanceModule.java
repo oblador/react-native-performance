@@ -24,6 +24,18 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     private static boolean eventsBuffered = true;
     private static final Queue<PerformanceEntry> markBuffer = new ConcurrentLinkedQueue<>();
     private static boolean didEmit = false;
+    private final ReactMarker.MarkerListener markerListener = (name, tag, instanceKey) -> {
+        switch (name) {
+            case CONTENT_APPEARED:
+                eventsBuffered = false;
+                emitNativeStartupTime();
+                emitBufferedMarks();
+                break;
+            case RELOAD:
+                eventsBuffered = true;
+                break;
+        }
+    };
 
     public PerformanceModule(@NonNull final ReactApplicationContext reactContext) {
         super(reactContext);
@@ -125,18 +137,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     private void setupMarkerListener() {
         ReactMarker.addListener(
-                (name, tag, instanceKey) -> {
-                    switch (name) {
-                        case CONTENT_APPEARED:
-                            eventsBuffered = false;
-                            emitNativeStartupTime();
-                            emitBufferedMarks();
-                            break;
-                        case RELOAD:
-                            eventsBuffered = true;
-                            break;
-                    }
-                }
+                markerListener
         );
     }
 
@@ -218,6 +219,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     public void onCatalystInstanceDestroy() {
         super.onCatalystInstanceDestroy();
         RNPerformance.getInstance().removeListener(this);
+        ReactMarker.removeListener(markerListener);
     }
 
     // Fix new arch runtime error
