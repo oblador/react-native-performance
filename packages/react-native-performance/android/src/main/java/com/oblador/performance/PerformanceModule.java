@@ -130,6 +130,16 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         return PERFORMANCE_MODULE;
     }
 
+    @Override
+    public void addListener(String eventName) {
+
+    }
+
+    @Override
+    public void removeListeners(double count) {
+
+    }
+
     private void emitNativeStartupTime() {
         safelyEmitMark(new PerformanceMark("nativeLaunchStart", StartTimeProvider.getStartTime()));
         safelyEmitMark(new PerformanceMark("nativeLaunchEnd", StartTimeProvider.getEndTime()));
@@ -216,14 +226,9 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     }
 
     @Override
-    public void onCatalystInstanceDestroy() {
-        super.onCatalystInstanceDestroy();
+    public void invalidate() {
+        super.invalidate();
         RNPerformance.getInstance().removeListener(this);
         ReactMarker.removeListener(markerListener);
-    }
-
-    // Fix new arch runtime error
-    public void addListener(String eventName) {
-     
     }
 }
