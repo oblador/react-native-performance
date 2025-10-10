@@ -138,12 +138,12 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     @Override
     public void addListener(String eventName) {
-        // No-op: listeners are managed internally
+
     }
 
     @Override
     public void removeListeners(double count) {
-        // No-op: listeners are managed internally
+
     }
 
     private void emitNativeStartupTime() {
