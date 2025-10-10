@@ -103,12 +103,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         ReactMarker.addListener(startupMarkerListener);
     }
 
-    public static void cleanup() {
-        markBuffer.clear();
-        eventsBuffered = true;
-        didEmit = false;
-    }
-
     private static void clearMarkBuffer() {
         RNPerformance.getInstance().clearEphermalEntries();
 
@@ -144,12 +138,12 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
 
     @Override
     public void addListener(String eventName) {
-
+        // No-op: listeners are managed internally
     }
 
     @Override
     public void removeListeners(double count) {
-
+        // No-op: listeners are managed internally
     }
 
     private void emitNativeStartupTime() {
