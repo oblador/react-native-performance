@@ -24,7 +24,51 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     private static boolean eventsBuffered = true;
     private static final Queue<PerformanceEntry> markBuffer = new ConcurrentLinkedQueue<>();
     private static boolean didEmit = false;
-    private final ReactMarker.MarkerListener markerListener = (name, tag, instanceKey) -> {
+
+    private static final ReactMarker.MarkerListener startupMarkerListener = (name, tag, instanceKey) -> {
+        switch (name) {
+            case RELOAD:
+                clearMarkBuffer();
+                addMark(new PerformanceMark(BRIDGE_SETUP_START, SystemClock.uptimeMillis()));
+                break;
+            case ATTACH_MEASURED_ROOT_VIEWS_END:
+            case ATTACH_MEASURED_ROOT_VIEWS_START:
+            case BUILD_NATIVE_MODULE_REGISTRY_END:
+            case BUILD_NATIVE_MODULE_REGISTRY_START:
+            case CONTENT_APPEARED:
+            case CREATE_CATALYST_INSTANCE_END:
+            case CREATE_CATALYST_INSTANCE_START:
+            case CREATE_REACT_CONTEXT_END:
+            case CREATE_REACT_CONTEXT_START:
+            case CREATE_UI_MANAGER_MODULE_CONSTANTS_END:
+            case CREATE_UI_MANAGER_MODULE_CONSTANTS_START:
+            case CREATE_UI_MANAGER_MODULE_END:
+            case CREATE_UI_MANAGER_MODULE_START:
+            case CREATE_VIEW_MANAGERS_END:
+            case CREATE_VIEW_MANAGERS_START:
+            case DOWNLOAD_END:
+            case DOWNLOAD_START:
+            case LOAD_REACT_NATIVE_SO_FILE_END:
+            case LOAD_REACT_NATIVE_SO_FILE_START:
+            case PRE_RUN_JS_BUNDLE_START:
+            case PRE_SETUP_REACT_CONTEXT_END:
+            case PRE_SETUP_REACT_CONTEXT_START:
+            case PROCESS_CORE_REACT_PACKAGE_END:
+            case PROCESS_CORE_REACT_PACKAGE_START:
+            case REACT_CONTEXT_THREAD_END:
+            case REACT_CONTEXT_THREAD_START:
+            case RUN_JS_BUNDLE_END:
+            case RUN_JS_BUNDLE_START:
+            case SETUP_REACT_CONTEXT_END:
+            case SETUP_REACT_CONTEXT_START:
+            case VM_INIT:
+                long startTime = SystemClock.uptimeMillis();
+                addMark(new PerformanceMark(getMarkName(name), startTime));
+                break;
+        }
+    };
+
+    private final ReactMarker.MarkerListener contentAppearedListener = (name, tag, instanceKey) -> {
         switch (name) {
             case CONTENT_APPEARED:
                 eventsBuffered = false;
@@ -43,6 +87,12 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         setupNativeMarkerListener();
     }
 
+    private void setupMarkerListener() {
+        ReactMarker.addListener(
+                contentAppearedListener
+        );
+    }
+
     private void setupNativeMarkerListener() {
         RNPerformance.getInstance().addListener(this);
     }
@@ -50,51 +100,13 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     // Need to set up the marker listener before the react module is initialized
     // to capture all events
     public static void setupListener() {
-        ReactMarker.addListener(
-                (name, tag, instanceKey) -> {
-                    switch (name) {
-                        case RELOAD:
-                            clearMarkBuffer();
-                            addMark(new PerformanceMark(BRIDGE_SETUP_START, SystemClock.uptimeMillis()));
-                            break;
-                        case ATTACH_MEASURED_ROOT_VIEWS_END:
-                        case ATTACH_MEASURED_ROOT_VIEWS_START:
-                        case BUILD_NATIVE_MODULE_REGISTRY_END:
-                        case BUILD_NATIVE_MODULE_REGISTRY_START:
-                        case CONTENT_APPEARED:
-                        case CREATE_CATALYST_INSTANCE_END:
-                        case CREATE_CATALYST_INSTANCE_START:
-                        case CREATE_REACT_CONTEXT_END:
-                        case CREATE_REACT_CONTEXT_START:
-                        case CREATE_UI_MANAGER_MODULE_CONSTANTS_END:
-                        case CREATE_UI_MANAGER_MODULE_CONSTANTS_START:
-                        case CREATE_UI_MANAGER_MODULE_END:
-                        case CREATE_UI_MANAGER_MODULE_START:
-                        case CREATE_VIEW_MANAGERS_END:
-                        case CREATE_VIEW_MANAGERS_START:
-                        case DOWNLOAD_END:
-                        case DOWNLOAD_START:
-                        case LOAD_REACT_NATIVE_SO_FILE_END:
-                        case LOAD_REACT_NATIVE_SO_FILE_START:
-                        case PRE_RUN_JS_BUNDLE_START:
-                        case PRE_SETUP_REACT_CONTEXT_END:
-                        case PRE_SETUP_REACT_CONTEXT_START:
-                        case PROCESS_CORE_REACT_PACKAGE_END:
-                        case PROCESS_CORE_REACT_PACKAGE_START:
-                        case REACT_CONTEXT_THREAD_END:
-                        case REACT_CONTEXT_THREAD_START:
-                        case RUN_JS_BUNDLE_END:
-                        case RUN_JS_BUNDLE_START:
-                        case SETUP_REACT_CONTEXT_END:
-                        case SETUP_REACT_CONTEXT_START:
-                        case VM_INIT:
-                            long startTime = SystemClock.uptimeMillis();
-                            addMark(new PerformanceMark(getMarkName(name), startTime));
-                            break;
+        ReactMarker.addListener(startupMarkerListener);
+    }
 
-                    }
-                }
-        );
+    public static void cleanup() {
+        markBuffer.clear();
+        eventsBuffered = true;
+        didEmit = false;
     }
 
     private static void clearMarkBuffer() {
@@ -143,12 +155,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     private void emitNativeStartupTime() {
         safelyEmitMark(new PerformanceMark("nativeLaunchStart", StartTimeProvider.getStartTime()));
         safelyEmitMark(new PerformanceMark("nativeLaunchEnd", StartTimeProvider.getEndTime()));
-    }
-
-    private void setupMarkerListener() {
-        ReactMarker.addListener(
-                markerListener
-        );
     }
 
     private void safelyEmitMark(PerformanceEntry entry) {
@@ -229,6 +235,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
     public void invalidate() {
         super.invalidate();
         RNPerformance.getInstance().removeListener(this);
-        ReactMarker.removeListener(markerListener);
+        ReactMarker.removeListener(contentAppearedListener);
     }
 }
