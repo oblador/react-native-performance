@@ -136,12 +136,10 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         return PERFORMANCE_MODULE;
     }
 
-    @Override
     public void addListener(String eventName) {
 
     }
 
-    @Override
     public void removeListeners(double count) {
 
     }
