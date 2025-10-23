@@ -1,5 +1,4 @@
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
-import { createPerformance } from './performance';
 import {
   PerformanceReactNativeMark,
   PerformanceMetric,
@@ -8,7 +7,7 @@ import {
   installResourceLogger,
   uninstallResourceLogger,
 } from './resource-logger';
-const { PerformanceObserver, addEntry, performance } = createPerformance();
+import { PerformanceObserver, addEntry, performance } from './instance';
 
 declare const global: { __turboModuleProxy: null | {} };
 
