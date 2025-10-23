@@ -3,7 +3,6 @@
     "examples/vanilla/ios",
     "examples/vanilla/android",
     "examples/react-native-navigation/ios",
-    "examples/react-native-navigation/android",
-    "packages/flipper-plugin-react-native-performance/dist"
+    "examples/react-native-navigation/android"
   ]
 }
