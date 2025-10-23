@@ -28,7 +28,7 @@ pod 'react-native-performance', :path => '../node_modules/react-native-performan
 
 ## Usage
 
-See [`examples/vanilla`](https://github.com/oblador/flipper-plugin-react-native-performance/tree/master/examples/vanilla) for a demo of the different features.
+See [`examples/vanilla`](https://github.com/oblador/react-native-performance/tree/master/examples/vanilla) for a demo of the different features.
 
 ### Basic measure example
 

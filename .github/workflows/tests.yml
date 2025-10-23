@@ -1,8 +1,10 @@
 name: Tests
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
   unit-tests:
@@ -69,21 +71,6 @@ jobs:
       - name: Check formatting
         run: yarn check-format
 
-  lint:
-    name: Linting
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version-file: '.node-version'
-      - name: Install dependencies
-        run: yarn --frozen-lockfile --non-interactive --silent --ignore-scripts
-      - name: Lint flipper plugin
-        run: yarn workspace flipper-plugin-performance run lint
-
   build:
     name: Package builds
     runs-on: ubuntu-latest
@@ -98,5 +85,5 @@ jobs:
         run: yarn --frozen-lockfile --non-interactive --silent --ignore-scripts
       - name: Build packages
         env:
-          PACKAGES: flipper-plugin-performance react-native-performance
+          PACKAGES: react-native-performance
         run: for p in $PACKAGES; do pushd packages/$p && npm pack --dry-run && popd; done
