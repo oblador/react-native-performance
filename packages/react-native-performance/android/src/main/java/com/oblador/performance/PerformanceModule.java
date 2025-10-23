@@ -136,14 +136,6 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         return PERFORMANCE_MODULE;
     }
 
-    public void addListener(String eventName) {
-
-    }
-
-    public void removeListeners(double count) {
-
-    }
-
     private void emitNativeStartupTime() {
         safelyEmitMark(new PerformanceMark("nativeLaunchStart", StartTimeProvider.getStartTime()));
         safelyEmitMark(new PerformanceMark("nativeLaunchEnd", StartTimeProvider.getEndTime()));
@@ -196,7 +188,7 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
             WritableMap map = Arguments.fromBundle(metric.getDetail());
             params.putMap("detail", map);
         }
-        if (getReactApplicationContext().hasActiveCatalystInstance()) {
+        if (getReactApplicationContext().hasActiveReactInstance()) {
             getReactApplicationContext()
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("metric", params);
@@ -211,9 +203,11 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
             WritableMap map = Arguments.fromBundle(mark.getDetail());
             params.putMap("detail", map);
         }
-        getReactApplicationContext()
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit("mark", params);
+        if (getReactApplicationContext().hasActiveReactInstance()) {
+            getReactApplicationContext()
+                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit("mark", params);
+        }
     }
 
     @Override
@@ -228,5 +222,14 @@ public class PerformanceModule extends ReactContextBaseJavaModule implements Tur
         super.invalidate();
         RNPerformance.getInstance().removeListener(this);
         ReactMarker.removeListener(contentAppearedListener);
+    }
+
+    // Fix new arch runtime error
+    public void addListener(String eventName) {
+
+    }
+
+    public void removeListeners(double count) {
+
     }
 }
