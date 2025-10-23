@@ -81,6 +81,9 @@ export const createPerformance = (now: () => number = defaultNow) => {
 
   const clearMetrics = (name?: string) => removeEntries('metric', name);
 
+  const clearResourceTimings = (name?: string) =>
+    removeEntries('resource', name);
+
   const convertMarkToTimestamp = (markOrTimestamp: string | number) => {
     switch (typeof markOrTimestamp) {
       case 'string': {
@@ -260,6 +263,7 @@ export const createPerformance = (now: () => number = defaultNow) => {
       clearMeasures,
       metric,
       clearMetrics,
+      clearResourceTimings,
       getEntries,
       getEntriesByName,
       getEntriesByType,
