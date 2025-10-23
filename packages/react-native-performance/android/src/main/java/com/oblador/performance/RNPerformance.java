@@ -43,7 +43,7 @@ public class RNPerformance {
 
     @DoNotStrip
     protected void removeListener(MarkerListener listener) {
-        if (!sListeners.contains(listener)) {
+        if (sListeners.contains(listener)) {
             sListeners.remove(listener);
         }
     }
