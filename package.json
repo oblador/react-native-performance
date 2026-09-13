@@ -24,7 +24,6 @@
   },
   "resolutions": {
     "@types/eslint": "^7.28.2",
-    "@types/jest": "^29.5.14",
     "@types/node": "*",
     "@types/react": "^18.0.24"
   },

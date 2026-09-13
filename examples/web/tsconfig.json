@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     "target": "es5",
+    // react-scripts enforces moduleResolution: "node" ("to match webpack
+    // resolution"), so it cannot be modernised while CRA owns this config.
+    // TypeScript 6 deprecates both that and target: es5; they stop working in 7.
+    "ignoreDeprecations": "6.0",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
