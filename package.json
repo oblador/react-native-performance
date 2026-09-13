@@ -8,7 +8,7 @@
     "format": "prettier '{,packages/**/,examples/*/}*.{md,js,ts,tsx,json}' --write",
     "postinstall": "yarn build",
     "test": "yarn workspace react-native-performance test",
-    "types": "tsc --noEmit"
+    "types": "tsc --noEmit && tsc --noEmit -p packages/react-native-performance/tsconfig.build.json"
   },
   "workspaces": {
     "packages": [
@@ -18,9 +18,9 @@
   },
   "devDependencies": {
     "lerna": "^3.20.2",
-    "prettier": "^2.4.1",
-    "react": "19.0.0",
-    "react-native": "0.78.2"
+    "prettier": "2.8.8",
+    "react": "19.2.3",
+    "react-native": "0.87.1"
   },
   "resolutions": {
     "@types/eslint": "^7.28.2",

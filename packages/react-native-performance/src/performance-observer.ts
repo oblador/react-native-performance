@@ -39,16 +39,25 @@ const SUPPORTED_ENTRY_TYPES = [
   'resource',
 ];
 
-const sortByStartTime = (a, b) => a.startTime - b.startTime;
+const sortByStartTime = (a: PerformanceEntry, b: PerformanceEntry) =>
+  a.startTime - b.startTime;
 
 const OBSERVER_TYPE_SINGLE = 'single';
 const OBSERVER_TYPE_MULTIPLE = 'multiple';
+
+type PerformanceEntryListener = (entry: PerformanceEntry) => void;
+
+type CreatePerformanceObserverOptions = {
+  addEventListener: (callback: PerformanceEntryListener) => void;
+  removeEventListener: (callback: PerformanceEntryListener) => void;
+  getEntriesByType: (type: EntryType) => PerformanceEntry[];
+};
 
 export const createPerformanceObserver = ({
   addEventListener,
   removeEventListener,
   getEntriesByType,
-}) =>
+}: CreatePerformanceObserverOptions) =>
   class PerformanceObserver {
     callback: (
       list: PerformanceObserverEntryList,
@@ -56,7 +65,7 @@ export const createPerformanceObserver = ({
     ) => void;
     buffer: PerformanceEntry[];
     entryTypes: Set<EntryType>;
-    timer?: number;
+    timer: number | null;
     observerType:
       | null
       | typeof OBSERVER_TYPE_SINGLE

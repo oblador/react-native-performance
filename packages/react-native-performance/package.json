@@ -44,12 +44,12 @@
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
-    "@react-native/babel-preset": "0.78.2",
+    "@react-native/babel-preset": "0.87.1",
     "@types/jest": "^29.5.13",
     "babel-jest": "^29.6.3",
     "jest": "^29.6.3",
-    "react-native-builder-bob": "^0.21.2",
-    "typescript": "5.0.4"
+    "react-native-builder-bob": "^0.43.0",
+    "typescript": "^6.0.3"
   },
   "codegenConfig": {
     "name": "RNPerformanceSpec",

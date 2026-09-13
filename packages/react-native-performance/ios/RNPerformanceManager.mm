@@ -4,7 +4,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import <React/RCTRootView.h>
 #import <React/RCTPerformanceLogger.h>
-#import <cxxreact/ReactMarker.h>
 
 #import "RNPerformanceUtils.h"
 
@@ -15,7 +14,20 @@
 static int64_t sNativeLaunchStart;
 static int64_t sNativeLaunchEnd;
 
-using namespace facebook::react;
+// RCTPerformanceLogger keeps a { start, stop } pair of CACurrentMediaTime() * 1000
+// timestamps per tag, flattened by -valuesForTags into [2 * tag, 2 * tag + 1].
+// Either slot is 0 when the corresponding marker was never logged.
+static int64_t RNPerformanceStartTimeForTag(NSArray<NSNumber *> *values, RCTPLTag tag)
+{
+    NSUInteger index = 2 * (NSUInteger)tag;
+    return index < values.count ? values[index].longLongValue : 0;
+}
+
+static int64_t RNPerformanceEndTimeForTag(NSArray<NSNumber *> *values, RCTPLTag tag)
+{
+    NSUInteger index = 2 * (NSUInteger)tag + 1;
+    return index < values.count ? values[index].longLongValue : 0;
+}
 
 @implementation RNPerformanceManager
 {
@@ -65,7 +77,8 @@ RCT_EXPORT_MODULE();
 
 - (BOOL)isReady
 {
-    return contentAppeared != -1 && !std::isnan(ReactMarker::StartupLogger::getInstance().getRunJSBundleEndTime());
+    // -valueForTag: returns the stop timestamp, or 0 while the bundle is still executing.
+    return contentAppeared != -1 && [self.bridge.performanceLogger valueForTag:RCTPLScriptExecution] != 0;
 }
 
 - (void) contentAppeared
@@ -91,16 +104,18 @@ RCT_EXPORT_MODULE();
 - (void)emitEntries
 {
     didEmit = YES;
+    RCTPerformanceLogger *performanceLogger = self.bridge.performanceLogger;
+    NSArray<NSNumber *> *values = [performanceLogger valuesForTags];
     [self emitMarkNamed:@"nativeLaunchStart" withStartTime:sNativeLaunchStart];
     [self emitMarkNamed:@"nativeLaunchEnd" withStartTime:sNativeLaunchEnd];
-    [self emitMarkNamed:@"runJsBundleStart" withMediaTime:ReactMarker::StartupLogger::getInstance().getRunJSBundleStartTime()];
-    [self emitMarkNamed:@"runJsBundleEnd" withMediaTime:ReactMarker::StartupLogger::getInstance().getRunJSBundleEndTime()];
-    [self emitMarkNamed:@"appStartupStart" withMediaTime:ReactMarker::StartupLogger::getInstance().getAppStartupStartTime()];
-    [self emitMarkNamed:@"appStartupEnd" withMediaTime:ReactMarker::StartupLogger::getInstance().getAppStartupEndTime()];
-    [self emitMarkNamed:@"initReactRuntimeStart" withMediaTime:ReactMarker::StartupLogger::getInstance().getInitReactRuntimeStartTime()];
-    [self emitMarkNamed:@"initReactRuntimeEnd" withMediaTime:ReactMarker::StartupLogger::getInstance().getInitReactRuntimeEndTime()];
+    [self emitMarkNamed:@"runJsBundleStart" withMediaTime:RNPerformanceStartTimeForTag(values, RCTPLScriptExecution)];
+    [self emitMarkNamed:@"runJsBundleEnd" withMediaTime:RNPerformanceEndTimeForTag(values, RCTPLScriptExecution)];
+    [self emitMarkNamed:@"appStartupStart" withMediaTime:RNPerformanceStartTimeForTag(values, RCTPLAppStartup)];
+    [self emitMarkNamed:@"appStartupEnd" withMediaTime:RNPerformanceEndTimeForTag(values, RCTPLAppStartup)];
+    [self emitMarkNamed:@"initReactRuntimeStart" withMediaTime:RNPerformanceStartTimeForTag(values, RCTPLInitReactRuntime)];
+    [self emitMarkNamed:@"initReactRuntimeEnd" withMediaTime:RNPerformanceEndTimeForTag(values, RCTPLInitReactRuntime)];
     [self emitMarkNamed:@"contentAppeared" withStartTime:contentAppeared];
-    [self emitMetricNamed:@"bundleSize" withValue:@([self.bridge.performanceLogger valueForTag:RCTPLBundleSize]) withStartTime:RNPerformanceGetTimestamp() withDetail:@{ @"unit": @"byte" }];
+    [self emitMetricNamed:@"bundleSize" withValue:@([performanceLogger valueForTag:RCTPLBundleSize]) withStartTime:RNPerformanceGetTimestamp() withDetail:@{ @"unit": @"byte" }];
     [[RNPerformance.sharedInstance getEntries]
      enumerateObjectsUsingBlock:^(RNPerformanceEntry * _Nonnull entry, NSUInteger idx, BOOL * _Nonnull stop) {
         [self emitEntry:entry];
@@ -151,7 +166,9 @@ RCT_EXPORT_MODULE();
         NSLog(@"Ignoring mark named %@ as timestamp is not set", name);
         return;
     }
-    [self emitMarkNamed:name withStartTime:mediaTime + RNPerformanceGetTimestamp() - (CACurrentMediaTime() * 1000)];
+    // RCTPerformanceLogger records CACurrentMediaTime() * 1000, the same clock
+    // RNPerformanceGetTimestamp() reads, so no rebasing is needed.
+    [self emitMarkNamed:name withStartTime:mediaTime];
 }
 
 - (void)emitMarkNamed:(NSString *)name withStartTime:(int64_t)startTime

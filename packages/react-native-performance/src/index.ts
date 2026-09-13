@@ -9,6 +9,21 @@ import {
 } from './resource-logger';
 import { PerformanceObserver, addEntry, performance } from './instance';
 
+type PerformanceMarkEvent = {
+  name: string;
+  startTime: number;
+  detail?: unknown;
+};
+
+type PerformanceMetricEvent = PerformanceMarkEvent & {
+  value: number;
+};
+
+type PerformanceEvents = {
+  mark: [PerformanceMarkEvent];
+  metric: [PerformanceMetricEvent];
+};
+
 declare const global: {
   __turboModuleProxy: null | {};
   RN$Bridgeless?: boolean;
@@ -22,7 +37,9 @@ const RNPerformanceManager = isTurboModuleEnabled
   : NativeModules.RNPerformanceManager;
 
 if (Platform.OS === 'android' || RNPerformanceManager) {
-  const emitter = new NativeEventEmitter(RNPerformanceManager);
+  const emitter = new NativeEventEmitter<PerformanceEvents>(
+    RNPerformanceManager
+  );
 
   emitter.addListener('mark', (data) => {
     addEntry(
