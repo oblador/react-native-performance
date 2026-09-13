@@ -5,7 +5,7 @@ import type { Performance } from './performance';
 interface XMLHttpRequestType extends XMLHttpRequest {
   new (...args: any): XMLHttpRequestType;
   performanceOriginal: XMLHttpRequest;
-  performanceStartTime?: number;
+  performanceStartTime: number | null;
   responseURL: string;
   responseHeaders: string[];
 }
@@ -28,14 +28,15 @@ export const installResourceLogger = (
           if (this.readyState === this.DONE) {
             if (this.responseURL && this.responseHeaders) {
               const responseEnd = performance.now();
+              const startTime = this.performanceStartTime ?? 0;
               const contentLength = Object.entries(this.responseHeaders).find(
                 ([header]) => header.toLowerCase() === 'content-length'
               );
               addEntry(
                 new PerformanceResourceTiming({
                   name: this.responseURL,
-                  startTime: this.performanceStartTime,
-                  duration: responseEnd - this.performanceStartTime,
+                  startTime,
+                  duration: responseEnd - startTime,
                   initiatorType: 'xmlhttprequest',
                   responseEnd,
                   transferSize: contentLength ? parseInt(contentLength[1]) : 0,

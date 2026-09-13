@@ -54,7 +54,7 @@ export class PerformanceMark extends PerformanceEntry {
   detail?: any;
 
   constructor(markName: string, markOptions: MarkOptions = {}) {
-    super(markName, 'mark', markOptions.startTime, 0);
+    super(markName, 'mark', markOptions.startTime ?? 0, 0);
     this.detail = markOptions.detail;
   }
 
@@ -117,8 +117,8 @@ export class PerformanceMeasure extends PerformanceEntry {
     super(
       measureName,
       'measure',
-      measureOptions.startTime,
-      measureOptions.duration
+      measureOptions.startTime ?? 0,
+      measureOptions.duration ?? 0
     );
     this.detail = measureOptions.detail;
   }
@@ -169,11 +169,11 @@ export class PerformanceResourceTiming extends PerformanceEntry {
     responseEnd?: number;
     transferSize?: number;
   } = {}) {
-    super(name, 'resource', startTime, duration);
+    super(name ?? '', 'resource', startTime ?? 0, duration ?? 0);
     this.initiatorType = initiatorType;
-    this.fetchStart = startTime;
-    this.responseEnd = responseEnd;
-    this.transferSize = transferSize;
+    this.fetchStart = startTime ?? 0;
+    this.responseEnd = responseEnd ?? 0;
+    this.transferSize = transferSize ?? 0;
     this.connectEnd = 0;
     this.connectStart = 0;
     this.decodedBodySize = 0;

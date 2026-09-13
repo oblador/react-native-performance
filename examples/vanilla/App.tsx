@@ -3,13 +3,11 @@
  * https://github.com/facebook/react-native
  *
  * @format
- * @flow strict-local
  */
 
 import React, { Profiler, ProfilerOnRenderCallback } from 'react';
-import { StyleSheet, ScrollView, View, Text } from 'react-native';
+import { StyleSheet, ScrollView, View, Text, PlatformColor, Platform } from 'react-native';
 
-import { Header, Colors } from 'react-native/Libraries/NewAppScreen';
 
 import performance, {
   setResourceLoggingEnabled,
@@ -69,6 +67,7 @@ const App = () => {
   const [nativeMarks, setNativeMarks] = React.useState<
     PerformanceReactNativeMark[]
   >([]);
+  console.log(nativeMarks)
   const [resources, setResources] = React.useState<PerformanceResourceTiming[]>(
     []
   );
@@ -101,59 +100,51 @@ const App = () => {
     <Profiler id="App.render()" onRender={traceRender}>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={styles.scrollView}
       >
-        <Header />
-        <View style={styles.body}>
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>
-              performance.getEntriesByType('metric')
-            </Text>
-            {metrics.map(({ name, startTime, value, detail }) => (
-              <Entry
-                key={startTime}
-                name={name}
-                value={value as number}
-                unit={detail?.unit}
-              />
-            ))}
-          </View>
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>
-              performance.getEntriesByType('resource')
-            </Text>
-            {resources.map(({ name, duration, startTime }) => (
-              <Entry key={startTime} name={name} value={duration} />
-            ))}
-          </View>
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>
-              performance.getEntriesByType('react-native-mark')
-            </Text>
-            {nativeMarks.map(({ name, startTime }) => (
-              <Entry
-                key={`${name}:${startTime}`}
-                name={name}
-                value={startTime - performance.timeOrigin}
-              />
-            ))}
-          </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            performance.getEntriesByType('metric')
+          </Text>
+          {metrics.map(({ name, startTime, value, detail }) => (
+            <Entry
+              key={startTime}
+              name={name}
+              value={value as number}
+              unit={detail?.unit}
+            />
+          ))}
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            performance.getEntriesByType('resource')
+          </Text>
+          {resources.map(({ name, duration, startTime }) => (
+            <Entry key={startTime} name={name} value={duration} />
+          ))}
+        </View>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>
+            performance.getEntriesByType('react-native-mark')
+          </Text>
+          {nativeMarks.map(({ name, startTime }) => (
+            <Entry
+              key={`${name}:${startTime}`}
+              name={name}
+              value={startTime - performance.timeOrigin}
+            />
+          ))}
         </View>
       </ScrollView>
     </Profiler>
   );
 };
 
+const labelColor = PlatformColor(Platform.OS === 'android' ? '?android:attr/textColor': 'label');
+
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
   engine: {
     position: 'absolute',
     right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
   },
   sectionContainer: {
     marginBottom: 20,
@@ -162,7 +153,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: Colors.black,
+    color: labelColor,
     fontFamily: 'Courier',
     marginTop: 20,
     marginBottom: 10,
@@ -171,11 +162,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontSize: 14,
     fontWeight: '400',
-    color: Colors.dark,
+    color: labelColor,
     fontFamily: 'Courier',
   },
   footer: {
-    color: Colors.dark,
+    color: labelColor,
     fontSize: 12,
     fontWeight: '600',
     padding: 4,

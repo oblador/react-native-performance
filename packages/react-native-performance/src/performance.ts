@@ -87,12 +87,13 @@ export const createPerformance = (now: () => number = defaultNow) => {
   const convertMarkToTimestamp = (markOrTimestamp: string | number) => {
     switch (typeof markOrTimestamp) {
       case 'string': {
-        if (!marks.has(markOrTimestamp)) {
+        const timestamp = marks.get(markOrTimestamp);
+        if (timestamp === undefined) {
           throw new Error(
             `Failed to execute 'measure' on 'Performance': The mark '${markOrTimestamp}' does not exist.`
           );
         }
-        return marks.get(markOrTimestamp);
+        return timestamp;
       }
       case 'number': {
         return markOrTimestamp;
@@ -241,6 +242,7 @@ export const createPerformance = (now: () => number = defaultNow) => {
   function getEntriesByType(
     type: 'react-native-mark'
   ): PerformanceReactNativeMark[];
+  function getEntriesByType(type: EntryType): PerformanceEntry[];
   function getEntriesByType(type: EntryType) {
     return entries.filter((entry) => entry.entryType === type);
   }
