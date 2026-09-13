@@ -6,8 +6,14 @@
  */
 
 import React, { Profiler, ProfilerOnRenderCallback } from 'react';
-import { StyleSheet, ScrollView, View, Text, PlatformColor, Platform } from 'react-native';
-
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  Text,
+  PlatformColor,
+  Platform,
+} from 'react-native';
 
 import performance, {
   setResourceLoggingEnabled,
@@ -67,7 +73,7 @@ const App = () => {
   const [nativeMarks, setNativeMarks] = React.useState<
     PerformanceReactNativeMark[]
   >([]);
-  console.log(nativeMarks)
+  console.log(nativeMarks);
   const [resources, setResources] = React.useState<PerformanceResourceTiming[]>(
     []
   );
@@ -98,9 +104,7 @@ const App = () => {
 
   return (
     <Profiler id="App.render()" onRender={traceRender}>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-      >
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>
             performance.getEntriesByType('metric')
@@ -139,7 +143,9 @@ const App = () => {
   );
 };
 
-const labelColor = PlatformColor(Platform.OS === 'android' ? '?android:attr/textColor': 'label');
+const labelColor = PlatformColor(
+  Platform.OS === 'android' ? '?android:attr/textColor' : 'label'
+);
 
 const styles = StyleSheet.create({
   engine: {
