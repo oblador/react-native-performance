@@ -23,7 +23,8 @@
     "react-native-performance.*",
     "!.DS_Store",
     "!android/build",
-    "!ios/build"
+    "!ios/build",
+    "Package.swift"
   ],
   "scripts": {
     "test": "jest",
@@ -71,5 +72,8 @@
         }
       ]
     ]
+  },
+  "swiftpmConfig": {
+    "name": "RNPerformance"
   }
 }
