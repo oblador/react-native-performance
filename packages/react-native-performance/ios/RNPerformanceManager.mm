@@ -5,6 +5,20 @@
 #import <React/RCTRootView.h>
 #import <React/RCTPerformanceLogger.h>
 
+#if __has_include(<cxxreact/ReactNativeVersion.h>)
+#import <cxxreact/ReactNativeVersion.h>
+#endif
+
+// Before React Native 0.87, -[RCTBridgeProxy performanceLogger] returns nil in
+// bridgeless mode; facebook/react-native#57083 exposed the logger in 0.87.
+// Those versions still have StartupLogger's end-time getters, which 0.87
+// removed, so read the startup timings from StartupLogger when there is no
+// performance logger.
+#if !defined(REACT_NATIVE_VERSION_MINOR) || (REACT_NATIVE_VERSION_MAJOR == 0 && REACT_NATIVE_VERSION_MINOR < 87)
+#define RN_PERFORMANCE_STARTUP_LOGGER_FALLBACK 1
+#import <cxxreact/ReactMarker.h>
+#endif
+
 #import "RNPerformanceUtils.h"
 
 #ifdef RCT_NEW_ARCH_ENABLED
@@ -28,6 +42,32 @@ static int64_t RNPerformanceEndTimeForTag(NSArray<NSNumber *> *values, RCTPLTag 
     NSUInteger index = 2 * (NSUInteger)tag + 1;
     return index < values.count ? values[index].longLongValue : 0;
 }
+
+#ifdef RN_PERFORMANCE_STARTUP_LOGGER_FALLBACK
+static NSNumber *RNPerformanceStartupLoggerTime(double time)
+{
+    // StartupLogger stores NaN for markers that were never logged.
+    return @(std::isnan(time) ? 0 : (int64_t)time);
+}
+
+// StartupLogger is fed by RCTPerformanceLogger, so its timings use the same
+// CACurrentMediaTime() * 1000 clock. Lay them out like -valuesForTags.
+static NSArray<NSNumber *> *RNPerformanceStartupLoggerValues()
+{
+    auto &startupLogger = facebook::react::ReactMarker::StartupLogger::getInstance();
+    NSMutableArray<NSNumber *> *values = [NSMutableArray arrayWithCapacity:2 * RCTPLSize];
+    for (NSUInteger index = 0; index < 2 * RCTPLSize; index++) {
+        [values addObject:@0];
+    }
+    values[2 * RCTPLAppStartup] = RNPerformanceStartupLoggerTime(startupLogger.getAppStartupStartTime());
+    values[2 * RCTPLAppStartup + 1] = RNPerformanceStartupLoggerTime(startupLogger.getAppStartupEndTime());
+    values[2 * RCTPLInitReactRuntime] = RNPerformanceStartupLoggerTime(startupLogger.getInitReactRuntimeStartTime());
+    values[2 * RCTPLInitReactRuntime + 1] = RNPerformanceStartupLoggerTime(startupLogger.getInitReactRuntimeEndTime());
+    values[2 * RCTPLScriptExecution] = RNPerformanceStartupLoggerTime(startupLogger.getRunJSBundleStartTime());
+    values[2 * RCTPLScriptExecution + 1] = RNPerformanceStartupLoggerTime(startupLogger.getRunJSBundleEndTime());
+    return values;
+}
+#endif
 
 @implementation RNPerformanceManager
 {
@@ -75,10 +115,21 @@ RCT_EXPORT_MODULE();
                                                object:nil];
 }
 
+- (NSArray<NSNumber *> *)startupValues
+{
+    RCTPerformanceLogger *performanceLogger = self.bridge.performanceLogger;
+#ifdef RN_PERFORMANCE_STARTUP_LOGGER_FALLBACK
+    if (performanceLogger == nil) {
+        return RNPerformanceStartupLoggerValues();
+    }
+#endif
+    return [performanceLogger valuesForTags];
+}
+
 - (BOOL)isReady
 {
-    // -valueForTag: returns the stop timestamp, or 0 while the bundle is still executing.
-    return contentAppeared != -1 && [self.bridge.performanceLogger valueForTag:RCTPLScriptExecution] != 0;
+    // The stop timestamp is 0 while the bundle is still executing.
+    return contentAppeared != -1 && RNPerformanceEndTimeForTag([self startupValues], RCTPLScriptExecution) != 0;
 }
 
 - (void) contentAppeared
@@ -105,7 +156,7 @@ RCT_EXPORT_MODULE();
 {
     didEmit = YES;
     RCTPerformanceLogger *performanceLogger = self.bridge.performanceLogger;
-    NSArray<NSNumber *> *values = [performanceLogger valuesForTags];
+    NSArray<NSNumber *> *values = [self startupValues];
     [self emitMarkNamed:@"nativeLaunchStart" withStartTime:sNativeLaunchStart];
     [self emitMarkNamed:@"nativeLaunchEnd" withStartTime:sNativeLaunchEnd];
     [self emitMarkNamed:@"runJsBundleStart" withMediaTime:RNPerformanceStartTimeForTag(values, RCTPLScriptExecution)];
